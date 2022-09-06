@@ -141,6 +141,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
     if data_augmentation == "hflip":
         transforms = RefDetCompose(
             [
+                copy_targets,
                 det_transforms.RandomHorizontalFlip(p=hflip_prob),
                 friendly_pil_to_tensor,
                 det_transforms.ConvertImageDtype(torch.float),
@@ -163,6 +164,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
     elif data_augmentation == "multiscale":
         transforms = RefDetCompose(
             [
+                copy_targets,
                 det_transforms.RandomShortestSize(
                     min_size=(480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800),
                     max_size=1333,
@@ -232,6 +234,7 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
 
     if data_augmentation == "hflip":
         transforms = [
+            copy_targets,
             WrapIntoFeatures(),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
@@ -252,6 +255,7 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
         ]
     elif data_augmentation == "multiscale":
         transforms = [
+            copy_targets,
             WrapIntoFeatures(),
             transforms_v2.RandomShortestSize(
                 min_size=(480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800),
@@ -330,69 +334,74 @@ def get_random_data(option, **kwargs):
     raise ValueError("Unsupported option '{option}'")
 
 
-def run_bench(option, transform, tag):
+def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
+    pil_data, tensor_data, feature_data = get_random_data("Detection")
+
+    if single_dtype == "PIL":
+        data = pil_data
+    elif single_dtype == "Tensor":
+        data = tensor_data
+    elif single_dtype == "Feature":
+        data = feature_data
+    else:
+        raise ValueError(f"Unsupported single_dtype value: '{single_dtype}'")
+    return data
+
+
+def run_bench(option, transform, tag, single_dtype=None):
 
     min_run_time = 7
-    pil_image_data, tensor_data, feature_image_data = get_random_data(option)
 
-    results = [
-        benchmark.Timer(
-            stmt=f"transform(data)",
-            globals={
-                "data": pil_image_data,
-                "transform": transform,
-            },
-            num_threads=torch.get_num_threads(),
-            label=f"{option} transforms measurements",
-            sub_label="PIL Image data",
-            description=tag,
-        ).blocked_autorange(min_run_time=min_run_time),
-        benchmark.Timer(
-            stmt=f"transform(data)",
-            globals={
-                "data": tensor_data,
-                "transform": transform,
-            },
-            num_threads=torch.get_num_threads(),
-            label=f"{option} transforms measurements",
-            sub_label="Tensor Image data",
-            description=tag,
-        ).blocked_autorange(min_run_time=min_run_time),
-        benchmark.Timer(
-            stmt=f"transform(data)",
-            globals={
-                "data": feature_image_data,
-                "transform": transform,
-            },
-            num_threads=torch.get_num_threads(),
-            label=f"{option} transforms measurements",
-            sub_label="Feature Image data",
-            description=tag,
-        ).blocked_autorange(min_run_time=min_run_time),
-    ]
+    if single_dtype is not None:
+        data = get_single_type_random_data(option, single_dtype=single_dtype)
+        tested_dtypes = [
+            (single_dtype, data)
+        ]
+    else:
+        pil_image_data, tensor_data, feature_image_data = get_random_data(option)
+        tested_dtypes = [
+            ("PIL", pil_image_data),
+            ("Tensor", tensor_data),
+            ("Feature", feature_image_data)
+        ]
+
+    results = []
+    for dtype_label, data in tested_dtypes:
+        results.append(
+            benchmark.Timer(
+                stmt=f"transform(data)",
+                globals={
+                    "data": data,
+                    "transform": transform,
+                },
+                num_threads=torch.get_num_threads(),
+                label=f"{option} transforms measurements",
+                sub_label=f"{dtype_label} Image data",
+                description=tag,
+            ).blocked_autorange(min_run_time=min_run_time)
+        )
+
     return results
 
 
-def bench(option, transforms_stable, transforms_v2, quiet=True):
+def bench(option, t_stable, t_v2, quiet=True, single_dtype=None):
     if not quiet:
-        print("- Stable transforms:", transforms_stable)
-        print("- Transforms v2:", transforms_v2)
+        print("- Stable transforms:", t_stable)
+        print("- Transforms v2:", t_v2)
 
     all_results = []
-    for transform, tag in [(transforms_stable, "stable"), (transforms_v2, "v2")]:
+    for transform, tag in [(t_stable, "stable"), (t_v2, "v2")]:
         torch.manual_seed(12)
-        all_results += run_bench(option, transform, tag)
+        all_results += run_bench(option, transform, tag, single_dtype=single_dtype)
     compare = benchmark.Compare(all_results)
     compare.print()
 
 
-def main_classification(hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0, quiet=True, **kwargs):
-    auto_augment_policies = [
-        auto_augment_policy,
-    ]
-    random_erase_prob_list = [
-        random_erase_prob,
-    ]
+def main_classification(
+    hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0, quiet=True, single_dtype=None, **kwargs
+):
+    auto_augment_policies = [auto_augment_policy]
+    random_erase_prob_list = [random_erase_prob]
 
     if auto_augment_policy == "all":
         auto_augment_policies = [None, "ra", "ta_wide", "augmix", "imagenet"]
@@ -411,9 +420,9 @@ def main_classification(hflip_prob=1.0, auto_augment_policy=None, random_erase_p
                 opt += f" RE={re_prob}"
             if not quiet:
                 print(f"-- Benchmark: {opt}")
-            transforms_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
-            transforms_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
-            bench(opt, transforms_stable, transforms_v2, quiet=quiet)
+            t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
+            t_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
+            bench(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype)
 
     if quiet:
         print("\n-----\n")
@@ -425,18 +434,16 @@ def main_classification(hflip_prob=1.0, auto_augment_policy=None, random_erase_p
                 if re_prob > 0.0:
                     opt += f" RE={re_prob}"
                 print(f"-- Benchmark: {opt}")
-                transforms_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
-                transforms_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
-                print("- Stable transforms:", transforms_stable)
-                print("- Transforms v2:", transforms_v2)
+                t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
+                t_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
+                print("- Stable transforms:", t_stable)
+                print("- Transforms v2:", t_v2)
                 print("\n")
 
 
-def main_detection(data_augmentation="hflip", hflip_prob=1.0, quiet=True, **kwargs):
+def main_detection(data_augmentation="hflip", hflip_prob=1.0, quiet=True, single_dtype=None, **kwargs):
 
-    data_augmentation_list = [
-        data_augmentation,
-    ]
+    data_augmentation_list = [data_augmentation]
 
     if data_augmentation == "all":
         data_augmentation_list = ["hflip", "lsj", "multiscale", "ssd", "ssdlite"]
@@ -447,20 +454,62 @@ def main_detection(data_augmentation="hflip", hflip_prob=1.0, quiet=True, **kwar
         opt = option + f" da={a}"
         if not quiet:
             print(f"-- Benchmark: {opt}")
-        transforms_stable = get_detection_transforms_stable_api(a, hflip_prob)
-        transforms_v2 = get_detection_transforms_v2(a, hflip_prob)
-        bench(opt, transforms_stable, transforms_v2, quiet=quiet)
+        t_stable = get_detection_transforms_stable_api(a, hflip_prob)
+        t_v2 = get_detection_transforms_v2(a, hflip_prob)
+        bench(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype)
 
     if quiet:
         print("\n-----\n")
         for a in data_augmentation_list:
             opt = option + f" da={a}"
             print(f"-- Benchmark: {opt}")
-            transforms_stable = get_detection_transforms_stable_api(a, hflip_prob)
-            transforms_v2 = get_detection_transforms_v2(a, hflip_prob)
-            print("- Stable transforms:", transforms_stable)
-            print("- Transforms v2:", transforms_v2)
+            t_stable = get_detection_transforms_stable_api(a, hflip_prob)
+            t_v2 = get_detection_transforms_v2(a, hflip_prob)
+            print("- Stable transforms:", t_stable)
+            print("- Transforms v2:", t_v2)
             print("\n")
+
+
+def main_debug(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL"):
+
+    t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
+    t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
+    data = get_single_type_random_data("Detection", single_dtype=single_dtype)
+
+    torch.manual_seed(12)
+    out_stable = t_stable(data)
+
+    torch.manual_seed(12)
+    out_v2 = t_v2(data)
+
+    torch.testing.assert_close(out_stable[0], out_v2[0])
+    target_stable, target_v2 = out_stable[1], out_v2[1]
+    for key in ["boxes", "masks", "labels"]:
+        torch.testing.assert_close(target_stable[key], target_v2[key])
+
+
+def run_profiling(op, data):
+    _ = op(data)
+    with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU, ]) as p:
+        for _ in range(10):
+            _ = op(data)
+
+    print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=8))
+
+
+def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL"):
+
+    t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
+    t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
+    data = get_single_type_random_data("Detection", single_dtype=single_dtype)
+
+    print("\nProfile API v2")
+    torch.manual_seed(12)
+    run_profiling(t_v2, data)
+
+    print("\nProfile stable API")
+    torch.manual_seed(12)
+    run_profiling(t_stable, data)
 
 
 if __name__ == "__main__":
@@ -473,5 +522,7 @@ if __name__ == "__main__":
         {
             "classification": main_classification,
             "detection": main_detection,
+            "debug": main_debug,
+            "profile": main_profile,
         }
     )
