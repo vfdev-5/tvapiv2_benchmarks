@@ -1,3 +1,7 @@
+from copy import deepcopy
+
+import cl_transforms
+import det_transforms
 import fire
 
 import PIL.Image
@@ -5,13 +9,9 @@ import PIL.Image
 import torch
 import torch.utils.benchmark as benchmark
 import torchvision
-from torchvision.prototype import transforms as transforms_v2
-from torchvision.prototype import features
+from torchvision.prototype import features, transforms as transforms_v2
 from torchvision.transforms import autoaugment as autoaugment_stable, transforms as transforms_stable
 from torchvision.transforms.functional import InterpolationMode
-
-import cl_transforms
-import det_transforms
 
 
 def get_classification_transforms_stable_api(hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0):
@@ -122,8 +122,14 @@ class RefDetCompose:
         return format_string
 
 
+def copy_targets(*sample):
+    image, target = sample if len(sample) == 2 else sample[0]
+    target_copy = deepcopy(target)
+    return image, target_copy
+
+
 def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
-    mean=(123.0, 117.0, 104.0)
+    mean = (123.0, 117.0, 104.0)
 
     ptt = det_transforms.PILToTensor()
 
@@ -131,7 +137,6 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
         if isinstance(image, PIL.Image.Image):
             return ptt(image, target)
         return image, target
-
 
     if data_augmentation == "hflip":
         transforms = RefDetCompose(
@@ -144,8 +149,12 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
     elif data_augmentation == "lsj":
         transforms = RefDetCompose(
             [
+                # As det_transforms.ScaleJitter does inplace transformations on mask
+                # we perform a copy here and in v2
+                copy_targets,
                 det_transforms.ScaleJitter(target_size=(1024, 1024)),
-                det_transforms.FixedSizeCrop(size=(1024, 1024), fill=mean),
+                # Set fill as 0 to make it work on tensors
+                det_transforms.FixedSizeCrop(size=(1024, 1024), fill=0),
                 det_transforms.RandomHorizontalFlip(p=hflip_prob),
                 friendly_pil_to_tensor,
                 det_transforms.ConvertImageDtype(torch.float),
@@ -155,7 +164,8 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
         transforms = RefDetCompose(
             [
                 det_transforms.RandomShortestSize(
-                    min_size=(480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800), max_size=1333
+                    min_size=(480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800),
+                    max_size=1333,
                 ),
                 det_transforms.RandomHorizontalFlip(p=hflip_prob),
                 friendly_pil_to_tensor,
@@ -165,8 +175,8 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
     elif data_augmentation == "ssd":
         transforms = RefDetCompose(
             [
-                det_transforms.RandomPhotometricDistort(),
-                det_transforms.RandomZoomOut(fill=list(mean)),
+                det_transforms.RandomPhotometricDistort(p=1.0),
+                det_transforms.RandomZoomOut(p=1.0, fill=list(mean)),
                 det_transforms.RandomIoUCrop(),
                 det_transforms.RandomHorizontalFlip(p=hflip_prob),
                 friendly_pil_to_tensor,
@@ -211,7 +221,7 @@ class WrapIntoFeatures:
 
 
 def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
-    mean=(123.0, 117.0, 104.0)
+    mean = (123.0, 117.0, 104.0)
 
     tit = transforms_v2.ToImageTensor()
 
@@ -220,32 +230,42 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
             return tit(sample)
         return sample
 
-
     if data_augmentation == "hflip":
         transforms = [
+            WrapIntoFeatures(),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
             transforms_v2.ConvertImageDtype(torch.float),
         ]
     elif data_augmentation == "lsj":
         transforms = [
+            # As det_transforms.ScaleJitter does inplace transformations on mask
+            # we perform a copy here and in stable
+            copy_targets,
+            WrapIntoFeatures(),
             transforms_v2.ScaleJitter(target_size=(1024, 1024)),
-            transforms_v2.FixedSizeCrop(size=(1024, 1024), fill=mean),
+            # Set fill as 0 to make it work on tensors
+            transforms_v2.FixedSizeCrop(size=(1024, 1024), fill=0),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
             transforms_v2.ConvertImageDtype(torch.float),
         ]
     elif data_augmentation == "multiscale":
         transforms = [
-            transforms_v2.RandomShortestSize(min_size=(480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800), max_size=1333),
+            WrapIntoFeatures(),
+            transforms_v2.RandomShortestSize(
+                min_size=(480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800),
+                max_size=1333,
+            ),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
             transforms_v2.ConvertImageDtype(torch.float),
         ]
     elif data_augmentation == "ssd":
         transforms = [
-            transforms_v2.RandomPhotometricDistort(),
-            transforms_v2.RandomZoomOut(fill=list(mean)),
+            WrapIntoFeatures(),
+            transforms_v2.RandomPhotometricDistort(p=1.0),
+            transforms_v2.RandomZoomOut(p=1.0, fill=list(mean)),
             transforms_v2.RandomIoUCrop(),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
@@ -253,6 +273,7 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
         ]
     elif data_augmentation == "ssdlite":
         transforms = [
+            WrapIntoFeatures(),
             transforms_v2.RandomIoUCrop(),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
@@ -261,8 +282,29 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
     else:
         raise ValueError(f'Unknown data augmentation policy "{data_augmentation}"')
 
-    transforms.insert(0, WrapIntoFeatures())
     return transforms_v2.Compose(transforms)
+
+
+def randint_with_tensor_bounds(arg1, arg2=None, **kwargs):
+    low, high = torch.broadcast_tensors(
+        *[torch.as_tensor(arg) for arg in ((0, arg1) if arg2 is None else (arg1, arg2))]
+    )
+    return torch.stack(
+        [
+            torch.randint(low_scalar, high_scalar, (), **kwargs)
+            for low_scalar, high_scalar in zip(low.flatten().tolist(), high.flatten().tolist())
+        ]
+    ).reshape(low.shape)
+
+
+def make_bounding_box(image_size, extra_dims, dtype=torch.long):
+    height, width = image_size
+    x1 = torch.randint(0, width // 2, extra_dims)
+    y1 = torch.randint(0, height // 2, extra_dims)
+    x2 = randint_with_tensor_bounds(x1 + 1, width - x1) + x1
+    y2 = randint_with_tensor_bounds(y1 + 1, height - y1) + y1
+    parts = (x1, y1, x2, y2)
+    return torch.stack(parts, dim=-1).to(dtype)
 
 
 def get_detection_random_data(size=(600, 800), **kwargs):
@@ -271,13 +313,12 @@ def get_detection_random_data(size=(600, 800), **kwargs):
     feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
 
     target = {
-        "boxes": torch.randint(0, 500, size=(22, 4)),
+        "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
-        "labels": torch.randint(0, 81, size=(22, ))
+        "labels": torch.randint(0, 81, size=(22,)),
     }
 
     return [pil_image, target], [tensor_image, target], [feature_image, target]
-
 
 
 def get_random_data(option, **kwargs):
@@ -306,8 +347,7 @@ def run_bench(option, transform, tag):
             sub_label="PIL Image data",
             description=tag,
         ).blocked_autorange(min_run_time=min_run_time),
-
-       benchmark.Timer(
+        benchmark.Timer(
             stmt=f"transform(data)",
             globals={
                 "data": tensor_data,
@@ -318,8 +358,7 @@ def run_bench(option, transform, tag):
             sub_label="Tensor Image data",
             description=tag,
         ).blocked_autorange(min_run_time=min_run_time),
-
-       benchmark.Timer(
+        benchmark.Timer(
             stmt=f"transform(data)",
             globals={
                 "data": feature_image_data,
@@ -330,14 +369,14 @@ def run_bench(option, transform, tag):
             sub_label="Feature Image data",
             description=tag,
         ).blocked_autorange(min_run_time=min_run_time),
-
     ]
     return results
 
 
-def bench(option, transforms_stable, transforms_v2):
-    print("- Stable transforms:", transforms_stable)
-    print("- Transforms v2:", transforms_v2)
+def bench(option, transforms_stable, transforms_v2, quiet=True):
+    if not quiet:
+        print("- Stable transforms:", transforms_stable)
+        print("- Transforms v2:", transforms_v2)
 
     all_results = []
     for transform, tag in [(transforms_stable, "stable"), (transforms_v2, "v2")]:
@@ -347,18 +386,13 @@ def bench(option, transforms_stable, transforms_v2):
     compare.print()
 
 
-def main_classification(
-    hflip_prob=1.0,
-    auto_augment_policy=None,
-    random_erase_prob=0.0,
-    **kwargs
-):
-    print(f"Torch version: {torch.__version__}")
-    print(f"Torchvision version: {torchvision.__version__}")
-    print(f"Num threads: {torch.get_num_threads()}")
-
-    auto_augment_policies = [auto_augment_policy, ]
-    random_erase_prob_list = [random_erase_prob, ]
+def main_classification(hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0, quiet=True, **kwargs):
+    auto_augment_policies = [
+        auto_augment_policy,
+    ]
+    random_erase_prob_list = [
+        random_erase_prob,
+    ]
 
     if auto_augment_policy == "all":
         auto_augment_policies = [None, "ra", "ta_wide", "augmix", "imagenet"]
@@ -375,23 +409,34 @@ def main_classification(
                 opt += f" AA={aa}"
             if re_prob > 0.0:
                 opt += f" RE={re_prob}"
-            print(f"-- Benchmark: {opt}")
+            if not quiet:
+                print(f"-- Benchmark: {opt}")
             transforms_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
             transforms_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
-            bench(opt, transforms_stable, transforms_v2)
+            bench(opt, transforms_stable, transforms_v2, quiet=quiet)
+
+    if quiet:
+        print("\n-----\n")
+        for aa in auto_augment_policies:
+            for re_prob in random_erase_prob_list:
+                opt = option
+                if aa is not None:
+                    opt += f" AA={aa}"
+                if re_prob > 0.0:
+                    opt += f" RE={re_prob}"
+                print(f"-- Benchmark: {opt}")
+                transforms_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
+                transforms_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
+                print("- Stable transforms:", transforms_stable)
+                print("- Transforms v2:", transforms_v2)
+                print("\n")
 
 
-def main_detection(
-    data_augmentation="hflip",
-    hflip_prob=1.0,
-    **kwargs
-):
+def main_detection(data_augmentation="hflip", hflip_prob=1.0, quiet=True, **kwargs):
 
-    print(f"Torch version: {torch.__version__}")
-    print(f"Torchvision version: {torchvision.__version__}")
-    print(f"Num threads: {torch.get_num_threads()}")
-
-    data_augmentation_list = [data_augmentation, ]
+    data_augmentation_list = [
+        data_augmentation,
+    ]
 
     if data_augmentation == "all":
         data_augmentation_list = ["hflip", "lsj", "multiscale", "ssd", "ssdlite"]
@@ -400,14 +445,33 @@ def main_detection(
 
     for a in data_augmentation_list:
         opt = option + f" da={a}"
-        print(f"-- Benchmark: {opt}")
+        if not quiet:
+            print(f"-- Benchmark: {opt}")
         transforms_stable = get_detection_transforms_stable_api(a, hflip_prob)
         transforms_v2 = get_detection_transforms_v2(a, hflip_prob)
-        bench(opt, transforms_stable, transforms_v2)
+        bench(opt, transforms_stable, transforms_v2, quiet=quiet)
+
+    if quiet:
+        print("\n-----\n")
+        for a in data_augmentation_list:
+            opt = option + f" da={a}"
+            print(f"-- Benchmark: {opt}")
+            transforms_stable = get_detection_transforms_stable_api(a, hflip_prob)
+            transforms_v2 = get_detection_transforms_v2(a, hflip_prob)
+            print("- Stable transforms:", transforms_stable)
+            print("- Transforms v2:", transforms_v2)
+            print("\n")
 
 
 if __name__ == "__main__":
-    fire.Fire({
-        "classification": main_classification,
-        "detection": main_detection,
-    })
+    print(f"Torch version: {torch.__version__}")
+    print(f"Torchvision version: {torchvision.__version__}")
+    print(f"Num threads: {torch.get_num_threads()}")
+    print("")
+
+    fire.Fire(
+        {
+            "classification": main_classification,
+            "detection": main_detection,
+        }
+    )

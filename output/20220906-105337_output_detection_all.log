@@ -1,0 +1,145 @@
+/Users/user/Documents/ML/torchvision/torchvision/io/image.py:13: UserWarning: Failed to load image Python extension: 
+  warn(f"Failed to load image Python extension: {e}")
+Torch version: 1.13.0.dev20220905
+Torchvision version: 0.14.0a0+ec120ff
+Num threads: 1
+
+[ Detection da=hflip transforms measurements ]
+                          |  stable  |   v2 
+1 threads: ---------------------------------
+      PIL Image data      |   75.7   |  35.6
+      Tensor Image data   |   31.5   |  27.6
+      Feature Image data  |   28.9   |  29.2
+
+Times are in milliseconds (ms).
+
+[- Detection da=lsj transforms measurements -]
+                          |  stable  |    v2  
+1 threads: -----------------------------------
+      PIL Image data      |  1200.4  |   926.9
+      Tensor Image data   |  1049.1  |  1282.2
+      Feature Image data  |   609.6  |   705.7
+
+Times are in milliseconds (ms).
+
+[ Detection da=multiscale transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  257.5   |  237.1
+      Tensor Image data   |  179.8   |  153.5
+      Feature Image data  |  153.3   |  144.5
+
+Times are in milliseconds (ms).
+
+[- Detection da=ssd transforms measurements -]
+                          |  stable  |    v2  
+1 threads: -----------------------------------
+      PIL Image data      |  247.4   |   969.9
+      Tensor Image data   |  295.8   |  1529.3
+      Feature Image data  |  331.0   |   745.6
+
+Times are in milliseconds (ms).
+
+[ Detection da=ssdlite transforms measurements ]
+                          |  stable  |   v2 
+1 threads: ---------------------------------
+      PIL Image data      |   72.2   |  47.2
+      Tensor Image data   |   36.2   |  26.7
+      Feature Image data  |   39.5   |  30.0
+
+Times are in milliseconds (ms).
+
+
+-----
+
+-- Benchmark: Detection da=hflip
+- Stable transforms: RefDetCompose(
+    RandomHorizontalFlip(p=1.0)
+    <function get_detection_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x12d18fa60>
+    ConvertImageDtype()
+)
+- Transforms v2: Compose(
+      <__main__.WrapIntoFeatures object at 0x12d189f40>
+      RandomHorizontalFlip(p=1.0)
+      <function get_detection_transforms_v2.<locals>.friendly_to_image_tensor at 0x12d18faf0>
+      ConvertImageDtype()
+)
+
+
+-- Benchmark: Detection da=lsj
+- Stable transforms: RefDetCompose(
+    <function copy_targets at 0x12cab1160>
+    ScaleJitter()
+    FixedSizeCrop()
+    RandomHorizontalFlip(p=1.0)
+    <function get_detection_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x12d18f9d0>
+    ConvertImageDtype()
+)
+- Transforms v2: Compose(
+      <function copy_targets at 0x12cab1160>
+      <__main__.WrapIntoFeatures object at 0x12d1bc850>
+      ScaleJitter(target_size=(1024, 1024), scale_range=(0.1, 2.0), interpolation=InterpolationMode.BILINEAR)
+      FixedSizeCrop(crop_height=1024, crop_width=1024, fill=0, padding_mode=constant)
+      RandomHorizontalFlip(p=1.0)
+      <function get_detection_transforms_v2.<locals>.friendly_to_image_tensor at 0x12d18fa60>
+      ConvertImageDtype()
+)
+
+
+-- Benchmark: Detection da=multiscale
+- Stable transforms: RefDetCompose(
+    RandomShortestSize()
+    RandomHorizontalFlip(p=1.0)
+    <function get_detection_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x12d18faf0>
+    ConvertImageDtype()
+)
+- Transforms v2: Compose(
+      <__main__.WrapIntoFeatures object at 0x12c8bc4f0>
+      RandomShortestSize(min_size=[480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800], max_size=1333, interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      <function get_detection_transforms_v2.<locals>.friendly_to_image_tensor at 0x12d18f9d0>
+      ConvertImageDtype()
+)
+
+
+-- Benchmark: Detection da=ssd
+- Stable transforms: RefDetCompose(
+    RandomPhotometricDistort(
+  (_brightness): ColorJitter(brightness=(0.875, 1.125), contrast=None, saturation=None, hue=None)
+  (_contrast): ColorJitter(brightness=None, contrast=(0.5, 1.5), saturation=None, hue=None)
+  (_hue): ColorJitter(brightness=None, contrast=None, saturation=None, hue=(-0.05, 0.05))
+  (_saturation): ColorJitter(brightness=None, contrast=None, saturation=(0.5, 1.5), hue=None)
+)
+    RandomZoomOut()
+    RandomIoUCrop()
+    RandomHorizontalFlip(p=1.0)
+    <function get_detection_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x12d18fa60>
+    ConvertImageDtype()
+)
+- Transforms v2: Compose(
+      <__main__.WrapIntoFeatures object at 0x12d189f40>
+      RandomPhotometricDistort(brightness=(0.875, 1.125), contrast=(0.5, 1.5), hue=(-0.05, 0.05), saturation=(0.5, 1.5), p=1.0)
+      RandomZoomOut(p=1.0, fill=[123.0, 117.0, 104.0], side_range=(1.0, 4.0))
+      RandomIoUCrop(min_scale=0.3, max_scale=1.0, min_aspect_ratio=0.5, max_aspect_ratio=2.0, options=[0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0], trials=40)
+      RandomHorizontalFlip(p=1.0)
+      <function get_detection_transforms_v2.<locals>.friendly_to_image_tensor at 0x12d18faf0>
+      ConvertImageDtype()
+)
+
+
+-- Benchmark: Detection da=ssdlite
+- Stable transforms: RefDetCompose(
+    RandomIoUCrop()
+    RandomHorizontalFlip(p=1.0)
+    <function get_detection_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x12d18f940>
+    ConvertImageDtype()
+)
+- Transforms v2: Compose(
+      <__main__.WrapIntoFeatures object at 0x12d1bc910>
+      RandomIoUCrop(min_scale=0.3, max_scale=1.0, min_aspect_ratio=0.5, max_aspect_ratio=2.0, options=[0.0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.0], trials=40)
+      RandomHorizontalFlip(p=1.0)
+      <function get_detection_transforms_v2.<locals>.friendly_to_image_tensor at 0x12d18fa60>
+      ConvertImageDtype()
+)
+
+

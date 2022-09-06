@@ -14,3 +14,15 @@ curl https://raw.githubusercontent.com/pytorch/vision/main/references/detection/
 pip install fire
 ```
 
+## Run benchmarks
+
+```
+bash bench.sh
+```
+
+### Outputs
+
+```
+ls output
+```
+
