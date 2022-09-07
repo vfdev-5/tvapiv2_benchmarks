@@ -1,3 +1,4 @@
+from functools import partial
 from copy import deepcopy
 
 import det_transforms
@@ -94,12 +95,16 @@ def get_classification_transforms_v2(hflip_prob=1.0, auto_augment_policy=None, r
     return transforms_v2.Compose(trans)
 
 
-def get_classification_random_data(size=(400, 500), **kwargs):
-    pil_image = PIL.Image.new("RGB", size[::-1], 123)
-    tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
-    feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
+def get_classification_random_data_pil(size=(400, 500), **kwargs):
+    return PIL.Image.new("RGB", size[::-1], 123)
 
-    return pil_image, tensor_image, feature_image
+
+def get_classification_random_data_tensor(size=(400, 500), **kwargs):
+    return torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
+
+
+def get_classification_random_data_feature(size=(400, 500), **kwargs):
+    return features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
 
 
 class RefDetCompose:
@@ -310,38 +315,73 @@ def make_bounding_box(image_size, extra_dims, dtype=torch.long):
     return torch.stack(parts, dim=-1).to(dtype)
 
 
-def get_detection_random_data(size=(600, 800), **kwargs):
+def get_detection_random_data_pil(size=(600, 800), **kwargs):
     pil_image = PIL.Image.new("RGB", size[::-1], 123)
-    tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
-    feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
-
     target = {
         "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
         "labels": torch.randint(0, 81, size=(22,)),
     }
+    return pil_image, target
 
-    return [pil_image, target], [tensor_image, target], [feature_image, target]
+
+def get_detection_random_data_tensor(size=(600, 800), **kwargs):
+    tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
+    target = {
+        "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
+        "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
+        "labels": torch.randint(0, 81, size=(22,)),
+    }
+    return tensor_image, target
 
 
-def get_random_data(option, **kwargs):
+def get_detection_random_data_feature(size=(600, 800), **kwargs):
+    feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
+    target = {
+        "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
+        "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
+        "labels": torch.randint(0, 81, size=(22,)),
+    }
+    return feature_image, target
+
+
+def _get_random_data_any(option, *, fn_classification, fn_detection, **kwargs):
     option = option.lower()
     if "classification" in option:
-        return get_classification_random_data(**kwargs)
+        return fn_classification(**kwargs)
     elif "detection" in option:
-        return get_detection_random_data(**kwargs)
+        return fn_detection(**kwargs)
     raise ValueError("Unsupported option '{option}'")
 
 
-def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
-    pil_data, tensor_data, feature_data = get_random_data("Detection")
+get_random_data_pil = partial(
+    _get_random_data_any,
+    fn_classification=get_classification_random_data_pil,
+    fn_detection=get_detection_random_data_pil,
+)
 
+
+get_random_data_tensor = partial(
+    _get_random_data_any,
+    fn_classification=get_classification_random_data_tensor,
+    fn_detection=get_detection_random_data_tensor,
+)
+
+
+get_random_data_feature = partial(
+    _get_random_data_any,
+    fn_classification=get_classification_random_data_feature,
+    fn_detection=get_detection_random_data_feature,
+)
+
+
+def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
     if single_dtype == "PIL":
-        data = pil_data
+        data = get_random_data_pil(option, **kwargs)
     elif single_dtype == "Tensor":
-        data = tensor_data
+        data = get_random_data_tensor(option, **kwargs)
     elif single_dtype == "Feature":
-        data = feature_data
+        data = get_random_data_feature(option, **kwargs)
     else:
         raise ValueError(f"Unsupported single_dtype value: '{single_dtype}'")
     return data
@@ -349,7 +389,7 @@ def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
 
 def run_bench(option, transform, tag, single_dtype=None):
 
-    min_run_time = 20
+    min_run_time = 10
 
     if single_dtype is not None:
         data = get_single_type_random_data(option, single_dtype=single_dtype)
@@ -357,11 +397,10 @@ def run_bench(option, transform, tag, single_dtype=None):
             (single_dtype, data)
         ]
     else:
-        pil_image_data, tensor_data, feature_image_data = get_random_data(option)
         tested_dtypes = [
-            ("PIL", pil_image_data),
-            ("Tensor", tensor_data),
-            ("Feature", feature_image_data)
+            ("PIL", get_random_data_pil(option)),
+            ("Tensor", get_random_data_tensor(option)),
+            ("Feature", get_random_data_feature(option)),
         ]
 
     results = []
