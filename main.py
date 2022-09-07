@@ -1,6 +1,5 @@
 from copy import deepcopy
 
-import cl_transforms
 import det_transforms
 import fire
 
@@ -350,7 +349,7 @@ def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
 
 def run_bench(option, transform, tag, single_dtype=None):
 
-    min_run_time = 7
+    min_run_time = 20
 
     if single_dtype is not None:
         data = get_single_type_random_data(option, single_dtype=single_dtype)
