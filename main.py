@@ -62,7 +62,9 @@ def get_classification_transforms_v2(hflip_prob=1.0, auto_augment_policy=None, r
     std = (0.229, 0.224, 0.225)
     interpolation = InterpolationMode.BILINEAR
 
-    trans = [transforms_v2.RandomResizedCrop(crop_size, interpolation=interpolation)]
+    trans = [
+        transforms_v2.RandomResizedCrop(crop_size, interpolation=interpolation),
+    ]
     if hflip_prob > 0:
         trans.append(transforms_v2.RandomHorizontalFlip(p=hflip_prob))
     if auto_augment_policy is not None:
@@ -83,13 +85,13 @@ def get_classification_transforms_v2(hflip_prob=1.0, auto_augment_policy=None, r
             return tit(image)
         return image
 
-    trans.extend(
-        [
-            friendly_to_image_tensor,
-            transforms_v2.ConvertImageDtype(torch.float),
-            transforms_v2.Normalize(mean=mean, std=std),
-        ]
-    )
+    # trans.extend(
+    #     [
+    #         friendly_to_image_tensor,
+    #         transforms_v2.ConvertImageDtype(torch.float),
+    #         transforms_v2.Normalize(mean=mean, std=std),
+    #     ]
+    # )
     if random_erase_prob > 0:
         trans.append(transforms_v2.RandomErasing(p=random_erase_prob))
 
@@ -461,6 +463,10 @@ def bench_with_time(
 
     all_results = []
     for transform, tag in [(t_stable, "stable"), (t_v2, "v2")]:
+
+        if transform is None:
+            continue
+
         torch.manual_seed(seed)
 
         if single_dtype is not None:
@@ -514,6 +520,7 @@ def main_classification(
     random_erase_prob=0.0,
     quiet=True,
     single_dtype=None,
+    single_api=None,
     seed=22,
     with_time=False,
     **kwargs,
@@ -542,6 +549,15 @@ def main_classification(
                 print(f"-- Benchmark: {opt}")
             t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
             t_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
+
+            if single_api is not None:
+                if single_api == "stable":
+                    t_v2 = None
+                elif single_api == "v2":
+                    t_stable = None
+                else:
+                    raise ValueError(f"Unsupported single_api value: '{single_api}'")
+
             bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=20, num_loops=50)
 
     if quiet:
@@ -562,7 +578,14 @@ def main_classification(
 
 
 def main_detection(
-    data_augmentation="hflip", hflip_prob=1.0, quiet=True, single_dtype=None, seed=22, with_time=False, **kwargs
+    data_augmentation="hflip",
+    hflip_prob=1.0,
+    quiet=True,
+    single_dtype=None,
+    single_api=None,
+    seed=22,
+    with_time=False,
+    **kwargs,
 ):
 
     data_augmentation_list = [data_augmentation]
@@ -580,6 +603,15 @@ def main_detection(
             print(f"-- Benchmark: {opt}")
         t_stable = get_detection_transforms_stable_api(a, hflip_prob)
         t_v2 = get_detection_transforms_v2(a, hflip_prob)
+
+        if single_api is not None:
+            if single_api == "stable":
+                t_v2 = None
+            elif single_api == "v2":
+                t_stable = None
+            else:
+                raise ValueError(f"Unsupported single_api value: '{single_api}'")
+
         target_types = ["boxes", "labels"] if "ssd" in a else None
         bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, target_types=target_types)
 
@@ -637,6 +669,27 @@ def run_profiling(op, data, n=100):
     print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=10))
 
 
+def run_cprofiling(op, data, n=100, filename=None):
+    for _ in range(n):
+        _ = op(data)
+
+    import cProfile, io, pstats
+
+    with cProfile.Profile(timeunit=0.00001) as pr:
+        for _ in range(n):
+            _ = op(data)
+
+    if filename is None:
+        s = io.StringIO()
+        ps = pstats.Stats(pr, stream=s).sort_stats("tottime")
+        ps.print_stats()
+        print(s.getvalue())
+    else:
+        with open(filename, "w") as h:
+            ps = pstats.Stats(pr, stream=h).sort_stats("tottime")
+            ps.print_stats()
+
+
 def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
@@ -650,6 +703,41 @@ def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", 
     print("\nProfile stable API")
     torch.manual_seed(seed)
     run_profiling(t_stable, data)
+
+
+def main_profile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
+
+    print(f"Profile: ")
+    t_v2 = get_classification_transforms_v2(hflip_prob)
+    print(t_v2)
+
+    print("\nProfile API v2 on Tensor")
+    torch.manual_seed(seed)
+    data_tensor = get_single_type_random_data("Classification", single_dtype="Tensor")
+    run_profiling(t_v2, data_tensor, n=n)
+
+    print("\nProfile API v2 on Feature")
+    torch.manual_seed(seed)
+    data_feature = get_single_type_random_data("Classification", single_dtype="Feature")
+    run_profiling(t_v2, data_feature, n=n)
+
+
+def main_cprofile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
+
+    print(f"Profile: ")
+    t_v2 = get_classification_transforms_v2(hflip_prob)
+    # t_v2 = partial(transforms_v2.functional.resize, size=(224, 224))
+    print(t_v2)
+
+    print("\nProfile API v2 on Tensor")
+    torch.manual_seed(seed)
+    data_tensor = get_single_type_random_data("Classification", single_dtype="Tensor")
+    run_cprofiling(t_v2, data_tensor, n=n, filename="tmp/cprof_v2_tensor.log")
+
+    print("\nProfile API v2 on Feature")
+    torch.manual_seed(seed)
+    data_feature = get_single_type_random_data("Classification", single_dtype="Feature")
+    run_cprofiling(t_v2, data_feature, n=n, filename="tmp/cprof_v2_feature.log")
 
 
 def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="PIL", seed=22, n=100):
@@ -714,6 +802,25 @@ def main_bench_with_time(data_augmentation="hflip", hflip_prob=1.0, quiet=True, 
             print("\n")
 
 
+def main_profile_single_transform_tensor_vs_feature(t_name, t_args=(), t_kwargs={}, seed=22, n=100):
+    print("Profile:", t_name, t_args, t_kwargs)
+
+    if not hasattr(transforms_v2, t_name):
+        raise ValueError("Unsupported transform name:", t_name)
+    t_v2 = getattr(transforms_v2, t_name)(*t_args, **t_kwargs)
+    print(t_v2)
+
+    print("\nProfile API v2 on Tensor")
+    torch.manual_seed(seed)
+    data_tensor = get_single_type_random_data("Classification", single_dtype="Tensor")
+    run_profiling(t_v2, data_tensor, n=n)
+
+    print("\nProfile API v2 on Feature")
+    torch.manual_seed(seed)
+    data_feature = get_single_type_random_data("Classification", single_dtype="Feature")
+    run_profiling(t_v2, data_feature, n=n)
+
+
 if __name__ == "__main__":
     from datetime import datetime
 
@@ -731,6 +838,9 @@ if __name__ == "__main__":
             "profile": main_profile,
             "with_time": main_bench_with_time,
             "profile_transform": main_profile_single_transform,
+            "profile_transform_tensor_vs_feature": main_profile_single_transform_tensor_vs_feature,
+            "profile_tensor_vs_feature": main_profile_tensor_vs_feature,
+            "cprofile_tensor_vs_feature": main_cprofile_tensor_vs_feature,
         }
     )
 

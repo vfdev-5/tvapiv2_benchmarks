@@ -1,0 +1,30 @@
+         40002 function calls in 1.085 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     2000    0.604    0.000    0.604    0.000 {method 'to' of 'torch._C._TensorBase' objects}
+     1000    0.353    0.000    0.353    0.000 {built-in method torch._C._nn.upsample_bilinear2d}
+     1000    0.057    0.000    1.065    0.001 /vision/torchvision/transforms/functional_tensor.py:442(resize)
+     1000    0.041    0.000    0.041    0.000 {built-in method torch.round}
+     2000    0.007    0.000    0.007    0.000 {method 'view' of 'torch._C._TensorBase' objects}
+     1000    0.006    0.000    1.083    0.001 /vision/torchvision/prototype/transforms/functional/_geometry.py:99(resize_image_tensor)
+     1000    0.004    0.000    0.359    0.000 /usr/local/lib/python3.8/dist-packages/torch/nn/functional.py:3765(interpolate)
+     1000    0.003    0.000    0.109    0.000 /vision/torchvision/transforms/functional_tensor.py:529(_cast_squeeze_out)
+     1000    0.002    0.000    0.003    0.000 /vision/torchvision/transforms/functional_tensor.py:24(get_dimensions)
+     1000    0.002    0.000    1.085    0.001 /vision/torchvision/prototype/transforms/functional/_geometry.py:150(resize)
+     1000    0.001    0.000    0.540    0.001 /vision/torchvision/transforms/functional_tensor.py:513(_cast_squeeze_in)
+    12000    0.001    0.000    0.001    0.000 {method 'dim' of 'torch._C._TensorBase' objects}
+     2000    0.001    0.000    0.001    0.000 /vision/torchvision/transforms/functional_tensor.py:9(_is_tensor_a_torch_image)
+     4000    0.001    0.000    0.001    0.000 {built-in method builtins.isinstance}
+     1000    0.001    0.000    0.001    0.000 /usr/lib/python3.8/types.py:171(__get__)
+     2000    0.001    0.000    0.001    0.000 /vision/torchvision/transforms/functional_tensor.py:13(_assert_image_tensor)
+     1000    0.000    0.000    0.001    0.000 /vision/torchvision/transforms/functional.py:363(_compute_resized_output_size)
+     2000    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+     1000    0.000    0.000    0.000    0.000 {built-in method torch._C._has_torch_function_unary}
+     1000    0.000    0.000    0.000    0.000 {method 'numel' of 'torch._C._TensorBase' objects}
+     1000    0.000    0.000    0.000    0.000 /usr/lib/python3.8/enum.py:753(value)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/cProfile.py:133(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
