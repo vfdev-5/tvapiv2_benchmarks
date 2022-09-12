@@ -1,5 +1,5 @@
-from functools import partial
 from copy import deepcopy
+from functools import partial
 
 import det_transforms
 import fire
@@ -9,6 +9,7 @@ import PIL.Image
 import torch
 import torch.utils.benchmark as benchmark
 import torchvision
+from torch.utils.benchmark.utils import common
 from torchvision.prototype import features, transforms as transforms_v2
 from torchvision.transforms import autoaugment as autoaugment_stable, transforms as transforms_stable
 from torchvision.transforms.functional import InterpolationMode
@@ -181,8 +182,9 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
     elif data_augmentation == "ssd":
         transforms = RefDetCompose(
             [
-                det_transforms.RandomPhotometricDistort(p=1.0),
-                det_transforms.RandomZoomOut(p=1.0, fill=list(mean)),
+                copy_targets,
+                # det_transforms.RandomPhotometricDistort(p=1.0),
+                det_transforms.RandomZoomOut(p=1.0, fill=[0, 0, 0]),
                 det_transforms.RandomIoUCrop(),
                 det_transforms.RandomHorizontalFlip(p=hflip_prob),
                 friendly_pil_to_tensor,
@@ -192,6 +194,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
     elif data_augmentation == "ssdlite":
         transforms = RefDetCompose(
             [
+                copy_targets,
                 det_transforms.RandomIoUCrop(),
                 det_transforms.RandomHorizontalFlip(p=hflip_prob),
                 friendly_pil_to_tensor,
@@ -220,8 +223,9 @@ class WrapIntoFeatures:
                 image_size=image_size,
             ),
             labels=features.Label(target["labels"], categories=None),
-            masks=features.SegmentationMask(target["masks"]),
         )
+        if "masks" in target:
+            wrapped_target["masks"] = features.SegmentationMask(target["masks"])
 
         return image, wrapped_target
 
@@ -271,9 +275,11 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
         ]
     elif data_augmentation == "ssd":
         transforms = [
+            copy_targets,
             WrapIntoFeatures(),
-            transforms_v2.RandomPhotometricDistort(p=1.0),
-            transforms_v2.RandomZoomOut(p=1.0, fill=list(mean)),
+            # Can't check consistency vs stable API due to different random calls and implementation
+            # transforms_v2.RandomPhotometricDistort(p=1.0),
+            transforms_v2.RandomZoomOut(p=1.0, fill=[0, 0, 0]),
             transforms_v2.RandomIoUCrop(),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
@@ -281,6 +287,7 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
         ]
     elif data_augmentation == "ssdlite":
         transforms = [
+            copy_targets,
             WrapIntoFeatures(),
             transforms_v2.RandomIoUCrop(),
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
@@ -315,33 +322,39 @@ def make_bounding_box(image_size, extra_dims, dtype=torch.long):
     return torch.stack(parts, dim=-1).to(dtype)
 
 
-def get_detection_random_data_pil(size=(600, 800), **kwargs):
+def get_detection_random_data_pil(size=(600, 800), target_types=None, **kwargs):
     pil_image = PIL.Image.new("RGB", size[::-1], 123)
     target = {
         "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
         "labels": torch.randint(0, 81, size=(22,)),
     }
+    if target_types is not None:
+        target = {k: target[k] for k in target_types}
     return pil_image, target
 
 
-def get_detection_random_data_tensor(size=(600, 800), **kwargs):
+def get_detection_random_data_tensor(size=(600, 800), target_types=None, **kwargs):
     tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
     target = {
         "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
         "labels": torch.randint(0, 81, size=(22,)),
     }
+    if target_types is not None:
+        target = {k: target[k] for k in target_types}
     return tensor_image, target
 
 
-def get_detection_random_data_feature(size=(600, 800), **kwargs):
+def get_detection_random_data_feature(size=(600, 800), target_types=None, **kwargs):
     feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
     target = {
         "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
         "labels": torch.randint(0, 81, size=(22,)),
     }
+    if target_types is not None:
+        target = {k: target[k] for k in target_types}
     return feature_image, target
 
 
@@ -387,27 +400,25 @@ def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
     return data
 
 
-def run_bench(option, transform, tag, single_dtype=None):
+def run_bench(option, transform, tag, single_dtype=None, seed=22, target_types=None):
 
     min_run_time = 10
 
     if single_dtype is not None:
-        data = get_single_type_random_data(option, single_dtype=single_dtype)
-        tested_dtypes = [
-            (single_dtype, data)
-        ]
+        data = get_single_type_random_data(option, single_dtype=single_dtype, target_types=target_types)
+        tested_dtypes = [(single_dtype, data)]
     else:
         tested_dtypes = [
-            ("PIL", get_random_data_pil(option)),
-            ("Tensor", get_random_data_tensor(option)),
-            ("Feature", get_random_data_feature(option)),
+            ("PIL", get_random_data_pil(option, target_types=target_types)),
+            ("Tensor", get_random_data_tensor(option, target_types=target_types)),
+            ("Feature", get_random_data_feature(option, target_types=target_types)),
         ]
 
     results = []
     for dtype_label, data in tested_dtypes:
         results.append(
             benchmark.Timer(
-                stmt=f"transform(data)",
+                stmt=f"torch.manual_seed({seed}); transform(data)",
                 globals={
                     "data": data,
                     "transform": transform,
@@ -422,21 +433,91 @@ def run_bench(option, transform, tag, single_dtype=None):
     return results
 
 
-def bench(option, t_stable, t_v2, quiet=True, single_dtype=None):
+def bench(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target_types=None):
     if not quiet:
         print("- Stable transforms:", t_stable)
         print("- Transforms v2:", t_v2)
 
     all_results = []
     for transform, tag in [(t_stable, "stable"), (t_v2, "v2")]:
-        torch.manual_seed(12)
-        all_results += run_bench(option, transform, tag, single_dtype=single_dtype)
+        torch.manual_seed(seed)
+        all_results += run_bench(
+            option, transform, tag, single_dtype=single_dtype, seed=seed, target_types=target_types
+        )
+    compare = benchmark.Compare(all_results)
+    compare.print()
+
+
+def bench_with_time(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target_types=None):
+    if not quiet:
+        print("- Stable transforms:", t_stable)
+        print("- Transforms v2:", t_v2)
+
+    import time
+
+    n = 10
+    m = 20
+
+    torch.set_num_threads(1)
+
+    all_results = []
+    for transform, tag in [(t_stable, "stable"), (t_v2, "v2")]:
+        torch.manual_seed(seed)
+
+        if single_dtype is not None:
+            data = get_single_type_random_data(option, single_dtype=single_dtype, target_types=target_types)
+            tested_dtypes = [
+                (single_dtype, data),
+            ]
+        else:
+            tested_dtypes = [
+                ("PIL", get_random_data_pil(option, target_types=target_types)),
+                ("Tensor", get_random_data_tensor(option, target_types=target_types)),
+                ("Feature", get_random_data_feature(option, target_types=target_types)),
+            ]
+
+        for dtype_label, data in tested_dtypes:
+            times = []
+
+            label = f"{option} transforms measurements"
+            sub_label = f"{dtype_label} Image data"
+            description = tag
+            task_spec = common.TaskSpec(
+                stmt="",
+                setup="",
+                global_setup="",
+                label=label,
+                sub_label=sub_label,
+                description=description,
+                env=None,
+                num_threads=torch.get_num_threads(),
+            )
+
+            for _ in range(n):
+                started = time.time()
+                for _ in range(m):
+
+                    torch.manual_seed(seed)
+                    transform(data)
+
+                elapsed = time.time() - started
+                times.append(elapsed)
+
+            all_results.append(common.Measurement(number_per_run=m, raw_times=times, task_spec=task_spec))
+
     compare = benchmark.Compare(all_results)
     compare.print()
 
 
 def main_classification(
-    hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0, quiet=True, single_dtype=None, **kwargs
+    hflip_prob=1.0,
+    auto_augment_policy=None,
+    random_erase_prob=0.0,
+    quiet=True,
+    single_dtype=None,
+    seed=22,
+    with_time=False,
+    **kwargs,
 ):
     auto_augment_policies = [auto_augment_policy]
     random_erase_prob_list = [random_erase_prob]
@@ -449,6 +530,8 @@ def main_classification(
 
     option = "Classification"
 
+    bench_fn = bench if not with_time else bench_with_time
+
     for aa in auto_augment_policies:
         for re_prob in random_erase_prob_list:
             opt = option
@@ -460,7 +543,7 @@ def main_classification(
                 print(f"-- Benchmark: {opt}")
             t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
             t_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
-            bench(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype)
+            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed)
 
     if quiet:
         print("\n-----\n")
@@ -479,7 +562,9 @@ def main_classification(
                 print("\n")
 
 
-def main_detection(data_augmentation="hflip", hflip_prob=1.0, quiet=True, single_dtype=None, **kwargs):
+def main_detection(
+    data_augmentation="hflip", hflip_prob=1.0, quiet=True, single_dtype=None, seed=22, with_time=False, **kwargs
+):
 
     data_augmentation_list = [data_augmentation]
 
@@ -488,13 +573,16 @@ def main_detection(data_augmentation="hflip", hflip_prob=1.0, quiet=True, single
 
     option = "Detection"
 
+    bench_fn = bench if not with_time else bench_with_time
+
     for a in data_augmentation_list:
         opt = option + f" da={a}"
         if not quiet:
             print(f"-- Benchmark: {opt}")
         t_stable = get_detection_transforms_stable_api(a, hflip_prob)
         t_v2 = get_detection_transforms_v2(a, hflip_prob)
-        bench(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype)
+        target_types = ["boxes", "labels"] if "ssd" in a else None
+        bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, target_types=target_types)
 
     if quiet:
         print("\n-----\n")
@@ -508,49 +596,93 @@ def main_detection(data_augmentation="hflip", hflip_prob=1.0, quiet=True, single
             print("\n")
 
 
-def main_debug(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL"):
+def main_debug(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
     t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
-    data = get_single_type_random_data("Detection", single_dtype=single_dtype)
 
-    torch.manual_seed(12)
+    print("- Stable transforms:", t_stable)
+    print("- Transforms v2:", t_v2)
+
+    if "ssd" in data_augmentation:
+        target_types = ["boxes", "labels"]
+    else:
+        target_types = None
+
+    data = get_single_type_random_data("Detection", single_dtype=single_dtype, target_types=target_types)
+
+    torch.manual_seed(seed)
     out_stable = t_stable(data)
 
-    torch.manual_seed(12)
+    torch.manual_seed(seed)
     out_v2 = t_v2(data)
+
+    print(data[0].shape if isinstance(data[0], torch.Tensor) else data[0].size, out_stable[0].shape, out_v2[0].shape)
 
     torch.testing.assert_close(out_stable[0], out_v2[0])
     target_stable, target_v2 = out_stable[1], out_v2[1]
-    for key in ["boxes", "masks", "labels"]:
-        torch.testing.assert_close(target_stable[key], target_v2[key])
+    torch.testing.assert_close(target_stable["boxes"], target_v2["boxes"])
+    torch.testing.assert_close(target_stable["labels"], target_v2["labels"])
+    if "ssd" not in data_augmentation:
+        torch.testing.assert_close(target_stable["masks"], target_v2["masks"])
 
 
 def run_profiling(op, data):
     _ = op(data)
-    with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU, ]) as p:
+    with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU]) as p:
         for _ in range(10):
             _ = op(data)
 
     print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=8))
 
 
-def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL"):
+def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
     t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
     data = get_single_type_random_data("Detection", single_dtype=single_dtype)
 
     print("\nProfile API v2")
-    torch.manual_seed(12)
+    torch.manual_seed(seed)
     run_profiling(t_v2, data)
 
     print("\nProfile stable API")
-    torch.manual_seed(12)
+    torch.manual_seed(seed)
     run_profiling(t_stable, data)
 
 
+def main_bench_with_time(data_augmentation="hflip", hflip_prob=1.0, quiet=True, single_dtype=None, seed=22, **kwargs):
+    data_augmentation_list = [data_augmentation]
+
+    if data_augmentation == "all":
+        data_augmentation_list = ["hflip", "lsj", "multiscale", "ssd", "ssdlite"]
+
+    option = "Detection"
+
+    for a in data_augmentation_list:
+        opt = option + f" da={a}"
+        if not quiet:
+            print(f"-- Benchmark: {opt}")
+        t_stable = get_detection_transforms_stable_api(a, hflip_prob)
+        t_v2 = get_detection_transforms_v2(a, hflip_prob)
+        bench_with_time(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed)
+
+    if quiet:
+        print("\n-----\n")
+        for a in data_augmentation_list:
+            opt = option + f" da={a}"
+            print(f"-- Benchmark: {opt}")
+            t_stable = get_detection_transforms_stable_api(a, hflip_prob)
+            t_v2 = get_detection_transforms_v2(a, hflip_prob)
+            print("- Stable transforms:", t_stable)
+            print("- Transforms v2:", t_v2)
+            print("\n")
+
+
 if __name__ == "__main__":
+    from datetime import datetime
+
+    print(f"Timestamp: {datetime.now().strftime('%Y%m%d-%H%M%S')}")
     print(f"Torch version: {torch.__version__}")
     print(f"Torchvision version: {torchvision.__version__}")
     print(f"Num threads: {torch.get_num_threads()}")
@@ -562,5 +694,11 @@ if __name__ == "__main__":
             "detection": main_detection,
             "debug": main_debug,
             "profile": main_profile,
+            "with_time": main_bench_with_time,
         }
     )
+
+
+# TODO:
+#
+# 10) add and measure anti-aliasing=True option
