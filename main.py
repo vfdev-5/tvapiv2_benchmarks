@@ -448,15 +448,14 @@ def bench(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target
     compare.print()
 
 
-def bench_with_time(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target_types=None):
+def bench_with_time(
+    option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target_types=None, num_runs=10, num_loops=20
+):
     if not quiet:
         print("- Stable transforms:", t_stable)
         print("- Transforms v2:", t_v2)
 
     import time
-
-    n = 10
-    m = 20
 
     torch.set_num_threads(1)
 
@@ -493,17 +492,17 @@ def bench_with_time(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=
                 num_threads=torch.get_num_threads(),
             )
 
-            for _ in range(n):
+            for i in range(num_runs):
                 started = time.time()
-                for _ in range(m):
+                for j in range(num_loops):
 
-                    torch.manual_seed(seed)
+                    torch.manual_seed(seed + i * num_loops + j)
                     transform(data)
 
                 elapsed = time.time() - started
                 times.append(elapsed)
 
-            all_results.append(common.Measurement(number_per_run=m, raw_times=times, task_spec=task_spec))
+            all_results.append(common.Measurement(number_per_run=num_loops, raw_times=times, task_spec=task_spec))
 
     compare = benchmark.Compare(all_results)
     compare.print()
@@ -543,7 +542,7 @@ def main_classification(
                 print(f"-- Benchmark: {opt}")
             t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
             t_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
-            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed)
+            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=20, num_loops=50)
 
     if quiet:
         print("\n-----\n")
@@ -628,12 +627,16 @@ def main_debug(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", se
 
 
 def run_profiling(op, data):
-    _ = op(data)
+
+    n = 100
+    for _ in range(n):
+        _ = op(data)
+
     with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU]) as p:
-        for _ in range(10):
+        for _ in range(n):
             _ = op(data)
 
-    print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=8))
+    print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=10))
 
 
 def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22):
@@ -647,6 +650,36 @@ def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", 
     run_profiling(t_v2, data)
 
     print("\nProfile stable API")
+    torch.manual_seed(seed)
+    run_profiling(t_stable, data)
+
+
+def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="PIL", seed=22):
+
+    print("Profile:", t_name, t_args, t_kwargs)
+
+    if not hasattr(transforms_v2, t_name):
+        raise ValueError("Unsupported transform name:", t_name)
+    t_v2 = getattr(transforms_v2, t_name)(*t_args, **t_kwargs)
+
+    option = "Classification"
+    if hasattr(transforms_stable, t_name):
+        t_stable = getattr(transforms_stable, t_name)(*t_args, **t_kwargs)
+    elif hasattr(det_transforms, t_name):
+        t_stable = getattr(det_transforms, t_name)(*t_args, **t_kwargs)
+        option = "Detection"
+    else:
+        raise ValueError("Stable API does not have transform with name:", t_name)
+
+    data = get_single_type_random_data(option, single_dtype=single_dtype)
+
+    print("\nProfile API v2")
+    print(t_v2)
+    torch.manual_seed(seed)
+    run_profiling(t_v2, data)
+
+    print("\nProfile stable API")
+    print(t_stable)
     torch.manual_seed(seed)
     run_profiling(t_stable, data)
 
@@ -695,6 +728,7 @@ if __name__ == "__main__":
             "debug": main_debug,
             "profile": main_profile,
             "with_time": main_bench_with_time,
+            "profile_transform": main_profile_single_transform,
         }
     )
 
