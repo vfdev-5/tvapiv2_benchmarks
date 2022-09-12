@@ -1,0 +1,47 @@
+Timestamp: 20220912-141426
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+Profile: RandomResizedCrop (224,) {}
+
+Profile stable API
+RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+STAGE:2022-09-12 14:14:26 5961:5961 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-12 14:14:26 5961:5961 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                aten::randint        20.12%     463.000us        24.42%     562.000us       2.810us           200  
+                    aten::log        17.60%     405.000us        17.60%     405.000us       4.050us           100  
+                 aten::select        16.34%     376.000us        16.64%     383.000us       1.496us           256  
+               aten::uniform_        15.21%     350.000us        15.21%     350.000us       1.367us           256  
+                    aten::exp        10.17%     234.000us        10.17%     234.000us       1.828us           128  
+                  aten::empty         7.21%     166.000us         7.21%     166.000us       0.299us           556  
+                aten::detach_         4.61%     106.000us         4.61%     106.000us       1.060us           100  
+                aten::random_         4.39%     101.000us         4.39%     101.000us       0.505us           200  
+                   aten::item         4.04%      93.000us         4.04%      93.000us       0.131us           712  
+             aten::as_strided         0.30%       7.000us         0.30%       7.000us       0.027us           256  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 2.301ms
+
+
+Profile API v2
+RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+STAGE:2022-09-12 14:14:26 5961:5961 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-12 14:14:26 5961:5961 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                aten::randint        24.05%     431.000us        29.19%     523.000us       2.615us           200  
+                 aten::select        20.48%     367.000us        20.48%     367.000us       1.434us           256  
+               aten::uniform_        19.92%     357.000us        19.92%     357.000us       1.395us           256  
+                    aten::exp        13.17%     236.000us        13.17%     236.000us       1.844us           128  
+                  aten::empty         9.93%     178.000us         9.93%     178.000us       0.390us           456  
+                   aten::item         6.53%     117.000us         6.53%     117.000us       0.164us           712  
+                aten::random_         5.92%     106.000us         5.92%     106.000us       0.530us           200  
+    aten::_local_scalar_dense         0.00%       0.000us         0.00%       0.000us       0.000us           712  
+             aten::as_strided         0.00%       0.000us         0.00%       0.000us       0.000us           256  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 1.792ms
+

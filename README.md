@@ -14,13 +14,21 @@ pip install fire
 
 ## Run benchmarks
 
-```
+```bash
 bash bench.sh
 ```
 
 ### Outputs
 
-```
+```bash
 ls output
 ```
 
+
+## Transforms profiling
+
+```bash
+python -u main.py profile_transform --t_name=RandomResizedCrop --t_args="(224,)"
+
+python -u main.py profile_transform --t_name=RandomErasing --t_args="(1.0, )" --single_dtype=Tensor
+```

@@ -626,9 +626,7 @@ def main_debug(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", se
         torch.testing.assert_close(target_stable["masks"], target_v2["masks"])
 
 
-def run_profiling(op, data):
-
-    n = 100
+def run_profiling(op, data, n=100):
     for _ in range(n):
         _ = op(data)
 
@@ -654,7 +652,7 @@ def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", 
     run_profiling(t_stable, data)
 
 
-def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="PIL", seed=22):
+def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="PIL", seed=22, n=100):
 
     print("Profile:", t_name, t_args, t_kwargs)
 
@@ -671,17 +669,21 @@ def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="
     else:
         raise ValueError("Stable API does not have transform with name:", t_name)
 
-    data = get_single_type_random_data(option, single_dtype=single_dtype)
+    if option == "Detection":
+        t_stable = RefDetCompose([copy_targets, t_stable])
+        t_v2 = transforms_v2.Compose([copy_targets, WrapIntoFeatures(), t_v2])
 
-    print("\nProfile API v2")
-    print(t_v2)
-    torch.manual_seed(seed)
-    run_profiling(t_v2, data)
+    data = get_single_type_random_data(option, single_dtype=single_dtype)
 
     print("\nProfile stable API")
     print(t_stable)
     torch.manual_seed(seed)
-    run_profiling(t_stable, data)
+    run_profiling(t_stable, data, n=n)
+
+    print("\nProfile API v2")
+    print(t_v2)
+    torch.manual_seed(seed)
+    run_profiling(t_v2, data, n=n)
 
 
 def main_bench_with_time(data_augmentation="hflip", hflip_prob=1.0, quiet=True, single_dtype=None, seed=22, **kwargs):

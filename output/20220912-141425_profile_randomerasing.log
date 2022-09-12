@@ -1,0 +1,48 @@
+Timestamp: 20220912-141428
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+Profile: RandomErasing (1.0,) {}
+
+Profile stable API
+RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+STAGE:2022-09-12 14:14:28 5972:5972 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-12 14:14:28 5972:5972 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                  aten::copy_        78.67%      19.154ms        78.67%      19.154ms      63.847us           300  
+                  aten::slice         2.06%     502.000us         2.47%     602.000us       2.007us           300  
+                aten::randint         2.01%     490.000us         2.44%     593.000us       2.965us           200  
+                     aten::lt         1.91%     465.000us         4.23%       1.030ms      10.300us           100  
+                  aten::clone         1.59%     388.000us        55.99%      13.631ms     136.310us           100  
+          aten::empty_strided         1.35%     329.000us         1.35%     329.000us       1.645us           200  
+                 aten::select         1.25%     304.000us         1.27%     310.000us       1.535us           202  
+                    aten::log         1.22%     297.000us         1.22%     297.000us       2.970us           100  
+               aten::_to_copy         1.20%     293.000us         1.65%     401.000us       4.010us           100  
+               aten::uniform_         1.17%     286.000us         1.17%     286.000us       0.947us           302  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 24.347ms
+
+
+Profile API v2
+RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+STAGE:2022-09-12 14:14:28 5972:5972 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-12 14:14:28 5972:5972 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                  aten::copy_        74.28%      13.716ms        74.28%      13.716ms      45.720us           300  
+                  aten::slice         2.72%     503.000us         3.27%     603.000us       2.010us           300  
+                aten::randint         2.71%     500.000us         3.25%     601.000us       3.005us           200  
+                     aten::ge         2.51%     463.000us         5.40%     998.000us       9.980us           100  
+               aten::uniform_         1.87%     345.000us         1.87%     345.000us       1.142us           302  
+                  aten::clone         1.80%     332.000us        43.29%       7.993ms      79.930us           100  
+                   aten::rand         1.64%     303.000us         2.73%     504.000us       5.040us           100  
+                 aten::select         1.64%     303.000us         1.64%     303.000us       1.500us           202  
+               aten::_to_copy         1.57%     290.000us         2.13%     393.000us       3.930us           100  
+                    aten::exp         1.13%     209.000us         1.13%     209.000us       2.069us           101  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 18.465ms
+
