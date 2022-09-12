@@ -85,13 +85,13 @@ def get_classification_transforms_v2(hflip_prob=1.0, auto_augment_policy=None, r
             return tit(image)
         return image
 
-    # trans.extend(
-    #     [
-    #         friendly_to_image_tensor,
-    #         transforms_v2.ConvertImageDtype(torch.float),
-    #         transforms_v2.Normalize(mean=mean, std=std),
-    #     ]
-    # )
+    trans.extend(
+        [
+            friendly_to_image_tensor,
+            transforms_v2.ConvertImageDtype(torch.float),
+            transforms_v2.Normalize(mean=mean, std=std),
+        ]
+    )
     if random_erase_prob > 0:
         trans.append(transforms_v2.RandomErasing(p=random_erase_prob))
 
@@ -732,12 +732,12 @@ def main_cprofile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
     print("\nProfile API v2 on Tensor")
     torch.manual_seed(seed)
     data_tensor = get_single_type_random_data("Classification", single_dtype="Tensor")
-    run_cprofiling(t_v2, data_tensor, n=n, filename="tmp/cprof_v2_tensor.log")
+    run_cprofiling(t_v2, data_tensor, n=n, filename="output/cprof_v2_tensor.log")
 
     print("\nProfile API v2 on Feature")
     torch.manual_seed(seed)
     data_feature = get_single_type_random_data("Classification", single_dtype="Feature")
-    run_cprofiling(t_v2, data_feature, n=n, filename="tmp/cprof_v2_feature.log")
+    run_cprofiling(t_v2, data_feature, n=n, filename="output/cprof_v2_feature.log")
 
 
 def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="PIL", seed=22, n=100):
