@@ -1,5 +1,6 @@
 cl_transforms.py
 det_transforms.py
+seg_transforms.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

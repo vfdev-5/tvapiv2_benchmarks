@@ -6,9 +6,11 @@
 - Install stable ref transforms:
 ```bash
 curl https://raw.githubusercontent.com/pytorch/vision/main/references/detection/transforms.py -o det_transforms.py
+curl https://raw.githubusercontent.com/pytorch/vision/main/references/segmentation/transforms.py -o seg_transforms.py
 ```
-- Install `python-fire`:
+- Install `numpy`, `python-fire`:
 ```bash
+pip install numpy
 pip install fire
 ```
 

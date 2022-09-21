@@ -1,16 +1,22 @@
+import random
+from collections import defaultdict
 from copy import deepcopy
 from functools import partial
+from unittest.mock import patch
 
 import det_transforms
 import fire
 
+import numpy as np
 import PIL.Image
+import seg_transforms
 
 import torch
 import torch.utils.benchmark as benchmark
 import torchvision
 from torch.utils.benchmark.utils import common
 from torchvision.prototype import features, transforms as transforms_v2
+from torchvision.prototype.transforms import functional as F_v2
 from torchvision.transforms import autoaugment as autoaugment_stable, transforms as transforms_stable
 from torchvision.transforms.functional import InterpolationMode
 
@@ -110,7 +116,7 @@ def get_classification_random_data_feature(size=(400, 500), **kwargs):
     return features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
 
 
-class RefDetCompose:
+class RefCompose:
     def __init__(self, transforms):
         self.transforms = transforms
 
@@ -136,7 +142,6 @@ def copy_targets(*sample):
 
 
 def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
-    mean = (123.0, 117.0, 104.0)
 
     ptt = det_transforms.PILToTensor()
 
@@ -146,7 +151,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
         return image, target
 
     if data_augmentation == "hflip":
-        transforms = RefDetCompose(
+        transforms = RefCompose(
             [
                 copy_targets,
                 det_transforms.RandomHorizontalFlip(p=hflip_prob),
@@ -155,7 +160,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
             ]
         )
     elif data_augmentation == "lsj":
-        transforms = RefDetCompose(
+        transforms = RefCompose(
             [
                 # As det_transforms.ScaleJitter does inplace transformations on mask
                 # we perform a copy here and in v2
@@ -169,7 +174,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
             ]
         )
     elif data_augmentation == "multiscale":
-        transforms = RefDetCompose(
+        transforms = RefCompose(
             [
                 copy_targets,
                 det_transforms.RandomShortestSize(
@@ -182,7 +187,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
             ]
         )
     elif data_augmentation == "ssd":
-        transforms = RefDetCompose(
+        transforms = RefCompose(
             [
                 copy_targets,
                 # det_transforms.RandomPhotometricDistort(p=1.0),
@@ -194,7 +199,7 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
             ]
         )
     elif data_augmentation == "ssdlite":
-        transforms = RefDetCompose(
+        transforms = RefCompose(
             [
                 copy_targets,
                 det_transforms.RandomIoUCrop(),
@@ -360,12 +365,118 @@ def get_detection_random_data_feature(size=(600, 800), target_types=None, **kwar
     return feature_image, target
 
 
-def _get_random_data_any(option, *, fn_classification, fn_detection, **kwargs):
+def get_segmentation_transforms_stable_api(hflip_prob=1.0):
+    base_size = 520
+    crop_size = 480
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
+
+    min_size = int(0.5 * base_size)
+    max_size = int(2.0 * base_size)
+
+    trans = [seg_transforms.RandomResize(min_size, max_size)]
+    if hflip_prob > 0:
+        trans.append(seg_transforms.RandomHorizontalFlip(hflip_prob))
+    trans.extend(
+        [
+            seg_transforms.RandomCrop(crop_size),
+            seg_transforms.PILToTensor(),
+            seg_transforms.ConvertImageDtype(torch.float),
+            seg_transforms.Normalize(mean=mean, std=std),
+        ]
+    )
+    return RefCompose(trans)
+
+
+class SegWrapIntoFeatures(transforms_v2.Transform):
+    def forward(self, sample):
+        image, mask = sample
+        return image, features.Mask(F_v2.pil_to_tensor(mask).squeeze(0), dtype=torch.int64)
+
+
+class PadIfSmaller(transforms_v2.Transform):
+    def __init__(self, size, fill=0):
+        super().__init__()
+        self.size = size
+        self.fill = transforms_v2._geometry._setup_fill_arg(fill)
+
+    def _get_params(self, sample):
+        _, height, width = transforms_v2._utils.query_chw(sample)
+        padding = [0, 0, max(self.size - width, 0), max(self.size - height, 0)]
+        needs_padding = any(padding)
+        return dict(padding=padding, needs_padding=needs_padding)
+
+    def _transform(self, inpt, params):
+        if not params["needs_padding"]:
+            return inpt
+        fill = self.fill[type(inpt)]
+
+        fill = F_v2._geometry._convert_fill_arg(fill)
+        return F_v2.pad(inpt, padding=params["padding"], fill=fill)
+
+
+def get_segmentation_transforms_v2(hflip_prob=1.0):
+    base_size = 520
+    crop_size = 480
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
+
+    transforms = [
+        SegWrapIntoFeatures(),
+        transforms_v2.RandomResize(min_size=int(0.5 * base_size), max_size=int(2.0 * base_size)),
+    ]
+    if hflip_prob > 0:
+        transforms.append(transforms_v2.RandomHorizontalFlip(hflip_prob))
+    transforms.extend(
+        [
+            # We need a custom pad transform here, since the padding we want to perform here is fundamentally
+            # different from the padding in `RandomCrop` if `pad_if_needed=True`.
+            PadIfSmaller(crop_size, fill=defaultdict(lambda: 0, {features.Mask: 255})),
+            transforms_v2.RandomCrop(crop_size),
+            transforms_v2.ToImageTensor(),
+            transforms_v2.ConvertImageDtype(torch.float),
+            transforms_v2.Normalize(mean=mean, std=std),
+        ]
+    )
+    return transforms_v2.Compose(transforms)
+
+
+def get_pil_mask(size):
+    target_data = np.zeros(size, dtype="int32")
+    target_data[110:140, 120:160] = 1
+    target_data[10:40, 120:160] = 2
+    target_data[110:140, 20:60] = 3
+    target_data[size[0] // 2 : size[0] // 2 + 50, size[1] // 2 : size[1] // 2 + 60] = 4
+    target = PIL.Image.fromarray(target_data).convert("L")
+    return target
+
+
+def get_segmentation_random_data_pil(size=(500, 600), **kwargs):
+    pil_image = PIL.Image.fromarray(np.random.randint(0, 256, (*size, 3), dtype="uint8")).convert("RGB")
+    target = get_pil_mask(size)
+    return pil_image, target
+
+
+def get_segmentation_random_data_tensor(size=(500, 600), **kwargs):
+    tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
+    target = get_pil_mask(size)
+    return tensor_image, target
+
+
+def get_segmentation_random_data_feature(size=(500, 600), **kwargs):
+    feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
+    target = get_pil_mask(size)
+    return feature_image, target
+
+
+def _get_random_data_any(option, *, fn_classification, fn_detection, fn_segmentation, **kwargs):
     option = option.lower()
     if "classification" in option:
         return fn_classification(**kwargs)
     elif "detection" in option:
         return fn_detection(**kwargs)
+    elif "segmentation" in option:
+        return fn_segmentation(**kwargs)
     raise ValueError("Unsupported option '{option}'")
 
 
@@ -373,6 +484,7 @@ get_random_data_pil = partial(
     _get_random_data_any,
     fn_classification=get_classification_random_data_pil,
     fn_detection=get_detection_random_data_pil,
+    fn_segmentation=get_segmentation_random_data_pil,
 )
 
 
@@ -380,6 +492,7 @@ get_random_data_tensor = partial(
     _get_random_data_any,
     fn_classification=get_classification_random_data_tensor,
     fn_detection=get_detection_random_data_tensor,
+    fn_segmentation=get_segmentation_random_data_tensor,
 )
 
 
@@ -387,6 +500,7 @@ get_random_data_feature = partial(
     _get_random_data_any,
     fn_classification=get_classification_random_data_feature,
     fn_detection=get_detection_random_data_feature,
+    fn_segmentation=get_segmentation_random_data_feature,
 )
 
 
@@ -435,7 +549,7 @@ def run_bench(option, transform, tag, single_dtype=None, seed=22, target_types=N
     return results
 
 
-def bench(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target_types=None):
+def bench(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target_types=None, **kwargs):
     if not quiet:
         print("- Stable transforms:", t_stable)
         print("- Transforms v2:", t_v2)
@@ -627,7 +741,44 @@ def main_detection(
             print("\n")
 
 
-def main_debug(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22):
+def main_segmentation(
+    hflip_prob=1.0,
+    quiet=True,
+    single_dtype=None,
+    single_api=None,
+    seed=22,
+    with_time=False,
+    **kwargs,
+):
+    option = "Segmentation"
+    bench_fn = bench if not with_time else bench_with_time
+
+    if not quiet:
+        print(f"-- Benchmark: {option}")
+    t_stable = get_segmentation_transforms_stable_api(hflip_prob)
+    t_v2 = get_segmentation_transforms_v2(hflip_prob)
+
+    if single_api is not None:
+        if single_api == "stable":
+            t_v2 = None
+        elif single_api == "v2":
+            t_stable = None
+        else:
+            raise ValueError(f"Unsupported single_api value: '{single_api}'")
+
+    bench_fn(option, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=20, num_loops=50)
+
+    if quiet:
+        print("\n-----\n")
+        print(f"-- Benchmark: {option}")
+        t_stable = get_segmentation_transforms_stable_api(hflip_prob)
+        t_v2 = get_segmentation_transforms_v2(hflip_prob)
+        print("- Stable transforms:", t_stable)
+        print("- Transforms v2:", t_v2)
+        print("\n")
+
+
+def main_debug_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=122):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
     t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
@@ -656,6 +807,34 @@ def main_debug(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", se
     torch.testing.assert_close(target_stable["labels"], target_v2["labels"])
     if "ssd" not in data_augmentation:
         torch.testing.assert_close(target_stable["masks"], target_v2["masks"])
+
+
+@patch("random.randint", side_effect=lambda x, y: torch.randint(x, y, size=()).item())
+@patch("random.random", side_effect=lambda: torch.rand(1).item())
+def main_debug_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=22, **kwargs):
+
+    t_stable = get_segmentation_transforms_stable_api(hflip_prob)
+    t_v2 = get_segmentation_transforms_v2(hflip_prob)
+
+    print("- Stable transforms:", t_stable)
+    print("- Transforms v2:", t_v2)
+
+    data = get_single_type_random_data("Segmentation", single_dtype=single_dtype)
+
+    torch.manual_seed(seed)
+    out_stable = t_stable(data)
+
+    torch.manual_seed(seed)
+    out_v2 = t_v2(data)
+
+    print(data[0].shape if isinstance(data[0], torch.Tensor) else data[0].size, out_stable[0].shape, out_v2[0].shape)
+    print(out_stable[0].mean(), out_v2[0].mean())
+    print(out_stable[1].sum(), out_v2[1].sum())
+
+    torch.testing.assert_close(out_stable[0], out_v2[0])
+
+    # target_stable, target_v2 = out_stable[1], out_v2[1]
+    # torch.testing.assert_close(target_stable, target_v2)
 
 
 def run_profiling(op, data, n=100):
@@ -758,7 +937,7 @@ def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="
         raise ValueError("Stable API does not have transform with name:", t_name)
 
     if option == "Detection":
-        t_stable = RefDetCompose([copy_targets, t_stable])
+        t_stable = RefCompose([copy_targets, t_stable])
         t_v2 = transforms_v2.Compose([copy_targets, WrapIntoFeatures(), t_v2])
 
     data = get_single_type_random_data(option, single_dtype=single_dtype)
@@ -834,7 +1013,9 @@ if __name__ == "__main__":
         {
             "classification": main_classification,
             "detection": main_detection,
-            "debug": main_debug,
+            "segmentation": main_segmentation,
+            "debug_det": main_debug_det,
+            "debug_seg": main_debug_seg,
             "profile": main_profile,
             "with_time": main_bench_with_time,
             "profile_transform": main_profile_single_transform,
