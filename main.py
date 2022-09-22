@@ -104,15 +104,21 @@ def get_classification_transforms_v2(hflip_prob=1.0, auto_augment_policy=None, r
     return transforms_v2.Compose(trans)
 
 
-def get_classification_random_data_pil(size=(400, 500), **kwargs):
+def get_classification_random_data_pil(size=None, **kwargs):
+    if size is None:
+        size = (400, 500)
     return PIL.Image.new("RGB", size[::-1], 123)
 
 
-def get_classification_random_data_tensor(size=(400, 500), **kwargs):
+def get_classification_random_data_tensor(size=None, **kwargs):
+    if size is None:
+        size = (400, 500)
     return torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
 
 
-def get_classification_random_data_feature(size=(400, 500), **kwargs):
+def get_classification_random_data_feature(size=None, **kwargs):
+    if size is None:
+        size = (400, 500)
     return features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
 
 
@@ -181,9 +187,9 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
                 copy_targets,
                 det_transforms.ScaleJitter(target_size=(1024, 1024)),
                 # Set fill as 0 to make it work on tensors
-                det_transforms.FixedSizeCrop(size=(1024, 1024), fill=0),
+                # det_transforms.FixedSizeCrop(size=(1024, 1024), fill=0),
                 # det_transforms.RandomHorizontalFlip(p=hflip_prob),
-                friendly_pil_to_tensor,
+                # friendly_pil_to_tensor,
                 # det_transforms.ConvertImageDtype(torch.float),
             ]
         )
@@ -290,9 +296,9 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
             WrapIntoFeatures(),
             transforms_v2.ScaleJitter(target_size=(1024, 1024)),
             # Set fill as 0 to make it work on tensors
-            transforms_v2.FixedSizeCrop(size=(1024, 1024), fill=0),
+            # transforms_v2.FixedSizeCrop(size=(1024, 1024), fill=0),
             # transforms_v2.RandomHorizontalFlip(p=hflip_prob),
-            friendly_to_image_tensor,
+            # friendly_to_image_tensor,
             # transforms_v2.ConvertImageDtype(torch.float),
         ]
     elif data_augmentation == "multiscale":
@@ -356,10 +362,13 @@ def make_bounding_box(image_size, extra_dims, dtype=torch.long):
     return torch.stack(parts, dim=-1).to(dtype)
 
 
-def get_detection_random_data_pil(size=(600, 800), target_types=None, **kwargs):
+def get_detection_random_data_pil(size=None, target_types=None, **kwargs):
+    if size is None:
+        size = (600, 800)
+
     pil_image = PIL.Image.new("RGB", size[::-1], 123)
     target = {
-        "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
+        "boxes": make_bounding_box(size, extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
         "labels": torch.randint(0, 81, size=(22,)),
     }
@@ -368,10 +377,13 @@ def get_detection_random_data_pil(size=(600, 800), target_types=None, **kwargs):
     return pil_image, target
 
 
-def get_detection_random_data_tensor(size=(600, 800), target_types=None, **kwargs):
+def get_detection_random_data_tensor(size=None, target_types=None, **kwargs):
+    if size is None:
+        size = (600, 800)
+
     tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
     target = {
-        "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
+        "boxes": make_bounding_box(size, extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
         "labels": torch.randint(0, 81, size=(22,)),
     }
@@ -380,10 +392,13 @@ def get_detection_random_data_tensor(size=(600, 800), target_types=None, **kwarg
     return tensor_image, target
 
 
-def get_detection_random_data_feature(size=(600, 800), target_types=None, **kwargs):
+def get_detection_random_data_feature(size=None, target_types=None, **kwargs):
+    if size is None:
+        size = (600, 800)
+
     feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
     target = {
-        "boxes": make_bounding_box((600, 800), extra_dims=(22,), dtype=torch.float),
+        "boxes": make_bounding_box(size, extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
         "labels": torch.randint(0, 81, size=(22,)),
     }
@@ -478,19 +493,28 @@ def get_pil_mask(size):
     return target
 
 
-def get_segmentation_random_data_pil(size=(500, 600), **kwargs):
+def get_segmentation_random_data_pil(size=None, **kwargs):
+    if size is None:
+        size = (500, 600)
+
     pil_image = PIL.Image.fromarray(np.random.randint(0, 256, (*size, 3), dtype="uint8")).convert("RGB")
     target = get_pil_mask(size)
     return pil_image, target
 
 
-def get_segmentation_random_data_tensor(size=(500, 600), **kwargs):
+def get_segmentation_random_data_tensor(size=None, **kwargs):
+    if size is None:
+        size = (500, 600)
+
     tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
     target = get_pil_mask(size)
     return tensor_image, target
 
 
-def get_segmentation_random_data_feature(size=(500, 600), **kwargs):
+def get_segmentation_random_data_feature(size=None, **kwargs):
+    if size is None:
+        size = (500, 600)
+
     feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
     target = get_pil_mask(size)
     return feature_image, target
@@ -597,7 +621,16 @@ def bench(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target
 
 
 def bench_with_time(
-    option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target_types=None, num_runs=10, num_loops=20
+    option,
+    t_stable,
+    t_v2,
+    quiet=True,
+    single_dtype=None,
+    size=None,
+    seed=22,
+    target_types=None,
+    num_runs=10,
+    num_loops=20,
 ):
     if not quiet:
         print("- Stable transforms:", t_stable)
@@ -622,13 +655,15 @@ def bench_with_time(
             single_dtype_value = single_dtype
 
         if single_dtype_value is not None:
-            data = get_single_type_random_data(option, single_dtype=single_dtype_value, target_types=target_types)
+            data = get_single_type_random_data(
+                option, single_dtype=single_dtype_value, target_types=target_types, size=size
+            )
             tested_dtypes = [(single_dtype_value, data)]
         else:
             tested_dtypes = [
-                ("PIL", get_random_data_pil(option, target_types=target_types)),
-                ("Tensor", get_random_data_tensor(option, target_types=target_types)),
-                ("Feature", get_random_data_feature(option, target_types=target_types)),
+                ("PIL", get_random_data_pil(option, target_types=target_types, size=size)),
+                ("Tensor", get_random_data_tensor(option, target_types=target_types, size=size)),
+                ("Feature", get_random_data_feature(option, target_types=target_types, size=size)),
             ]
 
         for dtype_label, data in tested_dtypes:
@@ -733,6 +768,7 @@ def main_detection(
     hflip_prob=1.0,
     quiet=True,
     single_dtype=None,
+    size=None,
     single_api=None,
     seed=22,
     with_time=False,
@@ -764,7 +800,9 @@ def main_detection(
                 raise ValueError(f"Unsupported single_api value: '{single_api}'")
 
         target_types = ["boxes", "labels"] if "ssd" in a else None
-        bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, target_types=target_types)
+        bench_fn(
+            opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, size=size, seed=seed, target_types=target_types
+        )
 
     if quiet:
         print("\n-----\n")
@@ -887,8 +925,9 @@ def main_debug_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=122, **kwargs
 
 
 def run_profiling(op, data, n=100):
-    for _ in range(n):
-        _ = op(data)
+    if n > 1:
+        for _ in range(n):
+            _ = op(data)
 
     with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU]) as p:
         for _ in range(n):
@@ -924,28 +963,33 @@ def run_cprofiling(op, data, n=100, filename=None):
             ps.print_stats()
 
 
-def main_profile_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, n=100):
+def main_profile_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, size=None, n=100):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
     t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
-    data = get_single_type_random_data("Detection", single_dtype=single_dtype)
+
+    target_types = None
 
     print("\nProfile API v2")
     torch.manual_seed(seed)
+    data = get_single_type_random_data("Detection", single_dtype=single_dtype, size=size, target_types=target_types)
     run_profiling(t_v2, data, n=n)
 
     print("\nProfile stable API")
     torch.manual_seed(seed)
+    data = get_single_type_random_data("Detection", single_dtype=single_dtype, size=size, target_types=target_types)
     run_profiling(t_stable, data, n=n)
 
 
-def main_cprofile_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log"):
+def main_cprofile_det(
+    data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log"
+):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
     t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
     data = get_single_type_random_data("Detection", single_dtype=single_dtype)
 
-    now = datetime.now().strftime('%Y%m%d-%H%M%S')
+    now = datetime.now().strftime("%Y%m%d-%H%M%S")
 
     if output_type == "log":
         filename = f"output/{now}_cprof_v2_{data_augmentation}.log"
