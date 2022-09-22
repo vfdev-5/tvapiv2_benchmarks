@@ -35,3 +35,4 @@ prefix=`date "+%Y%m%d-%H%M%S"`
 
 python -u main.py detection --with_time --data_augmentation=all &> output/${prefix}_output_detection_all.log
 python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all.log
+python -u main.py segmentation --with_time --single_dtype=PIL &> output/${prefix}_output_segmentation_all.log

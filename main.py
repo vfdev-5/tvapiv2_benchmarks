@@ -520,9 +520,14 @@ def run_bench(option, transform, tag, single_dtype=None, seed=22, target_types=N
 
     min_run_time = 10
 
-    if single_dtype is not None:
-        data = get_single_type_random_data(option, single_dtype=single_dtype, target_types=target_types)
-        tested_dtypes = [(single_dtype, data)]
+    if isinstance(single_dtype, dict):
+        single_dtype_value = single_dtype[tag]
+    else:
+        single_dtype_value = single_dtype
+
+    if single_dtype_value is not None:
+        data = get_single_type_random_data(option, single_dtype=single_dtype_value, target_types=target_types)
+        tested_dtypes = [(single_dtype_value, data)]
     else:
         tested_dtypes = [
             ("PIL", get_random_data_pil(option, target_types=target_types)),
@@ -581,13 +586,17 @@ def bench_with_time(
         if transform is None:
             continue
 
+        random.seed(seed)
         torch.manual_seed(seed)
 
-        if single_dtype is not None:
-            data = get_single_type_random_data(option, single_dtype=single_dtype, target_types=target_types)
-            tested_dtypes = [
-                (single_dtype, data),
-            ]
+        if isinstance(single_dtype, dict):
+            single_dtype_value = single_dtype[tag]
+        else:
+            single_dtype_value = single_dtype
+
+        if single_dtype_value is not None:
+            data = get_single_type_random_data(option, single_dtype=single_dtype_value, target_types=target_types)
+            tested_dtypes = [(single_dtype_value, data)]
         else:
             tested_dtypes = [
                 ("PIL", get_random_data_pil(option, target_types=target_types)),
@@ -616,6 +625,7 @@ def bench_with_time(
                 started = time.time()
                 for j in range(num_loops):
 
+                    random.seed(seed + i * num_loops + j)
                     torch.manual_seed(seed + i * num_loops + j)
                     transform(data)
 
@@ -766,6 +776,12 @@ def main_segmentation(
         else:
             raise ValueError(f"Unsupported single_api value: '{single_api}'")
 
+    if single_dtype is None:
+        single_dtype = {
+            "stable": "PIL",
+            "v2": None,
+        }
+
     bench_fn(option, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=20, num_loops=50)
 
     if quiet:
@@ -778,7 +794,7 @@ def main_segmentation(
         print("\n")
 
 
-def main_debug_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=122):
+def main_debug_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
     t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
@@ -811,7 +827,7 @@ def main_debug_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL"
 
 @patch("random.randint", side_effect=lambda x, y: torch.randint(x, y, size=()).item())
 @patch("random.random", side_effect=lambda: torch.rand(1).item())
-def main_debug_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=22, **kwargs):
+def main_debug_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=122, **kwargs):
 
     t_stable = get_segmentation_transforms_stable_api(hflip_prob)
     t_v2 = get_segmentation_transforms_v2(hflip_prob)
@@ -833,8 +849,14 @@ def main_debug_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=22, **kwargs)
 
     torch.testing.assert_close(out_stable[0], out_v2[0])
 
-    # target_stable, target_v2 = out_stable[1], out_v2[1]
-    # torch.testing.assert_close(target_stable, target_v2)
+    target_stable, target_v2 = out_stable[1], out_v2[1]
+    assert isinstance(target_stable, torch.Tensor)
+    assert isinstance(target_v2, torch.Tensor)
+    assert target_v2.shape == target_stable.shape
+    assert target_v2.dtype == target_stable.dtype
+    assert target_v2.device == target_stable.device
+    mse = (target_stable.float() - target_v2.float()).abs().square().mean()
+    assert mse < 0.02, mse
 
 
 def run_profiling(op, data, n=100):
