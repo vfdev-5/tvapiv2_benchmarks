@@ -1,0 +1,55 @@
+Timestamp: 20220922-121027
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+Profile: FixedSizeCrop ((1024, 1024),) {'fill': 0}
+
+Profile stable API
+RefCompose(
+    <function copy_targets at 0x7f64b1af8310>
+    FixedSizeCrop()
+)
+STAGE:2022-09-22 12:10:38 7100:7100 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-22 12:10:50 7100:7100 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                     Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+              aten::fill_        53.16%        5.423s        53.16%        5.423s      54.227ms           100  
+              aten::copy_        46.67%        4.761s        46.67%        4.761s       5.951ms           800  
+              aten::empty         0.04%       3.931ms         0.04%       3.931ms       3.276us          1200  
+    aten::constant_pad_nd         0.03%       2.691ms        67.08%        6.843s      68.431ms           100  
+              aten::slice         0.02%       2.313ms         0.03%       3.065ms       3.065us          1000  
+               aten::set_         0.02%       1.946ms         0.02%       1.946ms       1.656us          1175  
+               aten::add_         0.02%       1.682ms         0.03%       3.564ms      17.820us           200  
+         aten::as_strided         0.01%     973.000us         0.01%     973.000us       0.811us          1200  
+           aten::_to_copy         0.01%     882.000us         0.01%       1.480ms       7.400us           200  
+            aten::squeeze         0.01%     826.000us         0.01%     947.000us       9.470us           100  
+-------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 10.201s
+
+
+Profile API v2
+Compose(
+      <function copy_targets at 0x7f64b1af8310>
+      <__main__.WrapIntoFeatures object at 0x7f64b1af7700>
+      FixedSizeCrop(crop_height=1024, crop_width=1024, padding_mode=constant)
+)
+STAGE:2022-09-22 12:11:01 7100:7100 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-22 12:11:12 7100:7100 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                  aten::fill_        53.08%        5.400s        53.08%        5.400s      54.000ms           100  
+                  aten::copy_        46.68%        4.748s        46.68%        4.748s       3.166ms          1500  
+                  aten::empty         0.04%       4.167ms         0.04%       4.167ms       3.253us          1281  
+        aten::constant_pad_nd         0.03%       2.741ms        67.04%        6.820s      68.200ms           100  
+                   aten::set_         0.02%       2.023ms         0.02%       2.023ms       1.744us          1160  
+               aten::_to_copy         0.02%       1.869ms         0.03%       2.733ms       4.555us           600  
+                   aten::add_         0.02%       1.737ms         0.04%       3.573ms       8.932us           400  
+                 aten::select         0.01%       1.398ms         0.02%       1.655ms       2.069us           800  
+                       detach         0.01%       1.353ms         0.01%       1.353ms       2.255us           600  
+                    aten::mul         0.01%       1.336ms         0.03%       3.028ms      15.140us           200  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 10.173s
+

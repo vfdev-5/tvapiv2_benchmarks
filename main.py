@@ -173,6 +173,20 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
                 det_transforms.ConvertImageDtype(torch.float),
             ]
         )
+    elif data_augmentation == "lsj-debug":
+        transforms = RefCompose(
+            [
+                # As det_transforms.ScaleJitter does inplace transformations on mask
+                # we perform a copy here and in v2
+                copy_targets,
+                det_transforms.ScaleJitter(target_size=(1024, 1024)),
+                # Set fill as 0 to make it work on tensors
+                det_transforms.FixedSizeCrop(size=(1024, 1024), fill=0),
+                # det_transforms.RandomHorizontalFlip(p=hflip_prob),
+                friendly_pil_to_tensor,
+                # det_transforms.ConvertImageDtype(torch.float),
+            ]
+        )
     elif data_augmentation == "multiscale":
         transforms = RefCompose(
             [
@@ -232,7 +246,7 @@ class WrapIntoFeatures:
             labels=features.Label(target["labels"], categories=None),
         )
         if "masks" in target:
-            wrapped_target["masks"] = features.SegmentationMask(target["masks"])
+            wrapped_target["masks"] = features.Mask(target["masks"])
 
         return image, wrapped_target
 
@@ -267,6 +281,19 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
             transforms_v2.RandomHorizontalFlip(p=hflip_prob),
             friendly_to_image_tensor,
             transforms_v2.ConvertImageDtype(torch.float),
+        ]
+    elif data_augmentation == "lsj-debug":
+        transforms = [
+            # As det_transforms.ScaleJitter does inplace transformations on mask
+            # we perform a copy here and in stable
+            copy_targets,
+            WrapIntoFeatures(),
+            transforms_v2.ScaleJitter(target_size=(1024, 1024)),
+            # Set fill as 0 to make it work on tensors
+            transforms_v2.FixedSizeCrop(size=(1024, 1024), fill=0),
+            # transforms_v2.RandomHorizontalFlip(p=hflip_prob),
+            friendly_to_image_tensor,
+            # transforms_v2.ConvertImageDtype(torch.float),
         ]
     elif data_augmentation == "multiscale":
         transforms = [
@@ -876,6 +903,10 @@ def run_cprofiling(op, data, n=100, filename=None):
 
     import cProfile, io, pstats
 
+    prof_filename = None
+    if isinstance(filename, str) and filename.endswith(".prof"):
+        prof_filename = filename
+
     with cProfile.Profile(timeunit=0.00001) as pr:
         for _ in range(n):
             _ = op(data)
@@ -885,13 +916,15 @@ def run_cprofiling(op, data, n=100, filename=None):
         ps = pstats.Stats(pr, stream=s).sort_stats("tottime")
         ps.print_stats()
         print(s.getvalue())
+    elif prof_filename is not None:
+        pr.dump_stats(prof_filename)
     else:
         with open(filename, "w") as h:
             ps = pstats.Stats(pr, stream=h).sort_stats("tottime")
             ps.print_stats()
 
 
-def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22):
+def main_profile_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, n=100):
 
     t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
     t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
@@ -899,11 +932,46 @@ def main_profile(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", 
 
     print("\nProfile API v2")
     torch.manual_seed(seed)
-    run_profiling(t_v2, data)
+    run_profiling(t_v2, data, n=n)
 
     print("\nProfile stable API")
     torch.manual_seed(seed)
-    run_profiling(t_stable, data)
+    run_profiling(t_stable, data, n=n)
+
+
+def main_cprofile_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log"):
+
+    t_stable = get_detection_transforms_stable_api(data_augmentation, hflip_prob)
+    t_v2 = get_detection_transforms_v2(data_augmentation, hflip_prob)
+    data = get_single_type_random_data("Detection", single_dtype=single_dtype)
+
+    now = datetime.now().strftime('%Y%m%d-%H%M%S')
+
+    if output_type == "log":
+        filename = f"output/{now}_cprof_v2_{data_augmentation}.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_cprof_v2_{data_augmentation}.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile API v2")
+    torch.manual_seed(seed)
+    run_cprofiling(t_v2, data, n=n, filename=filename)
+
+    if output_type == "log":
+        filename = f"output/{now}_cprof_stable_{data_augmentation}.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_cprof_stable_{data_augmentation}.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile stable API")
+    torch.manual_seed(seed)
+    run_cprofiling(t_stable, data, n=n, filename=filename)
 
 
 def main_profile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
@@ -975,34 +1043,6 @@ def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="
     run_profiling(t_v2, data, n=n)
 
 
-def main_bench_with_time(data_augmentation="hflip", hflip_prob=1.0, quiet=True, single_dtype=None, seed=22, **kwargs):
-    data_augmentation_list = [data_augmentation]
-
-    if data_augmentation == "all":
-        data_augmentation_list = ["hflip", "lsj", "multiscale", "ssd", "ssdlite"]
-
-    option = "Detection"
-
-    for a in data_augmentation_list:
-        opt = option + f" da={a}"
-        if not quiet:
-            print(f"-- Benchmark: {opt}")
-        t_stable = get_detection_transforms_stable_api(a, hflip_prob)
-        t_v2 = get_detection_transforms_v2(a, hflip_prob)
-        bench_with_time(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed)
-
-    if quiet:
-        print("\n-----\n")
-        for a in data_augmentation_list:
-            opt = option + f" da={a}"
-            print(f"-- Benchmark: {opt}")
-            t_stable = get_detection_transforms_stable_api(a, hflip_prob)
-            t_v2 = get_detection_transforms_v2(a, hflip_prob)
-            print("- Stable transforms:", t_stable)
-            print("- Transforms v2:", t_v2)
-            print("\n")
-
-
 def main_profile_single_transform_tensor_vs_feature(t_name, t_args=(), t_kwargs={}, seed=22, n=100):
     print("Profile:", t_name, t_args, t_kwargs)
 
@@ -1038,8 +1078,8 @@ if __name__ == "__main__":
             "segmentation": main_segmentation,
             "debug_det": main_debug_det,
             "debug_seg": main_debug_seg,
-            "profile": main_profile,
-            "with_time": main_bench_with_time,
+            "profile_det": main_profile_det,
+            "cprofile_det": main_cprofile_det,
             "profile_transform": main_profile_single_transform,
             "profile_transform_tensor_vs_feature": main_profile_single_transform_tensor_vs_feature,
             "profile_tensor_vs_feature": main_profile_tensor_vs_feature,

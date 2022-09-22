@@ -1,0 +1,166 @@
+         309430 function calls (291798 primitive calls) in 56.379 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     1000   15.482    0.015   15.482    0.015 {method 'to' of 'torch._C._TensorBase' objects}
+      270    9.112    0.034    9.112    0.034 {built-in method torch.nn.functional.pad}
+      200    7.150    0.036    7.150    0.036 {built-in method torch._C._nn.upsample_nearest2d}
+17434/15865    7.068    0.000    7.089    0.000 /vision/torchvision/prototype/features/_feature.py:61(__torch_function__)
+      600    6.557    0.011    6.557    0.011 {method 'copy_' of 'torch._C.StorageBase' objects}
+      400    6.550    0.016    6.550    0.016 {built-in method torch.round}
+      200    1.612    0.008   56.376    0.282 /vision/torchvision/prototype/transforms/_container.py:15(forward)
+      200    1.142    0.006    1.142    0.006 {built-in method torch._C._nn.upsample_bilinear2d}
+      400    0.623    0.002   31.465    0.079 /vision/torchvision/transforms/functional_tensor.py:447(resize)
+      400    0.510    0.001   19.773    0.049 /vision/torchvision/transforms/functional_tensor.py:534(_cast_squeeze_out)
+      800    0.162    0.000   16.404    0.021 /vision/torchvision/prototype/transforms/_geometry.py:845(_transform)
+     2401    0.029    0.000    0.069    0.000 /vision/torchvision/prototype/features/_feature.py:42(new_like)
+2610/1740    0.019    0.000    0.020    0.000 {method 'view' of 'torch._C._TensorBase' objects}
+     3001    0.017    0.000    0.017    0.000 {built-in method _make_subclass}
+      600    0.016    0.000    6.622    0.011 /usr/local/lib/python3.8/dist-packages/torch/_tensor.py:100(__deepcopy__)
+      200    0.016    0.000    0.036    0.000 /vision/torchvision/prototype/transforms/_geometry.py:736(_get_params)
+      200    0.015    0.000    0.075    0.000 /vision/torchvision/prototype/transforms/_geometry.py:795(_get_params)
+10200/1600    0.014    0.000    0.049    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:139(tree_flatten)
+      135    0.009    0.000    0.021    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:677(pad_bounding_box)
+     3433    0.009    0.000    0.009    0.000 {built-in method torch.as_tensor}
+      400    0.009    0.000    0.009    0.000 {built-in method torch.rand}
+      194    0.009    0.000    0.022    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:719(crop_bounding_box)
+    10200    0.007    0.000    0.010    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:112(__init__)
+      600    0.007    0.000    6.565    0.011 /usr/local/lib/python3.8/dist-packages/torch/storage.py:109(clone)
+      400    0.007    0.000   31.493    0.079 /vision/torchvision/prototype/transforms/functional/_geometry.py:94(resize_image_tensor)
+ 1143/620    0.007    0.000    0.020    0.000 {method 'clone' of 'torch._C._TensorBase' objects}
+     3001    0.006    0.000    0.032    0.000 /vision/torchvision/prototype/features/_feature.py:25(__new__)
+    37801    0.006    0.000    0.006    0.000 {built-in method builtins.isinstance}
+ 2400/400    0.006    0.000    0.009    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:161(tree_unflatten)
+ 2600/200    0.006    0.000    6.628    0.033 /usr/lib/python3.8/copy.py:128(deepcopy)
+      270    0.006    0.000    9.128    0.034 /vision/torchvision/prototype/transforms/functional/_geometry.py:604(_pad_with_scalar_fill)
+    14000    0.006    0.000    0.007    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:86(_is_namedtuple_instance)
+      200    0.006    0.000    0.013    0.000 main.py:232(__call__)
+      600    0.005    0.000    0.005    0.000 {method 'new_empty' of 'torch._C._TensorBase' objects}
+      600    0.005    0.000    0.005    0.000 {method 'set_' of 'torch._C._TensorBase' objects}
+  600/200    0.005    0.000   56.379    0.282 /usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py:1184(_call_impl)
+    10200    0.005    0.000    0.014    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:102(_is_leaf)
+      400    0.004    0.000    8.298    0.021 /usr/local/lib/python3.8/dist-packages/torch/nn/functional.py:3765(interpolate)
+      594    0.004    0.000    0.009    0.000 /vision/torchvision/transforms/functional_tensor.py:24(get_dimensions)
+      800    0.004    0.000   31.544    0.039 /vision/torchvision/prototype/transforms/functional/_geometry.py:155(resize)
+      200    0.004    0.000    0.004    0.000 {built-in method torch.tensor}
+    14000    0.004    0.000    0.010    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:96(_get_node_type)
+     6400    0.004    0.000    0.010    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:132(__init__)
+      200    0.003    0.000    0.014    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:146(resize_bounding_box)
+     1343    0.003    0.000    0.030    0.000 /vision/torchvision/prototype/features/_bounding_box.py:45(new_like)
+     1458    0.003    0.000    0.004    0.000 /vision/torchvision/transforms/functional_tensor.py:9(_is_tensor_a_torch_image)
+      400    0.003    0.000   47.958    0.120 /vision/torchvision/prototype/transforms/_transform.py:38(<listcomp>)
+      400    0.003    0.000   48.091    0.120 /vision/torchvision/prototype/transforms/_transform.py:32(forward)
+      200    0.003    0.000    0.003    0.000 {method 'mul' of 'torch._C._TensorBase' objects}
+      600    0.003    0.000    0.003    0.000 {built-in method torch._C._get_tracing_state}
+      400    0.003    0.000    0.006    0.000 /vision/torchvision/prototype/features/_image.py:108(image_size)
+      600    0.003    0.000    0.005    0.000 /usr/local/lib/python3.8/dist-packages/torch/_tensor.py:249(storage)
+     2800    0.003    0.000    0.005    0.000 /vision/torchvision/prototype/transforms/_utils.py:84(_isinstance)
+      600    0.003    0.000    0.005    0.000 /usr/local/lib/python3.8/dist-packages/torch/storage.py:459(_new_wrapped_storage)
+      200    0.002    0.000   16.518    0.083 /vision/torchvision/prototype/transforms/_geometry.py:871(forward)
+      400    0.002    0.000    0.004    0.000 /vision/torchvision/prototype/features/_image.py:112(num_channels)
+  800/200    0.002    0.000    6.627    0.033 /usr/lib/python3.8/copy.py:226(_deepcopy_dict)
+     1543    0.002    0.000    0.017    0.000 /vision/torchvision/prototype/features/_bounding_box.py:22(__new__)
+    21550    0.002    0.000    0.002    0.000 {built-in method builtins.len}
+      388    0.002    0.000    0.002    0.000 {method 'clamp_' of 'torch._C._TensorBase' objects}
+      540    0.002    0.000    9.170    0.017 /vision/torchvision/prototype/transforms/functional/_geometry.py:700(pad)
+      432    0.002    0.000    0.018    0.000 /vision/torchvision/prototype/features/_image.py:100(new_like)
+      600    0.002    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/autograd/grad_mode.py:126(__init__)
+     2000    0.002    0.000    0.003    0.000 /usr/lib/python3.8/copy.py:242(_keep_alive)
+      400    0.002    0.000    0.012    0.000 /vision/torchvision/prototype/transforms/functional/_meta.py:14(get_chw)
+      194    0.002    0.000    0.009    0.000 /vision/torchvision/prototype/transforms/functional/_meta.py:103(clamp_bounding_box)
+     1200    0.002    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/torch/storage.py:384(__init__)
+     1600    0.002    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:47(_dict_flatten)
+      400    0.002    0.000    0.016    0.000 /vision/torchvision/prototype/transforms/_utils.py:72(<setcomp>)
+      270    0.002    0.000    9.115    0.034 /vision/torchvision/transforms/functional_tensor.py:381(pad)
+     1200    0.002    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/storage.py:317(__new__)
+      432    0.002    0.000    0.008    0.000 /vision/torchvision/prototype/features/_image.py:69(__new__)
+      600    0.002    0.000    6.567    0.011 /usr/local/lib/python3.8/dist-packages/torch/storage.py:93(__deepcopy__)
+ 1340/670    0.002    0.000    0.002    0.000 {method 'numel' of 'torch._C._TensorBase' objects}
+    10200    0.002    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:116(<listcomp>)
+    10200    0.002    0.000    0.002    0.000 {built-in method builtins.sum}
+       97    0.002    0.000    0.006    0.000 /vision/torchvision/prototype/transforms/functional/_meta.py:57(_xyxy_to_xywh)
+     1200    0.002    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/autograd/grad_mode.py:227(__init__)
+      200    0.002    0.000   29.242    0.146 /vision/torchvision/prototype/transforms/functional/_geometry.py:131(resize_mask)
+     2800    0.001    0.000    0.002    0.000 /vision/torchvision/prototype/features/_feature.py:18(is_simple_tensor)
+      485    0.001    0.000    0.040    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:742(crop)
+      800    0.001    0.000   31.546    0.039 /vision/torchvision/prototype/transforms/_geometry.py:746(_transform)
+       97    0.001    0.000    0.001    0.000 {built-in method torch.all}
+      200    0.001    0.000   29.254    0.146 /vision/torchvision/prototype/features/_mask.py:20(resize)
+      200    0.001    0.000    2.265    0.011 /vision/torchvision/prototype/features/_image.py:146(resize)
+    12400    0.001    0.000    0.001    0.000 {method 'append' of 'list' objects}
+      400    0.001    0.000    2.770    0.007 /vision/torchvision/transforms/functional_tensor.py:518(_cast_squeeze_in)
+      200    0.001    0.000    0.020    0.000 /vision/torchvision/prototype/features/_bounding_box.py:79(resize)
+      400    0.001    0.000    0.029    0.000 /vision/torchvision/prototype/transforms/_utils.py:70(query_chw)
+      400    0.001    0.000    0.002    0.000 /usr/lib/python3.8/typing.py:255(inner)
+      600    0.001    0.000    6.577    0.011 /usr/local/lib/python3.8/dist-packages/torch/storage.py:596(__deepcopy__)
+    11800    0.001    0.000    0.001    0.000 {method 'keys' of 'dict' objects}
+      400    0.001    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:50(_dict_unflatten)
+      600    0.001    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/autograd/grad_mode.py:131(__enter__)
+      600    0.001    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/autograd/grad_mode.py:135(__exit__)
+      400    0.001    0.000    0.003    0.000 /usr/lib/python3.8/typing.py:802(__getitem__)
+      194    0.001    0.000    0.006    0.000 /vision/torchvision/transforms/functional_tensor.py:132(crop)
+     7000    0.001    0.000    0.001    0.000 {built-in method builtins.id}
+      135    0.001    0.000    8.951    0.066 /vision/torchvision/prototype/features/_mask.py:51(pad)
+      600    0.001    0.000    0.001    0.000 {method 'size' of 'torch._C._TensorBase' objects}
+     5200    0.001    0.000    0.001    0.000 {method 'get' of 'dict' objects}
+      600    0.001    0.000    0.022    0.000 /vision/torchvision/prototype/transforms/_utils.py:91(has_any)
+      200    0.001    0.000    6.629    0.033 main.py:138(copy_targets)
+     2200    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:59(_tuple_flatten)
+      135    0.001    0.000    0.025    0.000 /vision/torchvision/prototype/features/_bounding_box.py:115(pad)
+     6499    0.001    0.000    0.001    0.000 /usr/lib/python3.8/typing.py:1149(cast)
+      400    0.001    0.000    0.001    0.000 /usr/lib/python3.8/types.py:171(__get__)
+     1625    0.001    0.000    0.001    0.000 /vision/torchvision/prototype/features/_feature.py:107(_F)
+     1458    0.001    0.000    0.005    0.000 /vision/torchvision/transforms/functional_tensor.py:13(_assert_image_tensor)
+      135    0.001    0.000    8.943    0.066 /vision/torchvision/prototype/transforms/functional/_geometry.py:651(pad_mask)
+      540    0.001    0.000    0.001    0.000 /vision/torchvision/transforms/functional_tensor.py:361(_parse_pad_padding)
+     1600    0.001    0.000    0.001    0.000 {built-in method torch._C._has_torch_function_unary}
+      600    0.001    0.000    0.001    0.000 {method 'stride' of 'torch._C._TensorBase' objects}
+     3000    0.001    0.000    0.001    0.000 {method 'dim' of 'torch._C._TensorBase' objects}
+      600    0.001    0.000    0.001    0.000 {built-in method builtins.min}
+      873    0.001    0.000    0.018    0.000 /vision/torchvision/prototype/transforms/functional/_meta.py:81(convert_format_bounding_box)
+      600    0.001    0.000    0.001    0.000 /vision/torchvision/transforms/functional.py:363(_compute_resized_output_size)
+      200    0.001    0.000    0.001    0.000 main.py:259(friendly_to_image_tensor)
+      270    0.001    0.000    9.129    0.034 /vision/torchvision/prototype/transforms/functional/_geometry.py:588(pad_image_tensor)
+      200    0.001    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_utils.py:62(<setcomp>)
+     1800    0.001    0.000    0.001    0.000 {built-in method torch.is_grad_enabled}
+     1200    0.001    0.000    0.001    0.000 {built-in method builtins.getattr}
+      194    0.001    0.000    0.027    0.000 /vision/torchvision/prototype/features/_bounding_box.py:90(crop)
+      400    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:51(<dictcomp>)
+      400    0.001    0.000    0.001    0.000 /usr/lib/python3.8/typing.py:720(__hash__)
+     2825    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/_jit_internal.py:1082(is_scripting)
+      297    0.001    0.000    0.002    0.000 /vision/torchvision/prototype/features/_label.py:17(__new__)
+      135    0.000    0.000    0.192    0.001 /vision/torchvision/prototype/features/_image.py:181(pad)
+     1200    0.000    0.000    0.000    0.000 {built-in method __new__ of type object at 0x90b780}
+      600    0.000    0.000    0.000    0.000 {method '_storage' of 'torch._C._TensorBase' objects}
+      200    0.000    0.000    0.007    0.000 /vision/torchvision/prototype/transforms/_utils.py:60(query_bounding_box)
+      540    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:407(_convert_fill_arg)
+       97    0.000    0.000    0.008    0.000 /vision/torchvision/prototype/features/_bounding_box.py:63(to_format)
+       97    0.000    0.000    0.006    0.000 /vision/torchvision/prototype/features/_image.py:158(crop)
+      600    0.000    0.000    0.000    0.000 {method 'storage_offset' of 'torch._C._TensorBase' objects}
+      600    0.000    0.000    0.000    0.000 {method 'nbytes' of 'torch._C.StorageBase' objects}
+      400    0.000    0.000    0.000    0.000 /usr/lib/python3.8/enum.py:753(value)
+      600    0.000    0.000    0.000    0.000 {method 'is_conj' of 'torch._C._TensorBase' objects}
+       97    0.000    0.000    0.002    0.000 /vision/torchvision/prototype/features/_label.py:32(new_like)
+     1200    0.000    0.000    0.000    0.000 {built-in method torch._C._set_grad_enabled}
+     1200    0.000    0.000    0.000    0.000 {built-in method builtins.issubclass}
+      800    0.000    0.000    0.000    0.000 {built-in method builtins.max}
+      400    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:62(_tuple_unflatten)
+      600    0.000    0.000    0.000    0.000 {method 'is_neg' of 'torch._C._TensorBase' objects}
+       97    0.000    0.000    0.005    0.000 /vision/torchvision/prototype/features/_mask.py:30(crop)
+      600    0.000    0.000    0.000    0.000 {method 'setdefault' of 'dict' objects}
+     1600    0.000    0.000    0.000    0.000 {method 'values' of 'dict' objects}
+      400    0.000    0.000    0.000    0.000 {built-in method builtins.hash}
+      600    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/storage.py:23(__init__)
+      800    0.000    0.000    0.000    0.000 {method 'items' of 'dict' objects}
+      600    0.000    0.000    0.000    0.000 {method 'pop' of 'set' objects}
+      200    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/_tensor.py:914(__hash__)
+       97    0.000    0.000    0.003    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:738(crop_mask)
+      600    0.000    0.000    0.000    0.000 /usr/lib/python3.8/copy.py:182(_deepcopy_atomic)
+      200    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/features/_feature.py:127(resize)
+      135    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/features/_feature.py:154(pad)
+       97    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/features/_feature.py:136(crop)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/cProfile.py:133(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+

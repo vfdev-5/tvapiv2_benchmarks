@@ -1,0 +1,38 @@
+Timestamp: 20220922-114433
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+[-- Segmentation transforms measurements --]
+                          |  stable  |   v2 
+1 threads: ---------------------------------
+      PIL Image data      |   11.8   |  18.6
+      Tensor Image data   |          |  16.0
+      Feature Image data  |          |  16.1
+
+Times are in milliseconds (ms).
+
+
+-----
+
+-- Benchmark: Segmentation
+- Stable transforms: RefCompose(
+    <seg_transforms.RandomResize object at 0x7f35e68cb640>
+    <seg_transforms.RandomHorizontalFlip object at 0x7f35e68cba00>
+    <seg_transforms.RandomCrop object at 0x7f35e68cb970>
+    <seg_transforms.PILToTensor object at 0x7f35e68cb9a0>
+    <seg_transforms.ConvertImageDtype object at 0x7f35e68cb340>
+    <seg_transforms.Normalize object at 0x7f35e68cb220>
+)
+- Transforms v2: Compose(
+      SegWrapIntoFeatures()
+      RandomResize(min_size=260, max_size=1040, interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      PadIfSmaller(size=480)
+      RandomCrop(size=(480, 480), pad_if_needed=False, padding_mode=constant)
+      ToImageTensor()
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+)
+
+

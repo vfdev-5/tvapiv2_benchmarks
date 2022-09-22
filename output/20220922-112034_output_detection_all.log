@@ -1,0 +1,25 @@
+Timestamp: 20220922-112036
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+Traceback (most recent call last):
+  File "main.py", line 1034, in <module>
+    fire.Fire(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "main.py", line 740, in main_detection
+    bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, target_types=target_types)
+  File "main.py", line 630, in bench_with_time
+    transform(data)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/vision/torchvision/prototype/transforms/_container.py", line 18, in forward
+    sample = transform(sample)
+  File "main.py", line 235, in __call__
+    wrapped_target["masks"] = features.SegmentationMask(target["masks"])
+AttributeError: module 'torchvision.prototype.features' has no attribute 'SegmentationMask'

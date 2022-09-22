@@ -1,0 +1,55 @@
+Timestamp: 20220922-121357
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+Profile: ScaleJitter ((1024, 1024),) {}
+
+Profile stable API
+RefCompose(
+    <function copy_targets at 0x7ffb3ae00310>
+    ScaleJitter()
+)
+STAGE:2022-09-22 12:14:17 7114:7114 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-22 12:14:40 7114:7114 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                  aten::copy_        59.40%       12.711s        59.40%       12.711s       7.944ms          1600  
+     aten::upsample_nearest2d        19.55%        4.184s        19.56%        4.186s      41.859ms           100  
+                  aten::round        17.95%        3.841s        17.95%        3.841s      19.207ms           200  
+    aten::upsample_bilinear2d         2.95%     631.365ms         2.95%     631.840ms       6.318ms           100  
+               aten::_to_copy         0.03%       5.766ms        43.78%        9.369s       8.518ms          1100  
+          aten::empty_strided         0.02%       4.634ms         0.02%       4.634ms       4.213us          1100  
+                     aten::to         0.02%       4.005ms        43.79%        9.371s       8.519ms          1100  
+                  aten::empty         0.01%       2.900ms         0.01%       2.900ms       1.195us          2426  
+                   aten::set_         0.01%       2.013ms         0.01%       2.013ms       1.685us          1195  
+                    aten::mul         0.01%       1.982ms         0.02%       4.273ms      10.682us           400  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 21.399s
+
+
+Profile API v2
+Compose(
+      <function copy_targets at 0x7ffb3ae00310>
+      <__main__.WrapIntoFeatures object at 0x7ffb3adff700>
+      ScaleJitter(target_size=(1024, 1024), scale_range=(0.1, 2.0), interpolation=InterpolationMode.BILINEAR)
+)
+STAGE:2022-09-22 12:15:02 7114:7114 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-22 12:15:25 7114:7114 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                  aten::copy_        59.52%       12.796s        59.52%       12.796s      10.663ms          1200  
+     aten::upsample_nearest2d        19.49%        4.191s        19.50%        4.193s      41.927ms           100  
+                  aten::round        17.94%        3.858s        17.94%        3.858s      19.290ms           200  
+    aten::upsample_bilinear2d         2.91%     624.686ms         2.91%     625.237ms       6.252ms           100  
+               aten::_to_copy         0.03%       5.437ms        43.91%        9.440s      10.489ms           900  
+          aten::empty_strided         0.02%       4.904ms         0.02%       4.904ms       5.449us           900  
+                  aten::empty         0.02%       3.383ms         0.02%       3.383ms       1.331us          2541  
+                    aten::mul         0.02%       3.253ms         0.03%       5.527ms      11.054us           500  
+                   aten::view         0.01%       2.707ms         0.01%       2.707ms       4.512us           600  
+                   aten::set_         0.01%       1.988ms         0.01%       1.988ms       1.671us          1190  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 21.500s
+
