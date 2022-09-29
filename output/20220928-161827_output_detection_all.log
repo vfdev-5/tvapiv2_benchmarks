@@ -1,0 +1,43 @@
+Timestamp: 20220928-161828
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+[ Detection da=hflip transforms measurements ]
+                          |  stable  |   v2 
+1 threads: ---------------------------------
+      PIL Image data      |   80.7   |  85.8
+      Tensor Image data   |   80.8   |  83.9
+      Feature Image data  |   80.8   |  84.0
+
+Times are in milliseconds (ms).
+
+[- Detection da=lsj transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  402.1   |  408.9
+      Tensor Image data   |  402.1   |  409.2
+      Feature Image data  |  399.7   |  409.4
+
+Times are in milliseconds (ms).
+
+Traceback (most recent call last):
+  File "main.py", line 1268, in <module>
+    "classification": main_classification,
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "main.py", line 809, in main_detection
+    bench_fn(
+  File "main.py", line 698, in bench_with_time
+    transform(data)
+  File "main.py", line 133, in __call__
+    image, target = t(image, target)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/tvapiv2_benchmarks/det_transforms.py", line 435, in forward
+    target["masks"] = F.resize(
+KeyboardInterrupt

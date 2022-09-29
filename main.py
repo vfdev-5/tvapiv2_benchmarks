@@ -19,6 +19,7 @@ from torchvision.prototype import features, transforms as transforms_v2
 from torchvision.prototype.transforms import functional as F_v2
 from torchvision.transforms import autoaugment as autoaugment_stable, transforms as transforms_stable
 from torchvision.transforms.functional import InterpolationMode
+from torchvision.transforms import functional as F_stable
 
 
 def get_classification_transforms_stable_api(hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0):
@@ -187,10 +188,10 @@ def get_detection_transforms_stable_api(data_augmentation, hflip_prob=1.0):
                 copy_targets,
                 det_transforms.ScaleJitter(target_size=(1024, 1024)),
                 # Set fill as 0 to make it work on tensors
-                # det_transforms.FixedSizeCrop(size=(1024, 1024), fill=0),
-                # det_transforms.RandomHorizontalFlip(p=hflip_prob),
-                # friendly_pil_to_tensor,
-                # det_transforms.ConvertImageDtype(torch.float),
+                det_transforms.FixedSizeCrop(size=(1024, 1024), fill=0),
+                det_transforms.RandomHorizontalFlip(p=hflip_prob),
+                friendly_pil_to_tensor,
+                det_transforms.ConvertImageDtype(torch.float),
             ]
         )
     elif data_augmentation == "multiscale":
@@ -296,10 +297,10 @@ def get_detection_transforms_v2(data_augmentation, hflip_prob=1.0):
             WrapIntoFeatures(),
             transforms_v2.ScaleJitter(target_size=(1024, 1024)),
             # Set fill as 0 to make it work on tensors
-            # transforms_v2.FixedSizeCrop(size=(1024, 1024), fill=0),
-            # transforms_v2.RandomHorizontalFlip(p=hflip_prob),
-            # friendly_to_image_tensor,
-            # transforms_v2.ConvertImageDtype(torch.float),
+            transforms_v2.FixedSizeCrop(size=(1024, 1024), fill=0),
+            transforms_v2.RandomHorizontalFlip(p=hflip_prob),
+            friendly_to_image_tensor,
+            transforms_v2.ConvertImageDtype(torch.float),
         ]
     elif data_augmentation == "multiscale":
         transforms = [
@@ -415,6 +416,7 @@ def get_segmentation_transforms_stable_api(hflip_prob=1.0):
 
     min_size = int(0.5 * base_size)
     max_size = int(2.0 * base_size)
+    # min_size, max_size = base_size, base_size + 1
 
     trans = [seg_transforms.RandomResize(min_size, max_size)]
     if hflip_prob > 0:
@@ -433,7 +435,7 @@ def get_segmentation_transforms_stable_api(hflip_prob=1.0):
 class SegWrapIntoFeatures(transforms_v2.Transform):
     def forward(self, sample):
         image, mask = sample
-        return image, features.Mask(F_v2.pil_to_tensor(mask).squeeze(0), dtype=torch.int64)
+        return image, features.Mask(F_v2.pil_to_tensor(mask).squeeze(0))
 
 
 class PadIfSmaller(transforms_v2.Transform):
@@ -463,9 +465,13 @@ def get_segmentation_transforms_v2(hflip_prob=1.0):
     mean = (0.485, 0.456, 0.406)
     std = (0.229, 0.224, 0.225)
 
+    min_size = int(0.5 * base_size)
+    max_size = int(2.0 * base_size)
+    # min_size, max_size = base_size, base_size + 1
+
     transforms = [
         SegWrapIntoFeatures(),
-        transforms_v2.RandomResize(min_size=int(0.5 * base_size), max_size=int(2.0 * base_size)),
+        transforms_v2.RandomResize(min_size=min_size, max_size=max_size),
     ]
     if hflip_prob > 0:
         transforms.append(transforms_v2.RandomHorizontalFlip(hflip_prob))
@@ -981,6 +987,26 @@ def main_profile_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PI
     run_profiling(t_stable, data, n=n)
 
 
+@patch("random.randint", side_effect=lambda x, y: torch.randint(x, y, size=()).item())
+@patch("random.random", side_effect=lambda: torch.rand(1).item())
+def main_profile_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=22, size=None, n=100, **kwargs):
+
+    t_stable = get_segmentation_transforms_stable_api(hflip_prob)
+    t_v2 = get_segmentation_transforms_v2(hflip_prob)
+
+    target_types = None
+
+    print("\nProfile API v2")
+    torch.manual_seed(seed)
+    data = get_single_type_random_data("Segmentation", single_dtype=single_dtype, size=size, target_types=target_types)
+    run_profiling(t_v2, data, n=n)
+
+    print("\nProfile stable API")
+    torch.manual_seed(seed)
+    data = get_single_type_random_data("Segmentation", single_dtype=single_dtype, size=size, target_types=target_types)
+    run_profiling(t_stable, data, n=n)
+
+
 def main_cprofile_det(
     data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log"
 ):
@@ -1015,6 +1041,46 @@ def main_cprofile_det(
 
     print("\nProfile stable API")
     torch.manual_seed(seed)
+    run_cprofiling(t_stable, data, n=n, filename=filename)
+
+
+@patch("random.randint", side_effect=lambda x, y: torch.randint(x, y, size=()).item())
+@patch("random.random", side_effect=lambda: torch.rand(1).item())
+def main_cprofile_seg(
+    *args, hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log", **kwargs
+):
+
+    t_stable = get_segmentation_transforms_stable_api(hflip_prob)
+    t_v2 = get_segmentation_transforms_v2(hflip_prob)
+
+    now = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    if output_type == "log":
+        filename = f"output/{now}_cprof_v2_seg.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_cprof_v2_seg.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile API v2")
+    torch.manual_seed(seed)
+    data = get_single_type_random_data("Segmentation", single_dtype=single_dtype)
+    run_cprofiling(t_v2, data, n=n, filename=filename)
+
+    if output_type == "log":
+        filename = f"output/{now}_cprof_stable_seg.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_cprof_stable_seg.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile stable API")
+    torch.manual_seed(seed)
+    data = get_single_type_random_data("Segmentation", single_dtype=single_dtype)
     run_cprofiling(t_stable, data, n=n, filename=filename)
 
 
@@ -1106,6 +1172,88 @@ def main_profile_single_transform_tensor_vs_feature(t_name, t_args=(), t_kwargs=
     run_profiling(t_v2, data_feature, n=n)
 
 
+def test():
+
+    import torch.utils.benchmark as benchmark
+    # mask_2d = torch.randint(0, 10, size=(1, 1, 500, 500), dtype=torch.uint8)
+    # mask_2d = torch.randint(0, 10, size=(1, 1, 500, 500), dtype=torch.uint8).expand(2, 1, 500, 500)
+    mask_2d_1 = torch.randint(0, 10, size=(32, 1, 500, 500), dtype=torch.uint8)
+    mask_2d_2 = mask_2d_1.clone()
+
+    results = []
+    results.append(
+        benchmark.Timer(
+            stmt=f"torch.nn.functional.interpolate(data, size=(128, 128), mode='nearest')",
+            globals={
+                "data": mask_2d_1,
+            },
+            num_threads=torch.get_num_threads(),
+            label="Mask Resize measurements",
+            sub_label=f"({list(mask_2d_1.shape)}), 500 -> 128",
+            description="Original (slow) mask 2d",
+        ).blocked_autorange(min_run_time=2)
+    )
+    results.append(
+        benchmark.Timer(
+            stmt=f"torch.nn.functional.interpolate(data.expand(32, 2, 500, 500), size=(128, 128), mode='nearest')",
+            globals={
+                "data": mask_2d_2,
+            },
+            num_threads=torch.get_num_threads(),
+            label=f"Mask Resize measurements",
+            sub_label=f"({list(mask_2d_2.shape)}), 500 -> 128",
+            description="Hacked (faster) mask 2d",
+        ).blocked_autorange(min_run_time=2)
+    )
+    compare = benchmark.Compare(results)
+    compare.print()
+
+    return 0
+
+    results = []
+    min_run_time = 2
+
+    size = 520
+    pil_mask = get_pil_mask((500, 600))
+    mask = features.Mask(F_v2.pil_to_tensor(pil_mask).squeeze(0))
+
+    transform_stable = partial(F_stable.resize, size=size, interpolation=InterpolationMode.NEAREST)
+    transform_v2 = partial(F_v2.resize, size=[size], interpolation=InterpolationMode.NEAREST)
+
+    # PIL resize
+    results.append(
+        benchmark.Timer(
+            stmt=f"transform(data)",
+            globals={
+                "data": pil_mask,
+                "transform": transform_stable,
+            },
+            num_threads=torch.get_num_threads(),
+            label=f"PIL Resize measurements",
+            sub_label=f"PIL mask data",
+            description="stable",
+        ).blocked_autorange(min_run_time=min_run_time)
+    )
+    # Mask resize
+    results.append(
+        benchmark.Timer(
+            stmt=f"transform(data)",
+            globals={
+                "data": mask,
+                "transform": transform_v2,
+            },
+            num_threads=torch.get_num_threads(),
+            label=f"Mask Resize measurements",
+            sub_label=f"Feature Mask data",
+            description="v2",
+        ).blocked_autorange(min_run_time=min_run_time)
+    )
+
+    compare = benchmark.Compare(results)
+    compare.print()
+
+
+
 if __name__ == "__main__":
     from datetime import datetime
 
@@ -1123,11 +1271,14 @@ if __name__ == "__main__":
             "debug_det": main_debug_det,
             "debug_seg": main_debug_seg,
             "profile_det": main_profile_det,
+            "profile_seg": main_profile_seg,
             "cprofile_det": main_cprofile_det,
+            "cprofile_seg": main_cprofile_seg,
             "profile_transform": main_profile_single_transform,
             "profile_transform_tensor_vs_feature": main_profile_single_transform_tensor_vs_feature,
             "profile_tensor_vs_feature": main_profile_tensor_vs_feature,
             "cprofile_tensor_vs_feature": main_cprofile_tensor_vs_feature,
+            "test": test,
         }
     )
 

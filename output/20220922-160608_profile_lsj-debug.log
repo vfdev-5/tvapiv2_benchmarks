@@ -1,0 +1,23 @@
+Timestamp: 20220922-160610
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+Traceback (most recent call last):
+  File "main.py", line 1117, in <module>
+    fire.Fire(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "main.py", line 972, in main_profile_det
+    data = get_single_type_random_data("Detection", single_dtype=single_dtype, size=size)
+  File "main.py", line 565, in get_single_type_random_data
+    data = get_random_data_feature(option, **kwargs)
+  File "main.py", line 529, in _get_random_data_any
+    return fn_detection(**kwargs)
+  File "main.py", line 400, in get_detection_random_data_feature
+    feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
+TypeError: randint(): argument 'size' must be tuple of ints, but found element of type str at pos 2

@@ -1,0 +1,45 @@
+Timestamp: 20220922-153215
+Torch version: 1.13.0.dev20220906+cu113
+Torchvision version: 0.14.0a0
+Num threads: 1
+
+
+Profile API v2
+STAGE:2022-09-22 15:32:19 7653:7653 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-22 15:32:23 7653:7653 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                  aten::copy_        45.01%        1.546s        45.01%        1.546s       5.562ms           278  
+     aten::upsample_nearest2d        16.15%     554.787ms        16.16%     555.016ms      55.502ms            10  
+                  aten::round        15.61%     536.265ms        15.61%     536.265ms      26.813ms            20  
+                  aten::index        15.53%     533.406ms        15.53%     533.645ms      25.412ms            21  
+                  aten::fill_         4.88%     167.562ms         4.88%     167.562ms       5.078ms            33  
+    aten::upsample_bilinear2d         2.62%      90.107ms         2.62%      90.160ms       9.016ms            10  
+                    aten::pad         0.03%       1.193ms         5.81%     199.547ms      33.258ms             6  
+               aten::_to_copy         0.02%     825.000us        34.62%        1.189s       7.575ms           157  
+          aten::empty_strided         0.02%     562.000us         0.02%     562.000us       2.882us           195  
+                  aten::empty         0.01%     481.000us         0.01%     481.000us       1.676us           287  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 3.435s
+
+
+Profile stable API
+STAGE:2022-09-22 15:32:26 7653:7653 ActivityProfilerController.cpp:294] Completed Stage: Warm Up
+STAGE:2022-09-22 15:32:29 7653:7653 ActivityProfilerController.cpp:300] Completed Stage: Collection
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                         Name    Self CPU %      Self CPU   CPU total %     CPU total  CPU time avg    # of Calls  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+                  aten::copy_        40.62%        1.377s        40.62%        1.377s       6.260ms           220  
+                  aten::index        22.79%     772.567ms        22.79%     772.676ms      51.512ms            15  
+     aten::upsample_nearest2d        13.21%     447.648ms        13.21%     447.847ms      44.785ms            10  
+                  aten::round        12.64%     428.323ms        12.64%     428.323ms      21.416ms            20  
+                  aten::fill_         8.08%     273.851ms         8.08%     273.851ms       9.128ms            30  
+    aten::upsample_bilinear2d         2.45%      83.143ms         2.45%      83.185ms       8.319ms            10  
+                    aten::pad         0.08%       2.798ms         9.58%     324.597ms      32.460ms            10  
+               aten::_to_copy         0.02%     730.000us        29.60%        1.004s       7.168ms           140  
+          aten::empty_strided         0.01%     473.000us         0.01%     473.000us       3.379us           140  
+                  aten::slice         0.01%     453.000us         0.02%     543.000us       2.263us           240  
+-----------------------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 3.390s
+

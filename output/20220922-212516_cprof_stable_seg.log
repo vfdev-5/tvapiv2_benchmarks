@@ -1,0 +1,59 @@
+         147006 function calls in 5.756 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     1998    5.654    0.003    5.654    0.003 {method 'resize' of 'ImagingCore' objects}
+     1000    0.011    0.000    0.011    0.000 {built-in method torch.randint}
+     2000    0.009    0.000    5.715    0.003 /vision/torchvision/transforms/functional.py:388(resize)
+     2000    0.008    0.000    5.672    0.003 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:1975(resize)
+     1000    0.005    0.000    0.014    0.000 /usr/lib/python3.8/unittest/mock.py:1087(_increment_mock_call)
+     4000    0.005    0.000    0.009    0.000 /vision/torchvision/utils.py:549(_log_api_usage_once)
+     2000    0.004    0.000    0.007    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:531(_new)
+    29000    0.004    0.000    0.004    0.000 {built-in method builtins.isinstance}
+     1000    0.004    0.000    5.755    0.006 /tvapiv2_benchmarks/seg_transforms.py:36(__call__)
+     2000    0.003    0.000    5.676    0.003 /vision/torchvision/transforms/functional_pil.py:240(resize)
+     2000    0.003    0.000    0.007    0.000 /vision/torchvision/transforms/functional_pil.py:24(get_dimensions)
+     2000    0.003    0.000    0.015    0.000 /vision/torchvision/transforms/functional.py:61(get_dimensions)
+     3000    0.003    0.000    0.004    0.000 /usr/lib/python3.8/unittest/mock.py:737(__setattr__)
+     2000    0.003    0.000    0.003    0.000 /vision/torchvision/transforms/functional.py:363(_compute_resized_output_size)
+     4000    0.003    0.000    0.003    0.000 {built-in method torch._C._log_api_usage_once}
+     1000    0.002    0.000    0.015    0.000 main.py:1045(<lambda>)
+     4000    0.002    0.000    0.002    0.000 {built-in method torch._C._is_tracing}
+     4000    0.002    0.000    0.005    0.000 /usr/local/lib/python3.8/dist-packages/torch/jit/_trace.py:1008(is_tracing)
+     4000    0.002    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:802(load)
+     2000    0.002    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:500(__init__)
+     1000    0.002    0.000    0.002    0.000 {method 'item' of 'torch._C._TensorBase' objects}
+     2000    0.002    0.000    0.003    0.000 /usr/lib/python3.8/unittest/mock.py:2371(__new__)
+     1000    0.002    0.000    0.019    0.000 /usr/lib/python3.8/unittest/mock.py:1133(_execute_mock_call)
+     1000    0.002    0.000    0.036    0.000 /usr/lib/python3.8/unittest/mock.py:1076(__call__)
+     2000    0.001    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:1254(getbands)
+     3000    0.001    0.000    0.001    0.000 /usr/lib/python3.8/unittest/mock.py:326(_set)
+     1000    0.001    0.000    5.756    0.006 main.py:129(__call__)
+     4000    0.001    0.000    0.001    0.000 /vision/torchvision/transforms/functional_pil.py:16(_is_pil_image)
+     8000    0.001    0.000    0.001    0.000 {built-in method builtins.len}
+     3000    0.001    0.000    0.001    0.000 /usr/lib/python3.8/unittest/mock.py:321(_get)
+     4000    0.001    0.000    0.001    0.000 {method 'startswith' of 'str' objects}
+     4000    0.001    0.000    0.001    0.000 {method 'pixel_access' of 'ImagingCore' objects}
+     1000    0.001    0.000    0.020    0.000 /usr/lib/python3.8/unittest/mock.py:1084(_mock_call)
+     4000    0.001    0.000    0.001    0.000 {built-in method builtins.getattr}
+     1000    0.001    0.000    0.001    0.000 /usr/lib/python3.8/unittest/mock.py:139(_callable)
+     8000    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/_jit_internal.py:1082(is_scripting)
+     2000    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/ImageMode.py:36(getmode)
+     6002    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:527(size)
+     2000    0.001    0.000    0.001    0.000 /usr/lib/python3.8/enum.py:735(__hash__)
+     2000    0.001    0.000    0.001    0.000 {built-in method __new__ of type object at 0x90b780}
+     2000    0.001    0.000    0.001    0.000 /usr/lib/python3.8/unittest/mock.py:2403(__init__)
+     2000    0.001    0.000    0.001    0.000 {built-in method builtins.hasattr}
+     1000    0.000    0.000    0.001    0.000 /usr/lib/python3.8/unittest/mock.py:69(_is_exception)
+     2000    0.000    0.000    0.000    0.000 {built-in method builtins.hash}
+     2000    0.000    0.000    0.000    0.000 {method 'copy' of 'dict' objects}
+     1000    0.000    0.000    0.000    0.000 /usr/lib/python3.8/unittest/mock.py:558(__get_side_effect)
+     2000    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+     1000    0.000    0.000    0.000    0.000 /usr/lib/python3.8/unittest/mock.py:1071(_mock_check_sig)
+        2    0.000    0.000    0.000    0.000 {method 'copy' of 'ImagingCore' objects}
+        2    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:1141(copy)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/cProfile.py:133(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
