@@ -29,7 +29,9 @@ def get_classification_transforms_stable_api(hflip_prob=1.0, auto_augment_policy
     std = (0.229, 0.224, 0.225)
     interpolation = InterpolationMode.BILINEAR
 
-    trans = [transforms_stable.RandomResizedCrop(crop_size, interpolation=interpolation)]
+    trans = [
+        transforms_stable.RandomResizedCrop(crop_size, interpolation=interpolation)
+    ]
     if hflip_prob > 0:
         trans.append(transforms_stable.RandomHorizontalFlip(hflip_prob))
     if auto_augment_policy is not None:
@@ -105,10 +107,49 @@ def get_classification_transforms_v2(hflip_prob=1.0, auto_augment_policy=None, r
     return transforms_v2.Compose(trans)
 
 
+def get_classification_transforms_v2_b(hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0):
+    # https://github.com/pytorch/vision/commit/6ef4d828e4d8dbdd2a98790108fed0ec6def6469
+    crop_size = 224
+    mean = (0.485, 0.456, 0.406)
+    std = (0.229, 0.224, 0.225)
+    interpolation = InterpolationMode.BILINEAR
+
+    trans = [
+        transforms_v2.ToImageTensor(),
+        transforms_v2.RandomResizedCrop(crop_size, interpolation=interpolation, antialias=True),
+    ]
+    if hflip_prob > 0:
+        trans.append(transforms_v2.RandomHorizontalFlip(p=hflip_prob))
+    if auto_augment_policy is not None:
+        if auto_augment_policy == "ra":
+            trans.append(transforms_v2.RandAugment(interpolation=interpolation))
+        elif auto_augment_policy == "ta_wide":
+            trans.append(transforms_v2.TrivialAugmentWide(interpolation=interpolation))
+        elif auto_augment_policy == "augmix":
+            trans.append(transforms_v2.AugMix(interpolation=interpolation))
+        else:
+            aa_policy = transforms_v2.AutoAugmentPolicy(auto_augment_policy)
+            trans.append(transforms_v2.AutoAugment(policy=aa_policy, interpolation=interpolation))
+
+    trans.extend(
+        [
+            transforms_v2.ConvertImageDtype(torch.float),
+            transforms_v2.Normalize(mean=mean, std=std),
+        ]
+    )
+    if random_erase_prob > 0:
+        trans.append(transforms_v2.RandomErasing(p=random_erase_prob))
+
+    return transforms_v2.Compose(trans)
+
+
 def get_classification_random_data_pil(size=None, **kwargs):
     if size is None:
         size = (400, 500)
-    return PIL.Image.new("RGB", size[::-1], 123)
+
+    tensor = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8).permute(1, 2, 0).contiguous()
+    np_array = tensor.numpy()
+    return PIL.Image.fromarray(np_array)
 
 
 def get_classification_random_data_tensor(size=None, **kwargs):
@@ -367,7 +408,10 @@ def get_detection_random_data_pil(size=None, target_types=None, **kwargs):
     if size is None:
         size = (600, 800)
 
-    pil_image = PIL.Image.new("RGB", size[::-1], 123)
+    tensor = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8).permute(1, 2, 0).contiguous()
+    np_array = tensor.numpy()
+    pil_image = PIL.Image.fromarray(np_array)
+
     target = {
         "boxes": make_bounding_box(size, extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
@@ -503,7 +547,10 @@ def get_segmentation_random_data_pil(size=None, **kwargs):
     if size is None:
         size = (500, 600)
 
-    pil_image = PIL.Image.fromarray(np.random.randint(0, 256, (*size, 3), dtype="uint8")).convert("RGB")
+    tensor = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8).permute(1, 2, 0).contiguous()
+    np_array = tensor.numpy()
+    pil_image = PIL.Image.fromarray(np_array)
+
     target = get_pil_mask(size)
     return pil_image, target
 
@@ -764,6 +811,59 @@ def main_classification(
                 print(f"-- Benchmark: {opt}")
                 t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
                 t_v2 = get_classification_transforms_v2(hflip_prob, aa, re_prob)
+                print("- Stable transforms:", t_stable)
+                print("- Transforms v2:", t_v2)
+                print("\n")
+
+
+def main_classification_pil_vs_features(
+    hflip_prob=1.0,
+    auto_augment_policy=None,
+    random_erase_prob=0.0,
+    quiet=True,
+    seed=22,
+    with_time=False,
+    **kwargs,
+):
+    auto_augment_policies = [auto_augment_policy]
+    random_erase_prob_list = [random_erase_prob]
+
+    if auto_augment_policy == "all":
+        auto_augment_policies = [None, "ra", "ta_wide", "augmix", "imagenet"]
+
+    if random_erase_prob == "all":
+        random_erase_prob_list = [0.0, 1.0]
+
+    option = "Classification"
+
+    bench_fn = bench if not with_time else bench_with_time
+
+    for aa in auto_augment_policies:
+        for re_prob in random_erase_prob_list:
+            opt = option
+            if aa is not None:
+                opt += f" AA={aa}"
+            if re_prob > 0.0:
+                opt += f" RE={re_prob}"
+            if not quiet:
+                print(f"-- Benchmark: {opt}")
+            t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
+            t_v2 = get_classification_transforms_v2_b(hflip_prob, aa, re_prob)
+
+            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype="PIL", seed=seed, num_runs=20, num_loops=50)
+
+    if quiet:
+        print("\n-----\n")
+        for aa in auto_augment_policies:
+            for re_prob in random_erase_prob_list:
+                opt = option
+                if aa is not None:
+                    opt += f" AA={aa}"
+                if re_prob > 0.0:
+                    opt += f" RE={re_prob}"
+                print(f"-- Benchmark: {opt}")
+                t_stable = get_classification_transforms_stable_api(hflip_prob, aa, re_prob)
+                t_v2 = get_classification_transforms_v2_b(hflip_prob, aa, re_prob)
                 print("- Stable transforms:", t_stable)
                 print("- Transforms v2:", t_v2)
                 print("\n")
@@ -1119,6 +1219,27 @@ def main_cprofile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
     run_cprofiling(t_v2, data_feature, n=n, filename="output/cprof_v2_feature.log")
 
 
+def main_cprofile_pil_vs_feature(hflip_prob=1.0, seed=22, n=1000):
+
+    print(f"Profile: ")
+    t_stable = get_classification_transforms_stable_api(hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0)
+    t_v2 = get_classification_transforms_v2_b(hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0)
+
+    now = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    print("\nProfile Stable API on PIL")
+    print(t_stable)
+    torch.manual_seed(seed)
+    data = get_single_type_random_data("Classification", single_dtype="PIL")
+    run_cprofiling(t_stable, data, n=n, filename=f"output/{now}_cprof_stable_pil_classification_imagenet_ra.log")
+
+    print("\nProfile API v2 on Feature")
+    torch.manual_seed(seed)
+    print(t_v2)
+    data = get_single_type_random_data("Classification", single_dtype="Feature")
+    run_cprofiling(t_v2, data, n=n, filename=f"output/{now}_cprof_v2_feat_classification_imagenet_ra.log")
+
+
 def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="PIL", seed=22, n=100):
 
     print("Profile:", t_name, t_args, t_kwargs)
@@ -1172,7 +1293,137 @@ def main_profile_single_transform_tensor_vs_feature(t_name, t_args=(), t_kwargs=
     run_profiling(t_v2, data_feature, n=n)
 
 
+def main_cprofile_single_transform_pil_vs_feature(t_name, t_args=(), t_kwargs=None, seed=22, n=1000):
+
+    print("Profile:", t_name, type(t_args), t_args, type(t_kwargs), t_kwargs)
+
+    if t_kwargs is not None:
+        t_kwargs = eval(t_kwargs)
+
+    if not hasattr(transforms_v2, t_name):
+        raise ValueError("Unsupported transform name:", t_name)
+
+    t_kwargs_v2 = dict(t_kwargs)
+    t_kwargs_pil = dict(t_kwargs)
+    if "policy" in t_kwargs:
+        t_kwargs_v2["policy"] = transforms_v2.AutoAugmentPolicy(t_kwargs["policy"])
+        t_kwargs_pil["policy"] = autoaugment_stable.AutoAugmentPolicy(t_kwargs["policy"])
+
+    t_v2 = getattr(transforms_v2, t_name)(*t_args, **t_kwargs_v2)
+
+    option = "Classification"
+    if hasattr(transforms_stable, t_name):
+        t_stable = getattr(transforms_stable, t_name)(*t_args, **t_kwargs_pil)
+    elif hasattr(autoaugment_stable, t_name):
+        t_stable = getattr(autoaugment_stable, t_name)(*t_args, **t_kwargs_pil)
+    elif hasattr(det_transforms, t_name):
+        t_stable = getattr(det_transforms, t_name)(*t_args, **t_kwargs_pil)
+        option = "Detection"
+    else:
+        raise ValueError("Stable API does not have transform with name:", t_name)
+
+    if option == "Detection":
+        t_stable = RefCompose([copy_targets, t_stable])
+        t_v2 = transforms_v2.Compose([copy_targets, WrapIntoFeatures(), t_v2])
+
+    now = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    print("\nProfile API Stable on PIL")
+    print(t_stable)
+    torch.manual_seed(seed)
+    data = get_single_type_random_data("Classification", single_dtype="PIL")
+    run_cprofiling(t_stable, data, n=n, filename=f"output/{now}_cprof_{t_name}_stable_pil.log")
+
+    print("\nProfile API v2 on Feature")
+    print(t_v2)
+    torch.manual_seed(seed)
+    data = get_single_type_random_data("Classification", single_dtype="Feature")
+    run_cprofiling(t_v2, data, n=n, filename=f"output/{now}_cprof_{t_name}_v2_feature.log")
+
+
 def test():
+
+    import torch.utils.benchmark as benchmark
+    results = []
+    min_run_time = 2
+
+    torch.manual_seed(123)
+    pil_img = get_classification_random_data_pil((720, 720))
+    feature_img = F_v2.to_image_tensor(pil_img)
+    tensor_img = torch.Tensor(feature_img)
+
+    # torch.manual_seed(123)
+    # tensor_img = torch.randint(0, 256, size=(3, 720, 720), dtype=torch.uint8)
+    # feature_img = features.Image(tensor_img)
+
+    assert feature_img.dtype == torch.uint8
+    assert tensor_img.dtype == torch.uint8
+    assert type(tensor_img) == torch.Tensor, type(tensor_img)
+
+    transform_stable = F_stable.hflip
+    transform_v2 = F_v2.hflip
+
+    # PIL hflip
+    results.append(
+        benchmark.Timer(
+            stmt=f"transform(data)",
+            globals={
+                "data": pil_img,
+                "transform": transform_stable,
+            },
+            num_threads=torch.get_num_threads(),
+            label=f"HFlip measurements",
+            sub_label=f"PIL data",
+            description="stable",
+        ).blocked_autorange(min_run_time=min_run_time)
+    )
+    # Feature image hflip
+    results.append(
+        benchmark.Timer(
+            stmt=f"transform(data)",
+            globals={
+                "data": feature_img,
+                "transform": transform_v2,
+            },
+            num_threads=torch.get_num_threads(),
+            label=f"HFlip measurements",
+            sub_label=f"Feature Image data",
+            description="v2",
+        ).blocked_autorange(min_run_time=min_run_time)
+    )
+    # Tensor image hflip
+    results.append(
+        benchmark.Timer(
+            stmt=f"transform(data)",
+            globals={
+                "data": tensor_img,
+                "transform": transform_v2,
+            },
+            num_threads=torch.get_num_threads(),
+            label=f"HFlip measurements",
+            sub_label=f"Tensor Image data",
+            description="v2",
+        ).blocked_autorange(min_run_time=min_run_time)
+    )
+    # Tensor image hflip
+    results.append(
+        benchmark.Timer(
+            stmt=f"transform(data)",
+            globals={
+                "data": tensor_img,
+                "transform": transform_stable,
+            },
+            num_threads=torch.get_num_threads(),
+            label=f"HFlip measurements",
+            sub_label=f"Tensor Image data",
+            description="stable",
+        ).blocked_autorange(min_run_time=min_run_time)
+    )
+
+    compare = benchmark.Compare(results)
+    compare.print()
+
+    return 0
 
     import torch.utils.benchmark as benchmark
     # mask_2d = torch.randint(0, 10, size=(1, 1, 500, 500), dtype=torch.uint8)
@@ -1253,7 +1504,6 @@ def test():
     compare.print()
 
 
-
 if __name__ == "__main__":
     from datetime import datetime
 
@@ -1266,6 +1516,7 @@ if __name__ == "__main__":
     fire.Fire(
         {
             "classification": main_classification,
+            "classification_pil_vs_features": main_classification_pil_vs_features,
             "detection": main_detection,
             "segmentation": main_segmentation,
             "debug_det": main_debug_det,
@@ -1276,6 +1527,8 @@ if __name__ == "__main__":
             "cprofile_seg": main_cprofile_seg,
             "profile_transform": main_profile_single_transform,
             "profile_transform_tensor_vs_feature": main_profile_single_transform_tensor_vs_feature,
+            "cprofile_transform_pil_vs_feature": main_cprofile_single_transform_pil_vs_feature,
+            "cprofile_pil_vs_feature": main_cprofile_pil_vs_feature,
             "profile_tensor_vs_feature": main_profile_tensor_vs_feature,
             "cprofile_tensor_vs_feature": main_cprofile_tensor_vs_feature,
             "test": test,

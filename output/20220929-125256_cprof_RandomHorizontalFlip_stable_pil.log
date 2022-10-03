@@ -1,0 +1,30 @@
+         13942 function calls in 0.088 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+      497    0.067    0.000    0.067    0.000 {method 'transpose' of 'ImagingCore' objects}
+     1000    0.009    0.000    0.086    0.000 /vision/torchvision/transforms/transforms.py:696(forward)
+     1000    0.004    0.000    0.004    0.000 {built-in method torch.rand}
+     1000    0.001    0.000    0.088    0.000 /usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py:1184(_call_impl)
+      497    0.001    0.000    0.073    0.000 /vision/torchvision/transforms/functional.py:637(hflip)
+      497    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:531(_new)
+      497    0.001    0.000    0.001    0.000 /vision/torchvision/utils.py:538(_log_api_usage_once)
+      497    0.001    0.000    0.069    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:2674(transpose)
+     1000    0.001    0.000    0.001    0.000 {built-in method torch._C._get_tracing_state}
+      497    0.000    0.000    0.070    0.000 /vision/torchvision/transforms/functional_pil.py:53(hflip)
+      497    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:500(__init__)
+      497    0.000    0.000    0.000    0.000 {built-in method torch._C._log_api_usage_once}
+      497    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py:802(load)
+      497    0.000    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/jit/_trace.py:1008(is_tracing)
+     1491    0.000    0.000    0.000    0.000 {built-in method builtins.isinstance}
+      497    0.000    0.000    0.000    0.000 {built-in method torch._C._is_tracing}
+      497    0.000    0.000    0.000    0.000 /vision/torchvision/transforms/functional_pil.py:16(_is_pil_image)
+      497    0.000    0.000    0.000    0.000 {method 'startswith' of 'str' objects}
+      994    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/_jit_internal.py:1082(is_scripting)
+      497    0.000    0.000    0.000    0.000 {method 'pixel_access' of 'ImagingCore' objects}
+      497    0.000    0.000    0.000    0.000 {method 'copy' of 'dict' objects}
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/cProfile.py:133(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+

@@ -1,0 +1,175 @@
+         148708 function calls (146429 primitive calls) in 3.330 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     1374    0.725    0.001    1.280    0.001 /vision/torchvision/transforms/functional_tensor.py:875(_scale_channel)
+      165    0.520    0.003    0.520    0.003 {built-in method torch.grid_sampler}
+     3830    0.336    0.000    0.336    0.000 {method 'to' of 'torch._C._TensorBase' objects}
+     1374    0.319    0.000    0.319    0.000 {built-in method torch.bincount}
+  336/168    0.305    0.001    0.305    0.002 {built-in method torch.where}
+      231    0.107    0.000    0.133    0.001 /vision/torchvision/transforms/functional_tensor.py:150(rgb_to_grayscale)
+      263    0.091    0.000    0.091    0.000 {method 'mul' of 'torch._C._TensorBase' objects}
+       16    0.083    0.005    0.083    0.005 {built-in method torch.conv2d}
+      168    0.081    0.000    0.081    0.000 {method 'ge' of 'torch._C._TensorBase' objects}
+      307    0.071    0.000    0.071    0.000 {method 'sub' of 'torch._C._TensorBase' objects}
+      247    0.066    0.000    0.256    0.001 /vision/torchvision/transforms/functional_tensor.py:264(_blend)
+      165    0.063    0.000    0.063    0.000 {method 'bmm' of 'torch._C._TensorBase' objects}
+     1677    0.054    0.000    0.054    0.000 {method 'clamp' of 'torch._C._TensorBase' objects}
+     1000    0.045    0.000    3.325    0.003 /vision/torchvision/prototype/transforms/_auto_augment.py:276(forward)
+      458    0.043    0.000    0.043    0.000 {built-in method torch.stack}
+      330    0.034    0.000    0.034    0.000 {method 'copy_' of 'torch._C._TensorBase' objects}
+22544/22496    0.031    0.000    0.618    0.000 /vision/torchvision/prototype/features/_feature.py:59(__torch_function__)
+      181    0.030    0.000    0.030    0.000 {built-in method torch.round}
+     4122    0.019    0.000    0.019    0.000 {built-in method torch.div}
+      165    0.016    0.000    0.016    0.000 {method 'fill_' of 'torch._C._TensorBase' objects}
+      103    0.016    0.000    0.016    0.000 {method '__and__' of 'torch._C._TensorBase' objects}
+     1296    0.013    0.000    0.035    0.000 /vision/torchvision/prototype/features/_feature.py:40(new_like)
+     1374    0.012    0.000    0.012    0.000 {built-in method torch.nn.functional.pad}
+       56    0.011    0.000    0.073    0.001 /vision/torchvision/transforms/functional_tensor.py:853(autocontrast)
+      458    0.011    0.000    1.299    0.003 /vision/torchvision/transforms/functional_tensor.py:897(<listcomp>)
+     2412    0.011    0.000    0.011    0.000 {built-in method torch.rand}
+     1910    0.010    0.000    0.018    0.000 /vision/torchvision/transforms/functional_tensor.py:24(get_dimensions)
+2199/2034    0.010    0.000    0.010    0.000 {method 'view' of 'torch._C._TensorBase' objects}
+   112/56    0.009    0.000    0.009    0.000 {method 'amin' of 'torch._C._TensorBase' objects}
+   112/56    0.009    0.000    0.009    0.000 {method 'amax' of 'torch._C._TensorBase' objects}
+     1000    0.008    0.000    0.008    0.000 {built-in method torch.randint}
+     1390    0.008    0.000    0.008    0.000 {method 'sum' of 'torch._C._TensorBase' objects}
+     1374    0.008    0.000    0.008    0.000 {built-in method torch.cumsum}
+     3358    0.008    0.000    0.011    0.000 /vision/torchvision/transforms/functional_tensor.py:9(_is_tensor_a_torch_image)
+     1296    0.007    0.000    0.007    0.000 {built-in method _make_subclass}
+      910    0.006    0.000    0.006    0.000 {built-in method torch.linspace}
+      165    0.006    0.000    0.126    0.001 /vision/torchvision/transforms/functional_tensor.py:581(_gen_affine_grid)
+      581    0.005    0.000    0.005    0.000 {built-in method torch.tensor}
+     1296    0.005    0.000    0.040    0.000 /vision/torchvision/prototype/features/_image.py:96(new_like)
+     2592    0.005    0.000    0.005    0.000 {built-in method torch.as_tensor}
+     1000    0.004    0.000    0.009    0.000 /vision/torchvision/prototype/features/_image.py:104(image_size)
+     1000    0.004    0.000    0.006    0.000 /vision/torchvision/prototype/features/_image.py:108(num_channels)
+     1280    0.004    0.000    3.215    0.003 /vision/torchvision/prototype/transforms/_auto_augment.py:60(_apply_image_transform)
+     1296    0.004    0.000    0.018    0.000 /vision/torchvision/prototype/features/_image.py:65(__new__)
+     1000    0.003    0.000    0.008    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:34(_extract_image)
+      458    0.003    0.000    1.359    0.003 /vision/torchvision/transforms/functional_tensor.py:900(equalize)
+       74    0.003    0.000    0.003    0.000 {built-in method torch.mean}
+      458    0.003    0.000    1.347    0.003 /vision/torchvision/transforms/functional_tensor.py:896(_equalize_single_image)
+      251    0.003    0.000    0.065    0.000 /vision/torchvision/transforms/functional_tensor.py:774(invert)
+       16    0.003    0.000    0.103    0.006 /vision/torchvision/transforms/functional_tensor.py:816(_blurred_degenerate_image)
+      140    0.003    0.000    0.641    0.005 /vision/torchvision/prototype/transforms/functional/_geometry.py:458(rotate_image_tensor)
+     1000    0.003    0.000    0.018    0.000 /vision/torchvision/prototype/transforms/functional/_meta.py:14(get_chw)
+     1000    0.003    0.000    3.330    0.003 /usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py:1184(_call_impl)
+    32/16    0.002    0.000    0.003    0.000 {method 'clone' of 'torch._C._TensorBase' objects}
+    13987    0.002    0.000    0.002    0.000 {built-in method builtins.isinstance}
+     2000    0.002    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:112(__init__)
+     1296    0.002    0.000    0.010    0.000 /vision/torchvision/prototype/features/_feature.py:23(__new__)
+  462/231    0.002    0.000    0.002    0.000 {method 'unbind' of 'torch._C._TensorBase' objects}
+      168    0.002    0.000    0.435    0.003 /vision/torchvision/transforms/functional_tensor.py:801(solarize)
+     2000    0.002    0.000    0.011    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:139(tree_flatten)
+ 1444/722    0.002    0.000    0.003    0.000 {method 'is_floating_point' of 'torch._C._TensorBase' objects}
+      103    0.002    0.000    0.005    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:165(<lambda>)
+     1000    0.002    0.000    0.002    0.000 {built-in method torch._C._get_tracing_state}
+  980/490    0.002    0.000    0.002    0.000 {method 'size' of 'torch._C._TensorBase' objects}
+     2000    0.002    0.000    0.005    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:132(__init__)
+     2000    0.002    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:86(_is_namedtuple_instance)
+     2000    0.002    0.000    0.005    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:102(_is_leaf)
+     1000    0.001    0.000    0.010    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:55(_put_into_sample)
+      458    0.001    0.000    1.377    0.003 /vision/torchvision/prototype/transforms/functional/_color.py:126(equalize)
+      458    0.001    0.000    1.376    0.003 /vision/torchvision/prototype/features/_image.py:277(equalize)
+      165    0.001    0.000    0.606    0.004 /vision/torchvision/transforms/functional_tensor.py:547(_apply_grid_transform)
+     1000    0.001    0.000    0.002    0.000 /usr/lib/python3.8/typing.py:255(inner)
+  263/247    0.001    0.000    0.001    0.000 {method 'unsqueeze' of 'torch._C._TensorBase' objects}
+      165    0.001    0.000    0.002    0.000 /vision/torchvision/transforms/functional.py:987(_get_inverse_affine_matrix)
+     3358    0.001    0.000    0.012    0.000 /vision/torchvision/transforms/functional_tensor.py:13(_assert_image_tensor)
+      140    0.001    0.000    0.634    0.005 /vision/torchvision/transforms/functional_tensor.py:656(rotate)
+     1000    0.001    0.000    0.003    0.000 /usr/lib/python3.8/typing.py:802(__getitem__)
+       56    0.001    0.000    0.001    0.000 {built-in method torch.isfinite}
+      103    0.001    0.000    0.019    0.000 /vision/torchvision/transforms/functional_tensor.py:787(posterize)
+      103    0.001    0.000    0.001    0.000 {built-in method torch.rsub}
+     1514    0.001    0.000    0.017    0.000 /vision/torchvision/transforms/functional_tensor.py:62(_assert_channels)
+      157    0.001    0.000    0.256    0.002 /vision/torchvision/transforms/functional_tensor.py:230(adjust_saturation)
+      165    0.001    0.000    0.001    0.000 {built-in method torch.empty}
+     1000    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:161(tree_unflatten)
+      165    0.001    0.000    0.001    0.000 {method 'transpose' of 'torch._C._TensorBase' objects}
+      165    0.001    0.000    0.001    0.000 {method 'reshape' of 'torch._C._TensorBase' objects}
+      103    0.001    0.000    0.001    0.000 {built-in method torch.arange}
+      181    0.001    0.000    0.075    0.000 /vision/torchvision/transforms/functional_tensor.py:534(_cast_squeeze_out)
+     2000    0.001    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:96(_get_node_type)
+     6240    0.001    0.000    0.001    0.000 {built-in method builtins.len}
+       74    0.001    0.000    0.113    0.002 /vision/torchvision/transforms/functional_tensor.py:184(adjust_contrast)
+  457/311    0.001    0.000    0.001    0.000 {built-in method torch.is_floating_point}
+       56    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/_tensor.py:822(__rdiv__)
+     1000    0.001    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_utils.py:94(_isinstance)
+     1000    0.001    0.000    0.001    0.000 /usr/lib/python3.8/typing.py:720(__hash__)
+      140    0.001    0.000    0.647    0.005 /vision/torchvision/prototype/transforms/functional/_geometry.py:575(rotate)
+      165    0.001    0.000    0.001    0.000 {method 'unsqueeze_' of 'torch._C._TensorBase' objects}
+      140    0.001    0.000    0.646    0.005 /vision/torchvision/prototype/features/_image.py:186(rotate)
+  330/165    0.001    0.000    0.001    0.000 {method 'numel' of 'torch._C._TensorBase' objects}
+      168    0.001    0.000    0.441    0.003 /vision/torchvision/prototype/features/_image.py:269(solarize)
+      168    0.001    0.000    0.441    0.003 /vision/torchvision/prototype/transforms/functional/_color.py:100(solarize)
+      157    0.001    0.000    0.262    0.002 /vision/torchvision/prototype/transforms/functional/_color.py:22(adjust_saturation)
+     2000    0.001    0.000    0.001    0.000 {built-in method builtins.sum}
+      157    0.000    0.000    0.261    0.002 /vision/torchvision/prototype/features/_image.py:245(adjust_saturation)
+       25    0.000    0.000    0.106    0.004 /vision/torchvision/prototype/transforms/functional/_geometry.py:230(affine_image_tensor)
+     1280    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/features/_feature.py:105(_F)
+      103    0.000    0.000    0.000    0.000 {method 'round' of 'torch._C._TensorBase' objects}
+      181    0.000    0.000    0.022    0.000 /vision/torchvision/transforms/functional_tensor.py:518(_cast_squeeze_in)
+     3695    0.000    0.000    0.000    0.000 /usr/lib/python3.8/typing.py:1149(cast)
+      103    0.000    0.000    0.000    0.000 {method 'int' of 'torch._C._TensorBase' objects}
+      165    0.000    0.000    0.001    0.000 /vision/torchvision/transforms/functional_tensor.py:479(_assert_grid_transform_inputs)
+      165    0.000    0.000    0.520    0.003 /usr/local/lib/python3.8/dist-packages/torch/nn/functional.py:4086(grid_sample)
+      103    0.000    0.000    0.023    0.000 /vision/torchvision/prototype/transforms/functional/_color.py:87(posterize)
+     2000    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
+       83    0.000    0.000    0.024    0.000 /vision/torchvision/prototype/features/_image.py:281(invert)
+     2000    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:116(<listcomp>)
+     2280    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/_jit_internal.py:1082(is_scripting)
+     1000    0.000    0.000    0.000    0.000 {built-in method builtins.hash}
+       83    0.000    0.000    0.025    0.000 /vision/torchvision/prototype/transforms/functional/_color.py:139(invert)
+       56    0.000    0.000    0.000    0.000 {method 'logical_not' of 'torch._C._TensorBase' objects}
+      103    0.000    0.000    0.022    0.000 /vision/torchvision/prototype/features/_image.py:265(posterize)
+       74    0.000    0.000    0.116    0.002 /vision/torchvision/prototype/features/_image.py:249(adjust_contrast)
+     1280    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:405(_convert_fill_arg)
+       56    0.000    0.000    0.000    0.000 {method 'reciprocal' of 'torch._C._TensorBase' objects}
+       74    0.000    0.000    0.116    0.002 /vision/torchvision/prototype/transforms/functional/_color.py:35(adjust_contrast)
+       16    0.000    0.000    0.000    0.000 {method 'squeeze' of 'torch._C._TensorBase' objects}
+       56    0.000    0.000    0.075    0.001 /vision/torchvision/prototype/features/_image.py:273(autocontrast)
+      159    0.000    0.000    0.002    0.000 /usr/local/lib/python3.8/dist-packages/torch/_tensor.py:35(wrapped)
+      165    0.000    0.000    0.000    0.000 /usr/lib/python3.8/types.py:171(__get__)
+     1155    0.000    0.000    0.000    0.000 {built-in method math.cos}
+       25    0.000    0.000    0.104    0.004 /vision/torchvision/transforms/functional_tensor.py:607(affine)
+       56    0.000    0.000    0.075    0.001 /vision/torchvision/prototype/transforms/functional/_color.py:113(autocontrast)
+      168    0.000    0.000    0.001    0.000 /vision/torchvision/transforms/functional_tensor.py:18(_assert_threshold)
+       16    0.000    0.000    0.138    0.009 /vision/torchvision/transforms/functional_tensor.py:839(adjust_sharpness)
+      168    0.000    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:170(<lambda>)
+      157    0.000    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:161(<lambda>)
+       16    0.000    0.000    0.000    0.000 {built-in method torch.ones}
+     1000    0.000    0.000    0.000    0.000 {method 'append' of 'list' objects}
+      165    0.000    0.000    0.000    0.000 /vision/torchvision/transforms/functional.py:1027(<listcomp>)
+       16    0.000    0.000    0.000    0.000 {method 'expand' of 'torch._C._TensorBase' objects}
+      140    0.000    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:159(<lambda>)
+      103    0.000    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/_tensor.py:818(__rsub__)
+       25    0.000    0.000    0.107    0.004 /vision/torchvision/prototype/features/_image.py:199(affine)
+       25    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:177(_affine_parse_args)
+      458    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:172(<lambda>)
+       25    0.000    0.000    0.107    0.004 /vision/torchvision/prototype/transforms/functional/_geometry.py:419(affine)
+      330    0.000    0.000    0.000    0.000 {built-in method math.tan}
+      165    0.000    0.000    0.000    0.000 /usr/lib/python3.8/enum.py:753(value)
+      495    0.000    0.000    0.000    0.000 {built-in method math.radians}
+       74    0.000    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:162(<lambda>)
+      159    0.000    0.000    0.000    0.000 {built-in method torch._C._has_torch_function}
+      495    0.000    0.000    0.000    0.000 {built-in method math.sin}
+       16    0.000    0.000    0.138    0.009 /vision/torchvision/prototype/features/_image.py:253(adjust_sharpness)
+       16    0.000    0.000    0.138    0.009 /vision/torchvision/prototype/transforms/functional/_color.py:48(adjust_sharpness)
+      165    0.000    0.000    0.000    0.000 {built-in method torch._C._has_torch_function_variadic}
+       50    0.000    0.000    0.000    0.000 {built-in method _abc._abc_instancecheck}
+       25    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:252(<listcomp>)
+       83    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:173(<lambda>)
+       50    0.000    0.000    0.000    0.000 /usr/lib/python3.8/abc.py:96(__instancecheck__)
+       25    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:149(<lambda>)
+       25    0.000    0.000    0.000    0.000 {built-in method math.atan}
+       25    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:225(<listcomp>)
+       16    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:163(<lambda>)
+       56    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/_auto_augment.py:171(<lambda>)
+       25    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:254(<listcomp>)
+       25    0.000    0.000    0.000    0.000 {built-in method math.degrees}
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/cProfile.py:133(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+

@@ -35,6 +35,8 @@ prefix=`date "+%Y%m%d-%H%M%S"`
 # python -u main.py detection --data_augmentation=lsj --single_dtype=Tensor &> $prefix-out3.log.tmp
 # python -u main.py detection --data_augmentation=lsj --single_dtype=PIL &> $prefix-out4.log.tmp
 
-python -u main.py detection --with_time --data_augmentation=all &> output/${prefix}_output_detection_all.log
-python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all.log
-python -u main.py segmentation --with_time &> output/${prefix}_output_segmentation_all.log
+# python -u main.py detection --with_time --data_augmentation=all &> output/${prefix}_output_detection_all.log
+# python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all.log
+# python -u main.py segmentation --with_time &> output/${prefix}_output_segmentation_all.log
+
+python -u main.py classification_pil_vs_features --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_pil_vs_features.log

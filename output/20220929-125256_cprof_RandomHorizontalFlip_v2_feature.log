@@ -1,0 +1,47 @@
+         31840 function calls (31343 primitive calls) in 0.231 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+  994/497    0.185    0.000    0.186    0.000 {method 'flip' of 'torch._C._TensorBase' objects}
+     1000    0.012    0.000    0.229    0.000 /vision/torchvision/prototype/transforms/_transform.py:66(forward)
+     1000    0.005    0.000    0.005    0.000 {built-in method torch.rand}
+      497    0.004    0.000    0.011    0.000 /vision/torchvision/prototype/features/_feature.py:40(new_like)
+     2485    0.003    0.000    0.187    0.000 /vision/torchvision/prototype/features/_feature.py:59(__torch_function__)
+      497    0.002    0.000    0.003    0.000 /vision/torchvision/transforms/functional_tensor.py:9(_is_tensor_a_torch_image)
+      497    0.002    0.000    0.002    0.000 {built-in method _make_subclass}
+     1000    0.001    0.000    0.231    0.000 /usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py:1184(_call_impl)
+      497    0.001    0.000    0.212    0.000 /vision/torchvision/prototype/transforms/_transform.py:32(forward)
+      994    0.001    0.000    0.001    0.000 {built-in method torch.as_tensor}
+      497    0.001    0.000    0.006    0.000 /vision/torchvision/prototype/features/_image.py:65(__new__)
+      497    0.001    0.000    0.205    0.000 /vision/torchvision/prototype/transforms/functional/_geometry.py:45(horizontal_flip)
+      497    0.001    0.000    0.012    0.000 /vision/torchvision/prototype/features/_image.py:96(new_like)
+      497    0.001    0.000    0.203    0.000 /vision/torchvision/prototype/features/_image.py:134(horizontal_flip)
+     1000    0.001    0.000    0.001    0.000 {built-in method torch._C._get_tracing_state}
+     5964    0.001    0.000    0.001    0.000 {built-in method builtins.isinstance}
+      497    0.001    0.000    0.003    0.000 /vision/torchvision/prototype/features/_feature.py:23(__new__)
+      497    0.001    0.000    0.207    0.000 /vision/torchvision/prototype/transforms/_transform.py:38(<listcomp>)
+      497    0.001    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:112(__init__)
+      497    0.001    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:139(tree_flatten)
+      497    0.001    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_utils.py:94(_isinstance)
+      497    0.000    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:161(tree_unflatten)
+      497    0.000    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:102(_is_leaf)
+      497    0.000    0.000    0.190    0.000 /vision/torchvision/transforms/functional_tensor.py:126(hflip)
+      497    0.000    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:132(__init__)
+      497    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:86(_is_namedtuple_instance)
+      497    0.000    0.000    0.001    0.000 /vision/torchvision/prototype/features/_feature.py:16(is_simple_tensor)
+      497    0.000    0.000    0.205    0.000 /vision/torchvision/prototype/transforms/_geometry.py:32(_transform)
+     2491    0.000    0.000    0.000    0.000 {built-in method builtins.len}
+      497    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/transforms/_transform.py:26(_get_params)
+      497    0.000    0.000    0.001    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:96(_get_node_type)
+      497    0.000    0.000    0.003    0.000 /vision/torchvision/transforms/functional_tensor.py:13(_assert_image_tensor)
+      497    0.000    0.000    0.000    0.000 {built-in method builtins.sum}
+      497    0.000    0.000    0.000    0.000 /vision/torchvision/prototype/features/_feature.py:105(_F)
+      994    0.000    0.000    0.000    0.000 /usr/lib/python3.8/typing.py:1149(cast)
+      497    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:116(<listcomp>)
+      497    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
+      497    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/_jit_internal.py:1082(is_scripting)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/cProfile.py:133(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
