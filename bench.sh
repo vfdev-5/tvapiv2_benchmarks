@@ -4,10 +4,12 @@ export OMP_NUM_THREADS=1
 
 mkdir -p output
 
+vision_commit=$(cd /vision && git log -1 --format=format:"%h")
+
 set -eux
 
 prefix=`date "+%Y%m%d-%H%M%S"`
-
+echo ${vision_commit}
 
 # python -u main.py detection --with_time --data_augmentation=lsj --single_dtype=PIL &> tmp/$prefix-with_time-out1.log.tmp
 # python -u main.py debug_det --data_augmentation=lsj
@@ -39,4 +41,4 @@ prefix=`date "+%Y%m%d-%H%M%S"`
 # python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all.log
 # python -u main.py segmentation --with_time &> output/${prefix}_output_segmentation_all.log
 
-python -u main.py classification_pil_vs_features --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_pil_vs_features.log
+python -u main.py classification_pil_vs_features --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_pil_vs_features_${vision_commit}.log

@@ -14,7 +14,7 @@ import seg_transforms
 import torch
 import torch.utils.benchmark as benchmark
 import torchvision
-from torch.utils.benchmark.utils import common
+from torch.utils.benchmark.utils import common, compare as benchmark_compare
 from torchvision.prototype import features, transforms as transforms_v2
 from torchvision.prototype.transforms import functional as F_v2
 from torchvision.transforms import autoaugment as autoaugment_stable, transforms as transforms_stable
@@ -750,7 +750,43 @@ def bench_with_time(
             all_results.append(common.Measurement(number_per_run=num_loops, raw_times=times, task_spec=task_spec))
 
     compare = benchmark.Compare(all_results)
-    compare.print()
+
+    # Hack benchmark.compare._Column to get more digits
+    import itertools as it
+
+    def _column__init__(
+        self,
+        grouped_results,
+        time_scale: float,
+        time_unit: str,
+        trim_significant_figures: bool,
+        highlight_warnings: bool,
+    ):
+        print("Using _column__init__")
+        self._grouped_results = grouped_results
+        self._flat_results = list(it.chain(*grouped_results))
+        self._time_scale = time_scale
+        self._time_unit = time_unit
+        self._trim_significant_figures = trim_significant_figures
+        self._highlight_warnings = (
+            highlight_warnings
+            and any(r.has_warnings for r in self._flat_results if r)
+        )
+        leading_digits = [
+            int(torch.tensor(r.median / self._time_scale).log10().ceil()) if r else None
+            for r in self._flat_results
+        ]
+        unit_digits = max(d for d in leading_digits if d is not None)
+        decimal_digits = min(
+            max(m.significant_figures - digits, 0)
+            for digits, m in zip(leading_digits, self._flat_results)
+            if (m is not None) and (digits is not None)
+        ) if self._trim_significant_figures else 3  # <---- 1 replaced by 3
+        length = unit_digits + decimal_digits + (1 if decimal_digits else 0)
+        self._template = f"{{:>{length}.{decimal_digits}f}}{{:>{7 if self._highlight_warnings else 0}}}"
+
+    with patch.object(benchmark_compare._Column, "__init__", _column__init__):
+        compare.print()
 
 
 def main_classification(

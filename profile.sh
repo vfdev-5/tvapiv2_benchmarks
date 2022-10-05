@@ -22,4 +22,6 @@ prefix=`date "+%Y%m%d-%H%M%S"`
 
 # python -u main.py classification_pil_vs_features --with_time --auto_augment_policy=imagenet --random_erase_prob=1.0
 
-python -u main.py cprofile_transform_pil_vs_feature --t_name=RandomHorizontalFlip &> output/${prefix}_cprofile_randomhflip.log
+# python -u main.py cprofile_transform_pil_vs_feature --t_name=RandomHorizontalFlip &> output/${prefix}_cprofile_randomhflip.log
+
+python -u main.py cprofile_pil_vs_feature --n=2000
