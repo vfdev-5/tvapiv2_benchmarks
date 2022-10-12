@@ -1,0 +1,473 @@
+Timestamp: 20221012-173712
+Torch version: 1.14.0.dev20221010+cu116
+Torchvision version: 0.15.0a0
+Num threads: 1
+
+--- ConvertImageDtype
+Time benchmark: ConvertImageDtype (torch.float32,) None
+V2: ConvertImageDtype() torchvision.prototype.transforms._meta
+Stable: ConvertImageDtype() torchvision.transforms.transforms
+
+Bench stable API on ['Tensor', 'Feature']
+
+Bench API v2 on ['Tensor', 'Feature']
+[-- Classification transforms measurements -]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      Tensor Image data   |  1.585   |  1.598
+      Feature Image data  |  1.631   |  1.649
+
+Times are in milliseconds (ms).
+
+--- Normalize
+Time benchmark: Normalize (tensor([0., 0., 0.]), tensor([1., 1., 1.])) None
+V2: Normalize(mean=[tensor(0.), tensor(0.), tensor(0.)], std=[tensor(1.), tensor(1.), tensor(1.)], inplace=False) torchvision.prototype.transforms._misc
+Stable: Normalize(mean=tensor([0., 0., 0.]), std=tensor([1., 1., 1.])) torchvision.transforms.transforms
+
+Bench stable API on ['Tensor:float32', 'Feature:float32']
+
+Bench API v2 on ['Tensor:float32', 'Feature:float32']
+[------- Classification transforms measurements -------]
+                                  |   stable  |     v2  
+1 threads: ---------------------------------------------
+      Tensor:float32 Image data   |  558.692  |  586.889
+      Feature:float32 Image data  |  606.918  |  588.864
+
+Times are in microseconds (us).
+
+--- Resize
+Time benchmark: Resize ((224, 224),) None
+V2: Resize(size=(224, 224), interpolation=InterpolationMode.BILINEAR) torchvision.prototype.transforms._geometry
+Stable: Resize(size=(224, 224), interpolation=bilinear, max_size=None, antialias=None) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[-- Classification transforms measurements -]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  1.271   |  1.268
+      Tensor Image data   |  1.730   |  1.745
+      Feature Image data  |  1.759   |  1.771
+
+Times are in milliseconds (ms).
+
+--- CenterCrop
+Time benchmark: CenterCrop ((224, 224),) None
+V2: CenterCrop(size=(224, 224)) torchvision.prototype.transforms._geometry
+Stable: CenterCrop(size=(224, 224)) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  101.274  |  101.056
+      Tensor Image data   |   87.360  |   88.602
+      Feature Image data  |  119.221  |  122.287
+
+Times are in microseconds (us).
+
+--- Pad
+Time benchmark: Pad ((1, 2, 3, 4),) None
+V2: Pad(padding=(1, 2, 3, 4), padding_mode=constant) torchvision.prototype.transforms._geometry
+Stable: Pad(padding=(1, 2, 3, 4), fill=0, padding_mode=constant) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  227.844  |  236.057
+      Tensor Image data   |  406.448  |  420.236
+      Feature Image data  |  423.726  |  444.561
+
+Times are in microseconds (us).
+
+--- RandomCrop
+Time benchmark: RandomCrop ((224, 224),) None
+V2: RandomCrop(size=(224, 224), pad_if_needed=False, padding_mode=constant) torchvision.prototype.transforms._geometry
+Stable: RandomCrop(size=(224, 224), padding=None) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  121.271  |  126.689
+      Tensor Image data   |  107.345  |  113.726
+      Feature Image data  |  150.876  |  150.691
+
+Times are in microseconds (us).
+
+--- RandomHorizontalFlip
+Time benchmark: RandomHorizontalFlip () None
+V2: RandomHorizontalFlip(p=0.5) torchvision.prototype.transforms._geometry
+Stable: RandomHorizontalFlip(p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  160.363  |  163.302
+      Tensor Image data   |  268.797  |  271.504
+      Feature Image data  |  276.337  |  284.303
+
+Times are in microseconds (us).
+
+--- RandomVerticalFlip
+Time benchmark: RandomVerticalFlip () None
+V2: RandomVerticalFlip(p=0.5) torchvision.prototype.transforms._geometry
+Stable: RandomVerticalFlip(p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  123.184  |  127.289
+      Tensor Image data   |  148.455  |  153.025
+      Feature Image data  |  156.414  |  165.449
+
+Times are in microseconds (us).
+
+--- RandomPerspective
+Time benchmark: RandomPerspective () None
+V2: RandomPerspective(p=0.5, distortion_scale=0.5, interpolation=InterpolationMode.BILINEAR) torchvision.prototype.transforms._geometry
+Stable: RandomPerspective(p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[-- Classification transforms measurements -]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  2.091   |  2.093
+      Tensor Image data   |  4.952   |  5.042
+      Feature Image data  |  4.997   |  5.116
+
+Times are in milliseconds (ms).
+
+--- RandomResizedCrop
+Time benchmark: RandomResizedCrop ((224, 224),) None
+V2: RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR) torchvision.prototype.transforms._geometry
+Stable: RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[---- Classification transforms measurements ----]
+                          |   stable   |     v2   
+1 threads: ---------------------------------------
+      PIL Image data      |   971.249  |   956.661
+      Tensor Image data   |  1582.118  |  1574.782
+      Feature Image data  |  1629.863  |  1640.266
+
+Times are in microseconds (us).
+
+--- FiveCrop
+Time benchmark: FiveCrop ((224, 224),) None
+V2: FiveCrop(size=(224, 224)) torchvision.prototype.transforms._geometry
+Stable: FiveCrop(size=(224, 224)) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  205.360  |  196.964
+      Tensor Image data   |  122.309  |  120.207
+      Feature Image data  |  229.684  |  228.601
+
+Times are in microseconds (us).
+
+--- TenCrop
+Time benchmark: TenCrop ((224, 224),) None
+V2: TenCrop(size=(224, 224), vertical_flip=False) torchvision.prototype.transforms._geometry
+Stable: TenCrop(size=(224, 224), vertical_flip=False) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  471.946  |  438.325
+      Tensor Image data   |  529.240  |  506.258
+      Feature Image data  |  647.534  |  635.730
+
+Times are in microseconds (us).
+
+--- ColorJitter
+Time benchmark: ColorJitter () None
+V2: ColorJitter() torchvision.prototype.transforms._color
+Stable: ColorJitter(brightness=None, contrast=None, saturation=None, hue=None) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  133.333  |  142.687
+      Tensor Image data   |  133.639  |  142.633
+      Feature Image data  |  133.484  |  142.592
+
+Times are in microseconds (us).
+
+--- RandomRotation
+Time benchmark: RandomRotation (90,) None
+V2: RandomRotation(degrees=[-90.0, 90.0], interpolation=InterpolationMode.NEAREST, expand=False) torchvision.prototype.transforms._geometry
+Stable: RandomRotation(degrees=[-90.0, 90.0], interpolation=nearest, expand=False, fill=0) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[---- Classification transforms measurements ----]
+                          |   stable   |     v2   
+1 threads: ---------------------------------------
+      PIL Image data      |   532.919  |   536.373
+      Tensor Image data   |  8068.460  |  8082.896
+      Feature Image data  |  8143.538  |  8120.408
+
+Times are in microseconds (us).
+
+--- RandomAffine
+Time benchmark: RandomAffine (90, [0.2, 0.2], [0.7, 1.2]) None
+V2: RandomAffine(degrees=[-90.0, 90.0], translate=[0.2, 0.2], scale=[0.7, 1.2], interpolation=InterpolationMode.NEAREST) torchvision.prototype.transforms._geometry
+Stable: RandomAffine(degrees=[-90.0, 90.0], translate=[0.2, 0.2], scale=[0.7, 1.2]) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[----- Classification transforms measurements -----]
+                          |    stable   |      v2   
+1 threads: -----------------------------------------
+      PIL Image data      |    530.091  |    541.303
+      Tensor Image data   |   9967.418  |   9989.012
+      Feature Image data  |  10055.634  |  10046.609
+
+Times are in microseconds (us).
+
+--- Grayscale
+Time benchmark: Grayscale () None
+/vision/torchvision/prototype/transforms/_deprecated.py:50: UserWarning: The transform `Grayscale(num_output_channels=1)` is deprecated and will be removed in a future release. Instead, please use
+
+transforms.ConvertImageColorSpace(old_color_space=ColorSpace.RGB, color_space=ColorSpace.GRAY)
+  warnings.warn(f"{deprecation_msg} Instead, please use\n\n{replacement_msg}")
+V2: Grayscale(num_output_channels=1) torchvision.prototype.transforms._deprecated
+Stable: Grayscale(num_output_channels=1) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  201.818  |  210.579
+      Tensor Image data   |  608.119  |  620.497
+      Feature Image data  |  641.199  |  659.318
+
+Times are in microseconds (us).
+
+--- RandomGrayscale
+Time benchmark: RandomGrayscale () None
+/vision/torchvision/prototype/transforms/_deprecated.py:68: UserWarning: The transform `RandomGrayscale(p=...)` is deprecated and will be removed in a future release. Instead, please use
+
+transforms.RandomApply(
+    transforms.Compose(
+        transforms.ConvertImageColorSpace(old_color_space=ColorSpace.RGB, color_space=ColorSpace.GRAY),
+        transforms.ConvertImageColorSpace(old_color_space=ColorSpace.GRAY, color_space=ColorSpace.RGB),
+    )
+    p=...,
+)
+  warnings.warn(
+V2: RandomGrayscale(p=0.1) torchvision.prototype.transforms._deprecated
+Stable: RandomGrayscale(p=0.1) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  160.118  |  154.030
+      Tensor Image data   |  155.631  |  148.607
+      Feature Image data  |  174.939  |  155.553
+
+Times are in microseconds (us).
+
+--- RandomErasing
+Time benchmark: RandomErasing () None
+V2: RandomErasing(p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False) torchvision.prototype.transforms._augment
+Stable: RandomErasing(p=0.5, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False) torchvision.transforms.transforms
+
+Bench stable API on ['Tensor', 'Feature']
+
+Bench API v2 on ['Tensor', 'Feature']
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      Tensor Image data   |  213.714  |  220.928
+      Feature Image data  |  237.760  |  248.289
+
+Times are in microseconds (us).
+
+--- GaussianBlur
+Time benchmark: GaussianBlur (9,) None
+V2: GaussianBlur(kernel_size=(9, 9), sigma=(0.1, 2.0)) torchvision.prototype.transforms._misc
+Stable: GaussianBlur(kernel_size=(9, 9), sigma=(0.1, 2.0)) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[-- Classification transforms measurements --]
+                          |  stable  |    v2  
+1 threads: -----------------------------------
+      PIL Image data      |  18.705  |  18.729
+      Tensor Image data   |  15.196  |  15.259
+      Feature Image data  |  15.270  |  15.297
+
+Times are in milliseconds (ms).
+
+--- RandomInvert
+Time benchmark: RandomInvert () None
+V2: RandomInvert(p=0.5) torchvision.prototype.transforms._color
+Stable: RandomInvert(p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  268.333  |  285.697
+      Tensor Image data   |  196.951  |  212.829
+      Feature Image data  |  214.718  |  237.185
+
+Times are in microseconds (us).
+
+--- RandomPosterize
+Time benchmark: RandomPosterize (8,) None
+V2: RandomPosterize(p=0.5, bits=8) torchvision.prototype.transforms._color
+Stable: RandomPosterize(bits=8,p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  271.370  |  289.925
+      Tensor Image data   |  161.504  |  176.195
+      Feature Image data  |  176.733  |  196.464
+
+Times are in microseconds (us).
+
+--- RandomSolarize
+Time benchmark: RandomSolarize (0.5,) None
+V2: RandomSolarize(p=0.5, threshold=0.5) torchvision.prototype.transforms._color
+Stable: RandomSolarize(threshold=0.5,p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  272.558  |  290.841
+      Tensor Image data   |  746.308  |  761.033
+      Feature Image data  |  777.214  |  802.334
+
+Times are in microseconds (us).
+
+--- RandomAdjustSharpness
+Time benchmark: RandomAdjustSharpness (0.5,) None
+V2: RandomAdjustSharpness(p=0.5, sharpness_factor=0.5) torchvision.prototype.transforms._color
+Stable: RandomAdjustSharpness(sharpness_factor=0.5,p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[-- Classification transforms measurements -]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  2.170   |  2.192
+      Tensor Image data   |  2.659   |  2.685
+      Feature Image data  |  2.723   |  2.749
+
+Times are in milliseconds (ms).
+
+--- RandomAutocontrast
+Time benchmark: RandomAutocontrast () None
+V2: RandomAutocontrast(p=0.5) torchvision.prototype.transforms._color
+Stable: RandomAutocontrast(p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[--- Classification transforms measurements ---]
+                          |   stable  |     v2  
+1 threads: -------------------------------------
+      PIL Image data      |  520.903  |  539.708
+      Tensor Image data   |  690.489  |  706.570
+      Feature Image data  |  725.973  |  745.269
+
+Times are in microseconds (us).
+
+--- RandomEqualize
+Time benchmark: RandomEqualize () None
+V2: RandomEqualize(p=0.5) torchvision.prototype.transforms._color
+Stable: RandomEqualize(p=0.5) torchvision.transforms.transforms
+
+Bench stable API on None
+
+Bench API v2 on None
+[---- Classification transforms measurements ----]
+                          |   stable   |     v2   
+1 threads: ---------------------------------------
+      PIL Image data      |   593.362  |   534.845
+      Tensor Image data   |  1522.679  |  1515.821
+      Feature Image data  |  1559.740  |  1545.639
+
+Times are in microseconds (us).
+
+--- ElasticTransform
+Time benchmark: ElasticTransform () None
+V2: ElasticTransform(alpha=[50.0, 50.0], sigma=[5.0, 5.0], interpolation=InterpolationMode.BILINEAR) torchvision.prototype.transforms._geometry
+Stable: ElasticTransform(alpha=[50.0, 50.0]), (sigma=[5.0, 5.0]), interpolation={self.interpolation}, fill={self.fill}) torchvision.transforms.transforms
+
+Bench stable API on None
+Traceback (most recent call last):
+  File "main.py", line 1916, in <module>
+    print(f"Num threads: {torch.get_num_threads()}")
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "main.py", line 1640, in main_all_transforms
+    
+  File "main.py", line 1501, in main_single_transform
+    all_results.extend(run_bench_with_time(
+  File "main.py", line 751, in run_bench_with_time
+    transform(data)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/vision/torchvision/transforms/transforms.py", line 2132, in forward
+    displacement = self.get_params(self.alpha, self.sigma, [height, width])
+  File "/vision/torchvision/transforms/transforms.py", line 2110, in get_params
+    dx = F.gaussian_blur(dx, [kx, kx], sigma)
+  File "/vision/torchvision/transforms/functional.py", line 1366, in gaussian_blur
+    output = F_t.gaussian_blur(t_img, kernel_size, sigma)
+  File "/vision/torchvision/transforms/functional_tensor.py", line 763, in gaussian_blur
+    img = conv2d(img, kernel, groups=img.shape[-3])
+KeyboardInterrupt

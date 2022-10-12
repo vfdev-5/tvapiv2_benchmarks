@@ -1614,28 +1614,39 @@ def main_all_transforms(
         "Resize": ((224, 224), ),
         "CenterCrop": ((224, 224), ),
         "Pad": ((1, 2, 3, 4), ),
+        "RandomCrop": ((224, 224), ),
+        "RandomResizedCrop": ((224, 224), ),
+        "FiveCrop": ((224, 224), ),
+        "TenCrop": ((224, 224), ),
+        "RandomRotation": (90, ),
+        "RandomAffine": (90, [0.2, 0.2], [0.7, 1.2]),
+        "GaussianBlur": (9, ),
+        "RandomPosterize": (8, ),
+        "RandomSolarize": (0.5, ),
+        "RandomAdjustSharpness": (0.5, ),
     }
     dtype_dict = {
         "ConvertImageDtype": ["Tensor", "Feature"],
         "Normalize": ["Tensor:float32", "Feature:float32"],
-        "Resize": None,
-        "CenterCrop": None,
-        "Pad": None,
+        "RandomErasing": ["Tensor", "Feature"],
     }
 
-    t_to_skip = {"RandomApply", }
+    t_to_skip = {"RandomApply", "LinearTransformation"}
 
     for k in dict_transforms_v1:
         if k in t_to_skip:
             continue
         print("---", k)
+
+        s = 1 if "ElasticTransform" not in k else 5
+
         main_single_transform(
             k,
-            t_args=t_args_dict[k],
-            single_dtype=dtype_dict[k],
+            t_args=t_args_dict.get(k, ()),
+            single_dtype=dtype_dict.get(k, None),
             seed=seed,
-            num_runs=num_runs,
-            num_loops=num_loops
+            num_runs=num_runs / s,
+            num_loops=num_loops / s,
         )
 
 
