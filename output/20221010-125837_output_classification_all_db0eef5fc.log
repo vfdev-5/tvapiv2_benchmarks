@@ -1,0 +1,294 @@
+Timestamp: 20221010-125839
+Torch version: 1.14.0.dev20221010+cu116
+Torchvision version: 0.15.0a0
+Num threads: 1
+
+[-- Classification transforms measurements -]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  1.855   |  1.938
+      Tensor Image data   |  2.069   |  2.172
+      Feature Image data  |  2.085   |  2.210
+
+Times are in milliseconds (ms).
+
+[ Classification RE=1.0 transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  2.001   |  2.120
+      Tensor Image data   |  2.189   |  2.295
+      Feature Image data  |  2.213   |  2.347
+
+Times are in milliseconds (ms).
+
+[ Classification AA=ra transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  3.279   |  3.342
+      Tensor Image data   |  3.637   |  3.670
+      Feature Image data  |  3.651   |  3.791
+
+Times are in milliseconds (ms).
+
+[ Classification AA=ra RE=1.0 transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  3.446   |  3.486
+      Tensor Image data   |  3.927   |  3.838
+      Feature Image data  |  3.956   |  3.952
+
+Times are in milliseconds (ms).
+
+[ Classification AA=ta_wide transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  2.601   |  2.615
+      Tensor Image data   |  3.007   |  2.924
+      Feature Image data  |  2.997   |  2.997
+
+Times are in milliseconds (ms).
+
+[ Classification AA=ta_wide RE=1.0 transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  2.773   |  2.796
+      Tensor Image data   |  3.073   |  3.072
+      Feature Image data  |  3.077   |  3.146
+
+Times are in milliseconds (ms).
+
+[ Classification AA=augmix transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  9.000   |  8.318
+      Tensor Image data   |  8.488   |  7.679
+      Feature Image data  |  8.511   |  7.761
+
+Times are in milliseconds (ms).
+
+[ Classification AA=augmix RE=1.0 transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  8.374   |  8.475
+      Tensor Image data   |  7.830   |  7.925
+      Feature Image data  |  7.838   |  8.031
+
+Times are in milliseconds (ms).
+
+[ Classification AA=imagenet transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  2.510   |  2.517
+      Tensor Image data   |  3.125   |  3.078
+      Feature Image data  |  3.151   |  3.168
+
+Times are in milliseconds (ms).
+
+[ Classification AA=imagenet RE=1.0 transforms measurements ]
+                          |  stable  |    v2 
+1 threads: ----------------------------------
+      PIL Image data      |  2.687   |  2.710
+      Tensor Image data   |  3.296   |  3.260
+      Feature Image data  |  3.315   |  3.347
+
+Times are in milliseconds (ms).
+
+
+-----
+
+-- Benchmark: Classification
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caad30>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caaaf0>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+)
+
+
+-- Benchmark: Classification RE=1.0
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caae50>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+    RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caad30>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+      RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+
+
+-- Benchmark: Classification AA=ra
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    RandAugment(num_ops=2, magnitude=9, num_magnitude_bins=31, interpolation=InterpolationMode.BILINEAR, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caa9d0>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      RandAugment(interpolation=InterpolationMode.BILINEAR, num_ops=2, magnitude=9, num_magnitude_bins=31)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caae50>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+)
+
+
+-- Benchmark: Classification AA=ra RE=1.0
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    RandAugment(num_ops=2, magnitude=9, num_magnitude_bins=31, interpolation=InterpolationMode.BILINEAR, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caad30>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+    RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      RandAugment(interpolation=InterpolationMode.BILINEAR, num_ops=2, magnitude=9, num_magnitude_bins=31)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caa9d0>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+      RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+
+
+-- Benchmark: Classification AA=ta_wide
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    TrivialAugmentWide(num_magnitude_bins=31, interpolation=InterpolationMode.BILINEAR, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caa8b0>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      TrivialAugmentWide(interpolation=InterpolationMode.BILINEAR, num_magnitude_bins=31)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caad30>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+)
+
+
+-- Benchmark: Classification AA=ta_wide RE=1.0
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    TrivialAugmentWide(num_magnitude_bins=31, interpolation=InterpolationMode.BILINEAR, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caaaf0>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+    RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      TrivialAugmentWide(interpolation=InterpolationMode.BILINEAR, num_magnitude_bins=31)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caa8b0>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+      RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+
+
+-- Benchmark: Classification AA=augmix
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    AugMix(severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True, interpolation=InterpolationMode.BILINEAR, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caad30>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caaaf0>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+)
+
+
+-- Benchmark: Classification AA=augmix RE=1.0
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    AugMix(severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True, interpolation=InterpolationMode.BILINEAR, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caa8b0>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+    RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      AugMix(interpolation=InterpolationMode.BILINEAR, severity=3, mixture_width=3, chain_depth=-1, alpha=1.0, all_ops=True)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caad30>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+      RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+
+
+-- Benchmark: Classification AA=imagenet
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    AutoAugment(policy=AutoAugmentPolicy.IMAGENET, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caa9d0>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      AutoAugment(interpolation=InterpolationMode.BILINEAR, policy=AutoAugmentPolicy.IMAGENET)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caa8b0>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+)
+
+
+-- Benchmark: Classification AA=imagenet RE=1.0
+- Stable transforms: Compose(
+    RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333), interpolation=bilinear), antialias=None)
+    RandomHorizontalFlip(p=1.0)
+    AutoAugment(policy=AutoAugmentPolicy.IMAGENET, fill=None)
+    <function get_classification_transforms_stable_api.<locals>.friendly_pil_to_tensor at 0x7f2e90caa700>
+    ConvertImageDtype()
+    Normalize(mean=(0.485, 0.456, 0.406), std=(0.229, 0.224, 0.225))
+    RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+- Transforms v2: Compose(
+      RandomResizedCrop(size=(224, 224), scale=(0.08, 1.0), ratio=(0.75, 1.3333333333333333), interpolation=InterpolationMode.BILINEAR)
+      RandomHorizontalFlip(p=1.0)
+      AutoAugment(interpolation=InterpolationMode.BILINEAR, policy=AutoAugmentPolicy.IMAGENET)
+      <function get_classification_transforms_v2.<locals>.friendly_to_image_tensor at 0x7f2e90caa9d0>
+      ConvertImageDtype()
+      Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225], inplace=False)
+      RandomErasing(p=1.0, scale=(0.02, 0.33), ratio=(0.3, 3.3), value=0, inplace=False)
+)
+
+

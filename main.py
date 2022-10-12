@@ -1,4 +1,5 @@
 import random
+import sys
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
@@ -17,9 +18,12 @@ import torchvision
 from torch.utils.benchmark.utils import common, compare as benchmark_compare
 from torchvision.prototype import features, transforms as transforms_v2
 from torchvision.prototype.transforms import functional as F_v2
-from torchvision.transforms import autoaugment as autoaugment_stable, transforms as transforms_stable
+from torchvision.transforms import (
+    autoaugment as autoaugment_stable,
+    functional as F_stable,
+    transforms as transforms_stable,
+)
 from torchvision.transforms.functional import InterpolationMode
-from torchvision.transforms import functional as F_stable
 
 
 def get_classification_transforms_stable_api(hflip_prob=1.0, auto_augment_policy=None, random_erase_prob=0.0):
@@ -29,9 +33,7 @@ def get_classification_transforms_stable_api(hflip_prob=1.0, auto_augment_policy
     std = (0.229, 0.224, 0.225)
     interpolation = InterpolationMode.BILINEAR
 
-    trans = [
-        transforms_stable.RandomResizedCrop(crop_size, interpolation=interpolation)
-    ]
+    trans = [transforms_stable.RandomResizedCrop(crop_size, interpolation=interpolation)]
     if hflip_prob > 0:
         trans.append(transforms_stable.RandomHorizontalFlip(hflip_prob))
     if auto_augment_policy is not None:
@@ -92,7 +94,7 @@ def get_classification_transforms_v2(hflip_prob=1.0, auto_augment_policy=None, r
     def friendly_to_image_tensor(image):
         if isinstance(image, PIL.Image.Image):
             return tit(image)
-        return image
+        return image.as_subclass(torch.Tensor)
 
     trans.extend(
         [
@@ -152,16 +154,16 @@ def get_classification_random_data_pil(size=None, **kwargs):
     return PIL.Image.fromarray(np_array)
 
 
-def get_classification_random_data_tensor(size=None, **kwargs):
+def get_classification_random_data_tensor(size=None, dtype=torch.uint8, **kwargs):
     if size is None:
         size = (400, 500)
-    return torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
+    return torch.randint(0, 256, size=(3, *size), dtype=dtype)
 
 
-def get_classification_random_data_feature(size=None, **kwargs):
+def get_classification_random_data_feature(size=None, dtype=torch.uint8, **kwargs):
     if size is None:
         size = (400, 500)
-    return features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
+    return features.Image(torch.randint(0, 256, size=(3, *size), dtype=dtype))
 
 
 class RefCompose:
@@ -422,11 +424,11 @@ def get_detection_random_data_pil(size=None, target_types=None, **kwargs):
     return pil_image, target
 
 
-def get_detection_random_data_tensor(size=None, target_types=None, **kwargs):
+def get_detection_random_data_tensor(size=None, target_types=None, dtype=torch.uint8, **kwargs):
     if size is None:
         size = (600, 800)
 
-    tensor_image = torch.randint(0, 256, size=(3, *size), dtype=torch.uint8)
+    tensor_image = torch.randint(0, 256, size=(3, *size), dtype=dtype)
     target = {
         "boxes": make_bounding_box(size, extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
@@ -437,11 +439,11 @@ def get_detection_random_data_tensor(size=None, target_types=None, **kwargs):
     return tensor_image, target
 
 
-def get_detection_random_data_feature(size=None, target_types=None, **kwargs):
+def get_detection_random_data_feature(size=None, target_types=None, dtype=torch.uint8, **kwargs):
     if size is None:
         size = (600, 800)
 
-    feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=torch.uint8))
+    feature_image = features.Image(torch.randint(0, 256, size=(3, *size), dtype=dtype))
     target = {
         "boxes": make_bounding_box(size, extra_dims=(22,), dtype=torch.float),
         "masks": torch.randint(0, 2, size=(22, *size), dtype=torch.long),
@@ -609,6 +611,11 @@ get_random_data_feature = partial(
 
 
 def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
+
+    if ":" in single_dtype:
+        single_dtype, dtype = single_dtype.split(":")
+        kwargs["dtype"] = eval(f"torch.{dtype}")
+
     if single_dtype == "PIL":
         data = get_random_data_pil(option, **kwargs)
     elif single_dtype == "Tensor":
@@ -673,45 +680,43 @@ def bench(option, t_stable, t_v2, quiet=True, single_dtype=None, seed=22, target
     compare.print()
 
 
-def bench_with_time(
+def run_bench_with_time(
     option,
-    t_stable,
-    t_v2,
-    quiet=True,
+    transform,
+    tag,
     single_dtype=None,
-    size=None,
     seed=22,
     target_types=None,
-    num_runs=10,
-    num_loops=20,
+    size=None,
+    num_runs=15,
+    num_loops=1000,
+    data=None,
 ):
-    if not quiet:
-        print("- Stable transforms:", t_stable)
-        print("- Transforms v2:", t_v2)
-
     import time
 
     torch.set_num_threads(1)
 
-    all_results = []
-    for transform, tag in [(t_stable, "stable"), (t_v2, "v2")]:
+    random.seed(seed)
+    torch.manual_seed(seed)
 
-        if transform is None:
-            continue
-
-        random.seed(seed)
-        torch.manual_seed(seed)
-
+    if data is not None:
+        tested_dtypes = [(type(data), data)]
+    else:
         if isinstance(single_dtype, dict):
             single_dtype_value = single_dtype[tag]
         else:
             single_dtype_value = single_dtype
 
         if single_dtype_value is not None:
-            data = get_single_type_random_data(
-                option, single_dtype=single_dtype_value, target_types=target_types, size=size
-            )
-            tested_dtypes = [(single_dtype_value, data)]
+            if not isinstance(single_dtype_value, (list, tuple)):
+                single_dtype_value = [single_dtype_value, ]
+
+            tested_dtypes = []
+            for v in single_dtype_value:
+                data = get_single_type_random_data(
+                    option, single_dtype=v, target_types=target_types, size=size
+                )
+                tested_dtypes.append((v, data))
         else:
             tested_dtypes = [
                 ("PIL", get_random_data_pil(option, target_types=target_types, size=size)),
@@ -719,38 +724,42 @@ def bench_with_time(
                 ("Feature", get_random_data_feature(option, target_types=target_types, size=size)),
             ]
 
-        for dtype_label, data in tested_dtypes:
-            times = []
+    results = []
+    for dtype_label, data in tested_dtypes:
+        times = []
 
-            label = f"{option} transforms measurements"
-            sub_label = f"{dtype_label} Image data"
-            description = tag
-            task_spec = common.TaskSpec(
-                stmt="",
-                setup="",
-                global_setup="",
-                label=label,
-                sub_label=sub_label,
-                description=description,
-                env=None,
-                num_threads=torch.get_num_threads(),
-            )
+        label = f"{option} transforms measurements"
+        sub_label = f"{dtype_label} Image data"
+        description = tag
+        task_spec = common.TaskSpec(
+            stmt="",
+            setup="",
+            global_setup="",
+            label=label,
+            sub_label=sub_label,
+            description=description,
+            env=None,
+            num_threads=torch.get_num_threads(),
+        )
 
-            for i in range(num_runs):
-                started = time.time()
-                for j in range(num_loops):
+        for i in range(num_runs):
+            started = time.time()
+            for j in range(num_loops):
 
-                    random.seed(seed + i * num_loops + j)
-                    torch.manual_seed(seed + i * num_loops + j)
-                    transform(data)
+                random.seed(seed + i * num_loops + j)
+                torch.manual_seed(seed + i * num_loops + j)
+                transform(data)
 
-                elapsed = time.time() - started
-                times.append(elapsed)
+            elapsed = time.time() - started
+            times.append(elapsed)
 
-            all_results.append(common.Measurement(number_per_run=num_loops, raw_times=times, task_spec=task_spec))
+        results.append(
+            common.Measurement(number_per_run=num_loops, raw_times=times, task_spec=task_spec)
+        )
+    return results
 
-    compare = benchmark.Compare(all_results)
 
+def compare_print(compare):
     # Hack benchmark.compare._Column to get more digits
     import itertools as it
 
@@ -762,31 +771,70 @@ def bench_with_time(
         trim_significant_figures: bool,
         highlight_warnings: bool,
     ):
-        print("Using _column__init__")
         self._grouped_results = grouped_results
         self._flat_results = list(it.chain(*grouped_results))
         self._time_scale = time_scale
         self._time_unit = time_unit
         self._trim_significant_figures = trim_significant_figures
-        self._highlight_warnings = (
-            highlight_warnings
-            and any(r.has_warnings for r in self._flat_results if r)
-        )
+        self._highlight_warnings = highlight_warnings and any(r.has_warnings for r in self._flat_results if r)
         leading_digits = [
-            int(torch.tensor(r.median / self._time_scale).log10().ceil()) if r else None
-            for r in self._flat_results
+            int(torch.tensor(r.median / self._time_scale).log10().ceil()) if r else None for r in self._flat_results
         ]
         unit_digits = max(d for d in leading_digits if d is not None)
-        decimal_digits = min(
-            max(m.significant_figures - digits, 0)
-            for digits, m in zip(leading_digits, self._flat_results)
-            if (m is not None) and (digits is not None)
-        ) if self._trim_significant_figures else 3  # <---- 1 replaced by 3
+        decimal_digits = (
+            min(
+                max(m.significant_figures - digits, 0)
+                for digits, m in zip(leading_digits, self._flat_results)
+                if (m is not None) and (digits is not None)
+            )
+            if self._trim_significant_figures
+            else 3
+        )  # <---- 1 replaced by 3
         length = unit_digits + decimal_digits + (1 if decimal_digits else 0)
         self._template = f"{{:>{length}.{decimal_digits}f}}{{:>{7 if self._highlight_warnings else 0}}}"
 
     with patch.object(benchmark_compare._Column, "__init__", _column__init__):
         compare.print()
+
+
+def bench_with_time(
+    option,
+    t_stable,
+    t_v2,
+    quiet=True,
+    single_dtype=None,
+    size=None,
+    seed=22,
+    target_types=None,
+    num_runs=15,
+    num_loops=100,
+):
+    if not quiet:
+        print("- Stable transforms:", t_stable)
+        print("- Transforms v2:", t_v2)
+
+    all_results = []
+    for transform, tag in [(t_stable, "stable"), (t_v2, "v2")]:
+
+        if transform is None:
+            continue
+
+        all_results.extend(
+            run_bench_with_time(
+                option,
+                transform,
+                tag,
+                single_dtype=single_dtype,
+                seed=seed,
+                target_types=target_types,
+                size=size,
+                num_runs=num_runs,
+                num_loops=num_loops,
+            )
+        )
+
+    compare = benchmark.Compare(all_results)
+    compare_print(compare)
 
 
 def main_classification(
@@ -833,7 +881,7 @@ def main_classification(
                 else:
                     raise ValueError(f"Unsupported single_api value: '{single_api}'")
 
-            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=20, num_loops=50)
+            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=15, num_loops=150)
 
     if quiet:
         print("\n-----\n")
@@ -1066,20 +1114,29 @@ def main_debug_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=122, **kwargs
     assert mse < 0.02, mse
 
 
-def run_profiling(op, data, n=100):
-    if n > 1:
-        for _ in range(n):
-            _ = op(data)
+def run_profiling(op, data, n=100, seed=None, filename=None):
+    for _ in range(10):
+        _ = op(data)
 
     with torch.profiler.profile(activities=[torch.profiler.ProfilerActivity.CPU]) as p:
-        for _ in range(n):
+        for i in range(n):
+            random.seed(seed + i)
+            torch.manual_seed(seed + i)
             _ = op(data)
 
-    print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=10))
+    if filename is None:
+        print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=100))
+    else:
+        origin_stdout = sys.stdout
+        with open(filename, "w") as sys.stdout:
+            print(op)
+            print("")
+            print(p.key_averages().table(sort_by="self_cpu_time_total", row_limit=100))
+        sys.stdout = origin_stdout
 
 
-def run_cprofiling(op, data, n=100, filename=None):
-    for _ in range(n):
+def run_cprofiling(op, data, n=100, filename=None, seed=None):
+    for _ in range(10):
         _ = op(data)
 
     import cProfile, io, pstats
@@ -1089,7 +1146,9 @@ def run_cprofiling(op, data, n=100, filename=None):
         prof_filename = filename
 
     with cProfile.Profile(timeunit=0.00001) as pr:
-        for _ in range(n):
+        for i in range(n):
+            random.seed(seed + i)
+            torch.manual_seed(seed + i)
             _ = op(data)
 
     if filename is None:
@@ -1103,6 +1162,43 @@ def run_cprofiling(op, data, n=100, filename=None):
         with open(filename, "w") as h:
             ps = pstats.Stats(pr, stream=h).sort_stats("tottime")
             ps.print_stats()
+
+
+def main_profile(hflip_prob=1.0, single_dtype="PIL", seed=22, n=2000, output_type="log"):
+
+    t_stable = get_classification_transforms_stable_api(
+        hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0
+    )
+    t_v2 = get_classification_transforms_v2(hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0)
+    data = get_single_type_random_data("Classification", single_dtype=single_dtype)
+
+    now = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    if output_type == "log":
+        filename = f"output/{now}_prof_v2_classfication_aa_re.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_prof_v2_classfication_aa_re.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile API v2")
+    torch.manual_seed(seed)
+    run_profiling(t_v2, data, n=n, seed=seed, filename=filename)
+
+    if output_type == "log":
+        filename = f"output/{now}_prof_stable_classfication_aa_re.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_prof_stable_classfication_aa_re.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile stable API")
+    torch.manual_seed(seed)
+    run_profiling(t_stable, data, n=n, seed=seed, filename=filename)
 
 
 def main_profile_det(data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, size=None, n=100):
@@ -1143,6 +1239,43 @@ def main_profile_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=22, size=No
     run_profiling(t_stable, data, n=n)
 
 
+def main_cprofile(hflip_prob=1.0, single_dtype="PIL", seed=22, n=2000, output_type="log"):
+
+    t_stable = get_classification_transforms_stable_api(
+        hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0
+    )
+    t_v2 = get_classification_transforms_v2(hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0)
+    data = get_single_type_random_data("Classification", single_dtype=single_dtype)
+
+    now = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    if output_type == "log":
+        filename = f"output/{now}_cprof_v2_classfication_aa_re.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_cprof_v2_classfication_aa_re.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile API v2")
+    torch.manual_seed(seed)
+    run_cprofiling(t_v2, data, n=n, filename=filename, seed=seed)
+
+    if output_type == "log":
+        filename = f"output/{now}_cprof_stable_classfication_aa_re.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_cprof_stable_classfication_aa_re.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
+    print("\nProfile stable API")
+    torch.manual_seed(seed)
+    run_cprofiling(t_stable, data, n=n, filename=filename, seed=seed)
+
+
 def main_cprofile_det(
     data_augmentation="hflip", hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log"
 ):
@@ -1164,7 +1297,7 @@ def main_cprofile_det(
 
     print("\nProfile API v2")
     torch.manual_seed(seed)
-    run_cprofiling(t_v2, data, n=n, filename=filename)
+    run_cprofiling(t_v2, data, n=n, filename=filename, seed=seed)
 
     if output_type == "log":
         filename = f"output/{now}_cprof_stable_{data_augmentation}.log"
@@ -1177,14 +1310,12 @@ def main_cprofile_det(
 
     print("\nProfile stable API")
     torch.manual_seed(seed)
-    run_cprofiling(t_stable, data, n=n, filename=filename)
+    run_cprofiling(t_stable, data, n=n, filename=filename, seed=seed)
 
 
 @patch("random.randint", side_effect=lambda x, y: torch.randint(x, y, size=()).item())
 @patch("random.random", side_effect=lambda: torch.rand(1).item())
-def main_cprofile_seg(
-    *args, hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log", **kwargs
-):
+def main_cprofile_seg(*args, hflip_prob=1.0, single_dtype="PIL", seed=22, n=1000, output_type="log", **kwargs):
 
     t_stable = get_segmentation_transforms_stable_api(hflip_prob)
     t_v2 = get_segmentation_transforms_v2(hflip_prob)
@@ -1203,7 +1334,7 @@ def main_cprofile_seg(
     print("\nProfile API v2")
     torch.manual_seed(seed)
     data = get_single_type_random_data("Segmentation", single_dtype=single_dtype)
-    run_cprofiling(t_v2, data, n=n, filename=filename)
+    run_cprofiling(t_v2, data, n=n, filename=filename, seed=seed)
 
     if output_type == "log":
         filename = f"output/{now}_cprof_stable_seg.log"
@@ -1217,7 +1348,7 @@ def main_cprofile_seg(
     print("\nProfile stable API")
     torch.manual_seed(seed)
     data = get_single_type_random_data("Segmentation", single_dtype=single_dtype)
-    run_cprofiling(t_stable, data, n=n, filename=filename)
+    run_cprofiling(t_stable, data, n=n, filename=filename, seed=seed)
 
 
 def main_profile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
@@ -1229,12 +1360,12 @@ def main_profile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
     print("\nProfile API v2 on Tensor")
     torch.manual_seed(seed)
     data_tensor = get_single_type_random_data("Classification", single_dtype="Tensor")
-    run_profiling(t_v2, data_tensor, n=n)
+    run_profiling(t_v2, data_tensor, n=n, seed=seed)
 
     print("\nProfile API v2 on Feature")
     torch.manual_seed(seed)
     data_feature = get_single_type_random_data("Classification", single_dtype="Feature")
-    run_profiling(t_v2, data_feature, n=n)
+    run_profiling(t_v2, data_feature, n=n, seed=seed)
 
 
 def main_cprofile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
@@ -1247,18 +1378,20 @@ def main_cprofile_tensor_vs_feature(hflip_prob=1.0, seed=22, n=1000):
     print("\nProfile API v2 on Tensor")
     torch.manual_seed(seed)
     data_tensor = get_single_type_random_data("Classification", single_dtype="Tensor")
-    run_cprofiling(t_v2, data_tensor, n=n, filename="output/cprof_v2_tensor.log")
+    run_cprofiling(t_v2, data_tensor, n=n, filename="output/cprof_v2_tensor.log", seed=seed)
 
     print("\nProfile API v2 on Feature")
     torch.manual_seed(seed)
     data_feature = get_single_type_random_data("Classification", single_dtype="Feature")
-    run_cprofiling(t_v2, data_feature, n=n, filename="output/cprof_v2_feature.log")
+    run_cprofiling(t_v2, data_feature, n=n, filename="output/cprof_v2_feature.log", seed=seed)
 
 
 def main_cprofile_pil_vs_feature(hflip_prob=1.0, seed=22, n=1000):
 
     print(f"Profile: ")
-    t_stable = get_classification_transforms_stable_api(hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0)
+    t_stable = get_classification_transforms_stable_api(
+        hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0
+    )
     t_v2 = get_classification_transforms_v2_b(hflip_prob, auto_augment_policy="imagenet", random_erase_prob=1.0)
 
     now = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -1267,47 +1400,132 @@ def main_cprofile_pil_vs_feature(hflip_prob=1.0, seed=22, n=1000):
     print(t_stable)
     torch.manual_seed(seed)
     data = get_single_type_random_data("Classification", single_dtype="PIL")
-    run_cprofiling(t_stable, data, n=n, filename=f"output/{now}_cprof_stable_pil_classification_imagenet_ra.log")
+    run_cprofiling(
+        t_stable, data, n=n, filename=f"output/{now}_cprof_stable_pil_classification_imagenet_ra.log", seed=seed
+    )
 
     print("\nProfile API v2 on Feature")
     torch.manual_seed(seed)
     print(t_v2)
     data = get_single_type_random_data("Classification", single_dtype="Feature")
-    run_cprofiling(t_v2, data, n=n, filename=f"output/{now}_cprof_v2_feat_classification_imagenet_ra.log")
+    run_cprofiling(t_v2, data, n=n, filename=f"output/{now}_cprof_v2_feat_classification_imagenet_ra.log", seed=seed)
 
 
-def main_profile_single_transform(t_name, t_args=(), t_kwargs={}, single_dtype="PIL", seed=22, n=100):
-
-    print("Profile:", t_name, t_args, t_kwargs)
+def get_transform_v2(t_name, t_args=(), t_kwargs=None):
+    t_kwargs = eval(t_kwargs) if t_kwargs is not None else {}
 
     if not hasattr(transforms_v2, t_name):
         raise ValueError("Unsupported transform name:", t_name)
-    t_v2 = getattr(transforms_v2, t_name)(*t_args, **t_kwargs)
+
+    t_kwargs_v2 = dict(t_kwargs)
+    if "policy" in t_kwargs:
+        t_kwargs_v2["policy"] = transforms_v2.AutoAugmentPolicy(t_kwargs["policy"])
+
+    return getattr(transforms_v2, t_name)(*t_args, **t_kwargs_v2)
+
+
+def get_stable_transform(t_name, t_args=(), t_kwargs=None):
+    t_kwargs = eval(t_kwargs) if t_kwargs is not None else {}
+
+    t_kwargs_stable = dict(t_kwargs)
+    if "policy" in t_kwargs:
+        t_kwargs_stable["policy"] = autoaugment_stable.AutoAugmentPolicy(t_kwargs["policy"])
 
     option = "Classification"
     if hasattr(transforms_stable, t_name):
-        t_stable = getattr(transforms_stable, t_name)(*t_args, **t_kwargs)
+        t_stable = getattr(transforms_stable, t_name)(*t_args, **t_kwargs_stable)
+    elif hasattr(autoaugment_stable, t_name):
+        t_stable = getattr(autoaugment_stable, t_name)(*t_args, **t_kwargs_stable)
     elif hasattr(det_transforms, t_name):
-        t_stable = getattr(det_transforms, t_name)(*t_args, **t_kwargs)
+        t_stable = getattr(det_transforms, t_name)(*t_args, **t_kwargs_stable)
         option = "Detection"
     else:
         raise ValueError("Stable API does not have transform with name:", t_name)
 
-    if option == "Detection":
-        t_stable = RefCompose([copy_targets, t_stable])
-        t_v2 = transforms_v2.Compose([copy_targets, WrapIntoFeatures(), t_v2])
+    return t_stable, option
+
+
+def main_profile_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", seed=22, n=2000, output_type="log", use_cprofile=False):
+
+    print("Profile:", t_name, t_args, t_kwargs)
+
+    t_v2 = get_transform_v2(t_name, t_args, t_kwargs)
+    t_stable, option = get_stable_transform(t_name, t_args, t_kwargs)
 
     data = get_single_type_random_data(option, single_dtype=single_dtype)
 
+    now = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+    run_profiling_fn = run_cprofiling if use_cprofile else run_profiling
+
+    if output_type == "log":
+        filename = f"output/{now}_prof_stable_{t_name}.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_prof_stable_{t_name}.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
+
     print("\nProfile stable API")
     print(t_stable)
-    torch.manual_seed(seed)
-    run_profiling(t_stable, data, n=n)
+    run_profiling_fn(t_stable, data, n=n, seed=seed, filename=filename)
+
+    if output_type == "log":
+        filename = f"output/{now}_prof_v2_{t_name}.log"
+    elif output_type == "prof":
+        filename = f"output/{now}_prof_v2_{t_name}.prof"
+    elif output_type == "std":
+        filename = None
+    else:
+        raise ValueError(f"Unsupported output_type: {output_type}")
 
     print("\nProfile API v2")
     print(t_v2)
-    torch.manual_seed(seed)
-    run_profiling(t_v2, data, n=n)
+    run_profiling_fn(t_v2, data, n=n, seed=seed, filename=filename)
+
+
+def main_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", seed=22, num_runs=20, num_loops=500):
+    print("Time benchmark:", t_name, t_args, t_kwargs)
+
+    t_v2 = get_transform_v2(t_name, t_args, t_kwargs)
+    t_stable, option = get_stable_transform(t_name, t_args, t_kwargs)
+
+    print("V2:", t_v2, t_v2.__module__)
+    print("Stable:", t_stable, t_stable.__module__)
+
+    all_results = []
+
+    print(f"\nBench stable API on {single_dtype}")
+
+    all_results.extend(run_bench_with_time(
+        option,
+        t_stable,
+        "stable",
+        single_dtype=single_dtype,
+        seed=seed,
+        target_types=None,
+        size=None,
+        num_runs=num_runs,
+        num_loops=num_loops,
+    ))
+
+    print(f"\nBench API v2 on {single_dtype}")
+
+    all_results.extend(run_bench_with_time(
+        option,
+        t_v2,
+        "v2",
+        single_dtype=single_dtype,
+        seed=seed,
+        target_types=None,
+        size=None,
+        num_runs=num_runs,
+        num_loops=num_loops,
+    ))
+
+    compare = benchmark.Compare(all_results)
+    compare_print(compare)
 
 
 def main_profile_single_transform_tensor_vs_feature(t_name, t_args=(), t_kwargs={}, seed=22, n=100):
@@ -1368,18 +1586,157 @@ def main_cprofile_single_transform_pil_vs_feature(t_name, t_args=(), t_kwargs=No
     print(t_stable)
     torch.manual_seed(seed)
     data = get_single_type_random_data("Classification", single_dtype="PIL")
-    run_cprofiling(t_stable, data, n=n, filename=f"output/{now}_cprof_{t_name}_stable_pil.log")
+    run_cprofiling(t_stable, data, n=n, filename=f"output/{now}_cprof_{t_name}_stable_pil.log", seed=seed)
 
     print("\nProfile API v2 on Feature")
     print(t_v2)
     torch.manual_seed(seed)
     data = get_single_type_random_data("Classification", single_dtype="Feature")
-    run_cprofiling(t_v2, data, n=n, filename=f"output/{now}_cprof_{t_name}_v2_feature.log")
+    run_cprofiling(t_v2, data, n=n, filename=f"output/{now}_cprof_{t_name}_v2_feature.log", seed=seed)
+
+
+def main_all_transforms(
+    seed=22,
+    num_runs=15,
+    num_loops=500,
+):
+    dict_transforms_v1 = {k: v for k, v in transforms_stable.__dict__.items() if isinstance(v, type) and issubclass(v, torch.nn.Module)}
+    dict_transforms_v2 = {k: v for k, v in transforms_v2.__dict__.items() if isinstance(v, type) and issubclass(v, torch.nn.Module)}
+
+    list_transforms_v2_names = [c.__name__ for c in dict_transforms_v2.values()]
+    list_transforms_v1_names = [c.__name__ for c in dict_transforms_v1.values()]
+    # print(set(list_transforms_v2_names) - set(list_transforms_v1_names))
+    assert len(set(list_transforms_v1_names) - set(list_transforms_v2_names)) == 0
+
+    t_args_dict = {
+        "ConvertImageDtype": (torch.float32, ),
+        "Normalize": (torch.tensor([0.0, 0.0, 0.0]), torch.tensor([1.0, 1.0, 1.0])),
+        "Resize": ((224, 224), ),
+        "CenterCrop": ((224, 224), ),
+        "Pad": ((1, 2, 3, 4), ),
+    }
+    dtype_dict = {
+        "ConvertImageDtype": ["Tensor", "Feature"],
+        "Normalize": ["Tensor:float32", "Feature:float32"],
+        "Resize": None,
+        "CenterCrop": None,
+        "Pad": None,
+    }
+
+    t_to_skip = {"RandomApply", }
+
+    for k in dict_transforms_v1:
+        if k in t_to_skip:
+            continue
+        print("---", k)
+        main_single_transform(
+            k,
+            t_args=t_args_dict[k],
+            single_dtype=dtype_dict[k],
+            seed=seed,
+            num_runs=num_runs,
+            num_loops=num_loops
+        )
 
 
 def test():
 
-    import torch.utils.benchmark as benchmark
+    from torchvision.prototype.transforms.functional._meta import get_dimensions_image_tensor
+
+    def _equalize_image_tensor_vec(img):
+        # input img shape should be [N, H, W]
+        shape = img.shape
+        # Compute image histogram:
+        flat_img = img.flatten(start_dim=1).to(torch.long) # -> [N, H * W]
+        hist = flat_img.new_zeros(shape[0], 256)
+        hist.scatter_add_(dim=1, index=flat_img, src=flat_img.new_ones(1).expand_as(flat_img))
+
+        # Compute image cdf
+        chist = hist.cumsum_(dim=1)
+        # Compute steps, where step per channel is nonzero_hist[:-1].sum() // 255
+        # Trick: nonzero_hist[:-1].sum() == chist[idx - 1], where idx = chist.argmax()
+        idx = chist.argmax(dim=1).sub_(1)
+        # If histogram is degenerate (hist of zero image), index is -1
+        neg_idx_mask = idx < 0
+        idx.clamp_(min=0)
+        step = chist.gather(dim=1, index=idx.unsqueeze(1))
+        step[neg_idx_mask] = 0
+        step.div_(255, rounding_mode="floor")
+
+        # Compute batched Look-up-table:
+        # Necessary to avoid an integer division by zero, which raises
+        clamped_step = step.clamp(min=1)
+        chist.add_(torch.div(step, 2, rounding_mode="floor")) \
+            .div_(clamped_step, rounding_mode="floor") \
+            .clamp_(0, 255)
+        lut = chist.to(torch.uint8)  # [N, 256]
+
+        # Pad lut with zeros
+        zeros = lut.new_zeros((1, 1)).expand(shape[0], 1)
+        lut = torch.cat([zeros, lut[:, :-1]], dim=1)
+
+        return torch.where((step == 0).unsqueeze(-1), img, lut.gather(dim=1, index=flat_img).view_as(img))
+
+    def equalize_image_tensor_new(image: torch.Tensor) -> torch.Tensor:
+        if image.dtype != torch.uint8:
+            raise TypeError(f"Only torch.uint8 image tensors are supported, but found {image.dtype}")
+
+        num_channels, height, width = get_dimensions_image_tensor(image)
+        if num_channels not in (1, 3):
+            raise TypeError(f"Input image tensor can have 1 or 3 channels, but found {num_channels}")
+
+        if image.numel() == 0:
+            return image
+
+        return _equalize_image_tensor_vec(image.view(-1, height, width)).view(image.shape)
+
+    from torchvision.prototype.transforms.functional import equalize_image_tensor
+
+    torch.manual_seed(12)
+    data = torch.randint(0, 256, size=(3, 256, 256), dtype=torch.uint8, device="cuda")
+    torch.testing.assert_close(equalize_image_tensor(data), equalize_image_tensor_new(data))
+
+    all_results = []
+    all_results.extend(run_bench_with_time(None, equalize_image_tensor, "main", data=data))
+    all_results.extend(run_bench_with_time(None, equalize_image_tensor_new, "new", data=data))
+
+    compare = benchmark.Compare(all_results)
+    compare_print(compare)
+
+    return 0
+
+    def _scale_channel(img_chan):
+        # TODO: we should expect bincount to always be faster than histc, but this
+        # isn't always the case. Once
+        # https://github.com/pytorch/pytorch/issues/53194 is fixed, remove the if
+        # block and only use bincount.
+        if img_chan.is_cuda:
+            hist = torch.histc(img_chan.to(torch.float32), bins=256, min=0, max=255)
+        else:
+            hist = torch.bincount(img_chan.view(-1), minlength=256)
+
+        nonzero_hist = hist[hist != 0]
+        step = torch.div(nonzero_hist[:-1].sum(), 255, rounding_mode="floor")
+        if step == 0:
+            return img_chan
+
+        lut = torch.div(torch.cumsum(hist, 0) + torch.div(step, 2, rounding_mode="floor"), step, rounding_mode="floor")
+        lut.clamp_(0, 255)
+        lut = lut.to(torch.uint8)
+        lut = torch.nn.functional.pad(lut[:-1], [1, 0])
+        return lut[img_chan.to(torch.int64)]
+
+    torch.manual_seed(12)
+    data = torch.randint(0, 256, size=(3, 256, 256), dtype=torch.uint8)
+    n = 2000
+    run_cprofiling(_scale_channel, data[0], n=n, filename=None, seed=123)
+
+    run_cprofiling(_scale_channel, data[1], n=n, filename=None, seed=123)
+
+    run_cprofiling(_scale_channel, data[2], n=n, filename=None, seed=123)
+
+    return 0
+
     results = []
     min_run_time = 2
 
@@ -1461,7 +1818,6 @@ def test():
 
     return 0
 
-    import torch.utils.benchmark as benchmark
     # mask_2d = torch.randint(0, 10, size=(1, 1, 500, 500), dtype=torch.uint8)
     # mask_2d = torch.randint(0, 10, size=(1, 1, 500, 500), dtype=torch.uint8).expand(2, 1, 500, 500)
     mask_2d_1 = torch.randint(0, 10, size=(32, 1, 500, 500), dtype=torch.uint8)
@@ -1555,10 +1911,13 @@ if __name__ == "__main__":
             "classification_pil_vs_features": main_classification_pil_vs_features,
             "detection": main_detection,
             "segmentation": main_segmentation,
+            "single_transform": main_single_transform,
             "debug_det": main_debug_det,
             "debug_seg": main_debug_seg,
+            "profile": main_profile,
             "profile_det": main_profile_det,
             "profile_seg": main_profile_seg,
+            "cprofile": main_cprofile,
             "cprofile_det": main_cprofile_det,
             "cprofile_seg": main_cprofile_seg,
             "profile_transform": main_profile_single_transform,
@@ -1567,11 +1926,17 @@ if __name__ == "__main__":
             "cprofile_pil_vs_feature": main_cprofile_pil_vs_feature,
             "profile_tensor_vs_feature": main_profile_tensor_vs_feature,
             "cprofile_tensor_vs_feature": main_cprofile_tensor_vs_feature,
+            "all_transforms": main_all_transforms,
             "test": test,
         }
     )
 
 
 # TODO:
-#
+# 1) Compare PIL vs PIL stable vs v2 and reduce the gap
+# 2) Use inplace tensor etc
+# 3) Remove redundant asserts and checkings
+# 4) Identify code to be optimized for specific cases
+# 5) Have you looked into the effects that the multiple tree_flatten have on our speed? Does it make sense to avoid it by caching the outcome inside sample._flatten?
+# ...
 # 10) add and measure anti-aliasing=True option

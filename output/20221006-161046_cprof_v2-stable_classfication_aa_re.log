@@ -1,0 +1,20 @@
+         4141540 function calls (4081014 primitive calls) in 13.025 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     5000    0.307    0.000    0.307    0.000 {method 'div' of 'torch._C._TensorBase' objects}
+    46018    0.210    0.000    1.928    0.000 /vision/torchvision/prototype/features/_feature.py:73(__torch_function__)
+    10000    0.176    0.000    1.841    0.000 /vision/torchvision/prototype/transforms/_transform.py:66(forward)
+     5000    0.132    0.000    0.420    0.000 /vision/torchvision/prototype/transforms/_augment.py:48(_get_params)
+    31153    0.108    0.000    0.108    0.000 {method 'as_subclass' of 'torch._C._TensorBase' objects}
+     1295    0.099    0.000    0.099    0.000 {method 'mul' of 'torch._C._TensorBase' objects}
+     5000    0.099    0.000    0.405    0.000 /vision/torchvision/prototype/transforms/_geometry.py:107(_get_params)
+      711    0.093    0.000    0.093    0.000 {method 'ge' of 'torch._C._TensorBase' objects}
+     1317    0.085    0.000    0.085    0.000 {method 'sub' of 'torch._C._TensorBase' objects}
+    25000    0.077    0.000    6.551    0.000 /vision/torchvision/prototype/transforms/_transform.py:32(forward)
+     5000    0.073    0.000   12.372    0.002 /vision/torchvision/prototype/transforms/_container.py:15(forward)
+55000/50000    0.063    0.000    0.317    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:139(tree_flatten)
+    55000    0.060    0.000    0.083    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:112(__init__)
+    ...
+

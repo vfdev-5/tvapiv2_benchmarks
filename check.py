@@ -1,14 +1,15 @@
+from functools import partial
+
 import numpy as np
 import PIL
-from functools import partial
 
 import torch
 import torch.utils.benchmark as benchmark
+from torchvision.prototype import features
+from torchvision.prototype.transforms import functional as F_v2
 
 from torchvision.transforms import functional as F_stable
 from torchvision.transforms.functional import InterpolationMode
-from torchvision.prototype import features
-from torchvision.prototype.transforms import functional as F_v2
 
 
 def get_pil_mask(size):

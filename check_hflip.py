@@ -17,8 +17,7 @@ def main():
         pil_img = PIL.Image.fromarray(np_array)
 
         torch.testing.assert_close(
-            tensor.flip(-1),
-            torch.from_numpy(np.asarray(pil_img.transpose(0))).clone().permute(2, 0, 1).contiguous()
+            tensor.flip(-1), torch.from_numpy(np.asarray(pil_img.transpose(0))).clone().permute(2, 0, 1).contiguous()
         )
 
         # PIL hflip

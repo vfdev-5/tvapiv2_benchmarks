@@ -1,0 +1,149 @@
+Timestamp: 20221012-163844
+Torch version: 1.14.0.dev20221010+cu116
+Torchvision version: 0.15.0a0
+Num threads: 1
+
+[<torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088d60>
+Classification transforms measurements: PIL Image data
+stable
+  Median: 1.85 ms
+  IQR:    0.04 ms (1.83 to 1.87)
+  15 measurements, 150 runs per measurement, 1 thread, <torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4077ee0>
+Classification transforms measurements: PIL Image data
+v2
+  Median: 1.98 ms
+  IQR:    0.03 ms (1.96 to 1.99)
+  15 measurements, 150 runs per measurement, 1 thread]
+[ Classification transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  1.852   |  1.982
+
+Times are in milliseconds (ms).
+
+[<torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088a30>
+Classification RE=1.0 transforms measurements: PIL Image data
+stable
+  Median: 2.00 ms
+  IQR:    0.03 ms (1.99 to 2.02)
+  15 measurements, 150 runs per measurement, 1 thread, <torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088b50>
+Classification RE=1.0 transforms measurements: PIL Image data
+v2
+  Median: 2.11 ms
+  IQR:    0.03 ms (2.10 to 2.13)
+  15 measurements, 150 runs per measurement, 1 thread]
+[ Classification RE=1.0 transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  2.001   |  2.111
+
+Times are in milliseconds (ms).
+
+[<torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa40888e0>
+Classification AA=ra transforms measurements: PIL Image data
+stable
+  Median: 3.33 ms
+  IQR:    0.05 ms (3.31 to 3.36)
+  15 measurements, 150 runs per measurement, 1 thread, <torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088b20>
+Classification AA=ra transforms measurements: PIL Image data
+v2
+  Median: 3.31 ms
+  IQR:    0.05 ms (3.30 to 3.34)
+  15 measurements, 150 runs per measurement, 1 thread]
+[ Classification AA=ra transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  3.333   |  3.307
+
+Times are in milliseconds (ms).
+
+[<torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088be0>
+Classification AA=ra RE=1.0 transforms measurements: PIL Image data
+stable
+  Median: 3.55 ms
+  IQR:    0.06 ms (3.54 to 3.60)
+  15 measurements, 150 runs per measurement, 1 thread, <torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088d60>
+Classification AA=ra RE=1.0 transforms measurements: PIL Image data
+v2
+  Median: 3.55 ms
+  IQR:    0.05 ms (3.52 to 3.58)
+  15 measurements, 150 runs per measurement, 1 thread]
+[ Classification AA=ra RE=1.0 transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  3.554   |  3.550
+
+Times are in milliseconds (ms).
+
+[<torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088a90>
+Classification AA=ta_wide transforms measurements: PIL Image data
+stable
+  Median: 2.65 ms
+  IQR:    0.06 ms (2.63 to 2.69)
+  15 measurements, 150 runs per measurement, 1 thread, <torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088b50>
+Classification AA=ta_wide transforms measurements: PIL Image data
+v2
+  Median: 2.66 ms
+  IQR:    0.04 ms (2.64 to 2.69)
+  15 measurements, 150 runs per measurement, 1 thread]
+[ Classification AA=ta_wide transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  2.652   |  2.658
+
+Times are in milliseconds (ms).
+
+[<torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088670>
+Classification AA=ta_wide RE=1.0 transforms measurements: PIL Image data
+stable
+  Median: 2.90 ms
+  IQR:    0.05 ms (2.89 to 2.94)
+  15 measurements, 150 runs per measurement, 1 thread, <torch.utils.benchmark.utils.common.Measurement object at 0x7fdfa4088940>
+Classification AA=ta_wide RE=1.0 transforms measurements: PIL Image data
+v2
+  Median: 2.89 ms
+  IQR:    0.06 ms (2.85 to 2.91)
+  15 measurements, 150 runs per measurement, 1 thread]
+[ Classification AA=ta_wide RE=1.0 transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  2.904   |  2.889
+
+Times are in milliseconds (ms).
+
+Traceback (most recent call last):
+  File "main.py", line 1909, in <module>
+    fire.Fire(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "main.py", line 885, in main_classification
+    bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=15, num_loops=150)
+  File "main.py", line 823, in bench_with_time
+    run_bench_with_time(
+  File "main.py", line 751, in run_bench_with_time
+    transform(data)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/vision/torchvision/prototype/transforms/_container.py", line 18, in forward
+    sample = transform(sample)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/vision/torchvision/prototype/transforms/_auto_augment.py", line 517, in forward
+    aug = self._apply_image_or_video_transform(
+  File "/vision/torchvision/prototype/transforms/_auto_augment.py", line 125, in _apply_image_or_video_transform
+    return F.rotate(image, angle=magnitude, interpolation=interpolation, fill=fill_)
+  File "/vision/torchvision/prototype/transforms/functional/_geometry.py", line 657, in rotate
+    return rotate_image_tensor(inpt, angle, interpolation=interpolation, expand=expand, fill=fill, center=center)
+  File "/vision/torchvision/prototype/transforms/functional/_geometry.py", line 541, in rotate_image_tensor
+    image = _FT.rotate(
+  File "/vision/torchvision/transforms/functional_tensor.py", line 671, in rotate
+    return _apply_grid_transform(img, grid, interpolation, fill=fill)
+  File "/vision/torchvision/transforms/functional_tensor.py", line 562, in _apply_grid_transform
+    img = grid_sample(img, grid, mode=mode, padding_mode="zeros", align_corners=False)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/functional.py", line 4231, in grid_sample
+    return torch.grid_sampler(input, grid, mode_enum, padding_mode_enum, align_corners)
+KeyboardInterrupt

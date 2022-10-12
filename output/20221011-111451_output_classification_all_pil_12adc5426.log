@@ -1,0 +1,19 @@
+Timestamp: 20221011-111452
+Torch version: 1.14.0.dev20221010+cu116
+Torchvision version: 0.15.0a0
+Num threads: 1
+
+Time benchmark: RandomEqualize (1.0,) None
+V2: RandomEqualize(p=1.0) torchvision.prototype.transforms._color
+Stable: RandomEqualize(p=1.0) torchvision.transforms.transforms
+
+Bench stable API on Tensor
+
+Bench API v2 on Tensor
+[- Classification transforms measurements -]
+                         |  stable  |    v2 
+1 threads: ---------------------------------
+      Tensor Image data  |  2.895   |  3.268
+
+Times are in milliseconds (ms).
+

@@ -1,0 +1,85 @@
+         652002 function calls in 5.986 seconds
+
+   Ordered by: internal time
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+     6000    3.416    0.001    5.352    0.001 /vision/torchvision/prototype/transforms/functional/_color.py:186(_scale_channel)
+     6000    1.214    0.000    1.214    0.000 {built-in method torch.bincount}
+    12000    0.454    0.000    0.454    0.000 {method 'to' of 'torch._C._TensorBase' objects}
+     2000    0.186    0.000    0.186    0.000 {built-in method torch.stack}
+    18000    0.084    0.000    0.084    0.000 {built-in method torch.div}
+     6000    0.061    0.000    0.061    0.000 {built-in method torch.nn.functional.pad}
+    10000    0.048    0.000    0.048    0.000 {method 'view' of 'torch._C._TensorBase' objects}
+     2000    0.041    0.000    5.727    0.003 /vision/torchvision/prototype/transforms/_transform.py:66(forward)
+     2000    0.038    0.000    0.140    0.000 /usr/lib/python3.8/traceback.py:321(extract)
+    10000    0.035    0.000    0.035    0.000 {built-in method posix.stat}
+     6000    0.035    0.000    0.035    0.000 {method 'sum' of 'torch._C._TensorBase' objects}
+     6000    0.033    0.000    0.033    0.000 {built-in method torch.cumsum}
+     2000    0.030    0.000    0.053    0.000 /usr/lib/python3.8/traceback.py:388(format)
+     6000    0.028    0.000    0.028    0.000 {method 'clamp_' of 'torch._C._TensorBase' objects}
+     2000    0.023    0.000    0.023    0.000 {built-in method torch.rand}
+     2000    0.018    0.000    5.621    0.003 /vision/torchvision/prototype/transforms/functional/_color.py:209(equalize_image_tensor)
+     2000    0.016    0.000    5.368    0.003 /vision/torchvision/prototype/transforms/functional/_color.py:223(<listcomp>)
+    54000    0.013    0.000    0.033    0.000 /usr/lib/python3.8/traceback.py:285(line)
+     2000    0.012    0.000    0.012    0.000 {method 'unbind' of 'torch._C._TensorBase' objects}
+    36000    0.012    0.000    0.012    0.000 {method 'format' of 'str' objects}
+     2000    0.010    0.000    0.010    0.000 {function Random.seed at 0x7f77e90dc160}
+    10000    0.010    0.000    0.046    0.000 /usr/lib/python3.8/linecache.py:53(checkcache)
+    18000    0.009    0.000    0.017    0.000 /usr/lib/python3.8/linecache.py:15(getline)
+     2000    0.007    0.000    5.663    0.003 /vision/torchvision/prototype/transforms/_transform.py:32(forward)
+    90000    0.007    0.000    0.007    0.000 {method 'append' of 'list' objects}
+     2000    0.007    0.000    0.235    0.000 /usr/local/lib/python3.8/dist-packages/torch/random.py:26(manual_seed)
+    20000    0.006    0.000    0.006    0.000 /usr/lib/python3.8/traceback.py:292(walk_stack)
+     2000    0.006    0.000    0.008    0.000 /vision/torchvision/transforms/functional_tensor.py:24(get_dimensions)
+    72000    0.006    0.000    0.006    0.000 {built-in method builtins.len}
+     4000    0.006    0.000    0.006    0.000 {built-in method torch._C._get_tracing_state}
+    18000    0.006    0.000    0.007    0.000 /usr/lib/python3.8/linecache.py:37(getlines)
+    18000    0.006    0.000    0.007    0.000 /usr/lib/python3.8/linecache.py:147(lazycache)
+     2000    0.005    0.000    5.735    0.003 /usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py:1184(_call_impl)
+     2000    0.005    0.000    0.005    0.000 {method 'manual_seed' of 'torch._C.Generator' objects}
+     2000    0.005    0.000    0.008    0.000 /usr/lib/python3.8/traceback.py:369(from_list)
+    18000    0.005    0.000    0.005    0.000 /usr/lib/python3.8/traceback.py:243(__init__)
+    34000    0.005    0.000    0.005    0.000 {built-in method builtins.isinstance}
+     2000    0.005    0.000    0.144    0.000 /usr/lib/python3.8/traceback.py:200(extract_stack)
+     2000    0.004    0.000    0.004    0.000 {built-in method builtins.getattr}
+     2000    0.004    0.000    0.220    0.000 /usr/local/lib/python3.8/dist-packages/torch/cuda/__init__.py:163(_lazy_call)
+     2000    0.004    0.000    0.015    0.000 /usr/lib/python3.8/random.py:123(seed)
+     2000    0.004    0.000    5.626    0.003 /vision/torchvision/prototype/transforms/functional/_color.py:237(equalize)
+     2000    0.004    0.000    0.212    0.000 /usr/lib/python3.8/traceback.py:193(format_stack)
+    36000    0.004    0.000    0.004    0.000 {method 'strip' of 'str' objects}
+     2000    0.004    0.000    0.019    0.000 /usr/local/lib/python3.8/dist-packages/torch/_tensor.py:900(__iter__)
+     2000    0.003    0.000    5.635    0.003 /vision/torchvision/prototype/transforms/_transform.py:38(<listcomp>)
+     2000    0.003    0.000    0.004    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:112(__init__)
+     2000    0.003    0.000    0.223    0.000 /usr/local/lib/python3.8/dist-packages/torch/cuda/random.py:98(manual_seed_all)
+     2000    0.003    0.000    0.004    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:161(tree_unflatten)
+     2000    0.003    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/torch/cuda/__init__.py:51(queue_seed_all)
+     2000    0.003    0.000    0.063    0.000 /usr/lib/python3.8/traceback.py:27(format_list)
+     2000    0.002    0.000    0.015    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:139(tree_flatten)
+    18000    0.002    0.000    0.002    0.000 {method 'join' of 'str' objects}
+     2000    0.002    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:86(_is_namedtuple_instance)
+     2000    0.002    0.000    0.006    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:102(_is_leaf)
+    18000    0.002    0.000    0.002    0.000 {method 'add' of 'set' objects}
+     2000    0.002    0.000    0.005    0.000 /vision/torchvision/prototype/transforms/_utils.py:101(_isinstance)
+     2000    0.002    0.000    0.006    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:132(__init__)
+     2000    0.002    0.000    5.627    0.003 /vision/torchvision/prototype/transforms/_color.py:154(_transform)
+     2000    0.001    0.000    0.002    0.000 /vision/torchvision/prototype/features/_feature.py:17(is_simple_tensor)
+     2000    0.001    0.000    0.001    0.000 /vision/torchvision/prototype/transforms/_transform.py:26(_get_params)
+     2000    0.001    0.000    0.001    0.000 /vision/torchvision/transforms/functional_tensor.py:9(_is_tensor_a_torch_image)
+     2000    0.001    0.000    0.003    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:96(_get_node_type)
+     2000    0.001    0.000    0.001    0.000 {built-in method torch._C._cuda_isInBadFork}
+     2000    0.001    0.000    0.002    0.000 /vision/torchvision/transforms/functional_tensor.py:13(_assert_image_tensor)
+     2000    0.001    0.000    0.001    0.000 {built-in method builtins.sum}
+     2000    0.001    0.000    0.001    0.000 {method 'numel' of 'torch._C._TensorBase' objects}
+     2000    0.001    0.000    0.001    0.000 {method 'dim' of 'torch._C._TensorBase' objects}
+     2000    0.000    0.000    0.000    0.000 {method 'keys' of 'dict' objects}
+     2000    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/utils/_pytree.py:116(<listcomp>)
+     2000    0.000    0.000    0.000    0.000 {built-in method sys._getframe}
+     2000    0.000    0.000    0.000    0.000 {built-in method builtins.iter}
+     2000    0.000    0.000    0.000    0.000 {method 'reverse' of 'list' objects}
+     2000    0.000    0.000    0.000    0.000 {method 'get' of 'dict' objects}
+     2000    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/cuda/__init__.py:158(is_initialized)
+     2000    0.000    0.000    0.000    0.000 /usr/local/lib/python3.8/dist-packages/torch/_jit_internal.py:1082(is_scripting)
+        1    0.000    0.000    0.000    0.000 /usr/lib/python3.8/cProfile.py:133(__exit__)
+        1    0.000    0.000    0.000    0.000 {method 'disable' of '_lsprof.Profiler' objects}
+
+
