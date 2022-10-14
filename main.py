@@ -804,8 +804,8 @@ def bench_with_time(
     size=None,
     seed=22,
     target_types=None,
-    num_runs=15,
-    num_loops=100,
+    num_runs=20,
+    num_loops=300,
 ):
     if not quiet:
         print("- Stable transforms:", t_stable)
@@ -879,7 +879,7 @@ def main_classification(
                 else:
                     raise ValueError(f"Unsupported single_api value: '{single_api}'")
 
-            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=15, num_loops=150)
+            bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=20, num_loops=300)
 
     if quiet:
         print("\n-----\n")
