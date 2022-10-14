@@ -1,0 +1,64 @@
+Timestamp: 20221014-103235
+Torch version: 1.14.0.dev20221010+cu116
+Torchvision version: 0.15.0a0
+Num threads: 1
+
+[ Classification transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  1.845   |  1.908
+
+Times are in milliseconds (ms).
+
+[ Classification RE=1.0 transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  2.031   |  2.084
+
+Times are in milliseconds (ms).
+
+[ Classification AA=ra transforms measurements ]
+                      |  stable  |    v2 
+1 threads: ------------------------------
+      PIL Image data  |  3.273   |  3.304
+
+Times are in milliseconds (ms).
+
+Traceback (most recent call last):
+  File "main.py", line 1926, in <module>
+    fire.Fire(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "main.py", line 882, in main_classification
+    bench_fn(opt, t_stable, t_v2, quiet=quiet, single_dtype=single_dtype, seed=seed, num_runs=15, num_loops=150)
+  File "main.py", line 821, in bench_with_time
+    run_bench_with_time(
+  File "main.py", line 751, in run_bench_with_time
+    transform(data)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/vision/torchvision/prototype/transforms/_container.py", line 18, in forward
+    sample = transform(sample)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1190, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/vision/torchvision/prototype/transforms/_auto_augment.py", line 366, in forward
+    image_or_video = self._apply_image_or_video_transform(
+  File "/vision/torchvision/prototype/transforms/_auto_augment.py", line 132, in _apply_image_or_video_transform
+    return F.rotate(image, angle=magnitude, interpolation=interpolation, fill=fill_)
+  File "/vision/torchvision/prototype/transforms/functional/_geometry.py", line 661, in rotate
+    return rotate_image_pil(inpt, angle, interpolation=interpolation, expand=expand, fill=fill, center=center)
+  File "/vision/torchvision/prototype/transforms/functional/_geometry.py", line 568, in rotate_image_pil
+    return _FP.rotate(
+  File "/vision/torchvision/transforms/functional_pil.py", line 314, in rotate
+    return img.rotate(angle, interpolation, expand, center, **opts)
+  File "/usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py", line 2232, in rotate
+    return self.transform(
+  File "/usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py", line 2589, in transform
+    im.__transformer(
+  File "/usr/local/lib/python3.8/dist-packages/Pillow-9.2.0-py3.8-linux-x86_64.egg/PIL/Image.py", line 2672, in __transformer
+    self.im.transform2(box, image.im, method, data, resample, fill)
+KeyboardInterrupt

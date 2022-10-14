@@ -709,13 +709,13 @@ def run_bench_with_time(
 
         if single_dtype_value is not None:
             if not isinstance(single_dtype_value, (list, tuple)):
-                single_dtype_value = [single_dtype_value, ]
+                single_dtype_value = [
+                    single_dtype_value,
+                ]
 
             tested_dtypes = []
             for v in single_dtype_value:
-                data = get_single_type_random_data(
-                    option, single_dtype=v, target_types=target_types, size=size
-                )
+                data = get_single_type_random_data(option, single_dtype=v, target_types=target_types, size=size)
                 tested_dtypes.append((v, data))
         else:
             tested_dtypes = [
@@ -753,9 +753,7 @@ def run_bench_with_time(
             elapsed = time.time() - started
             times.append(elapsed)
 
-        results.append(
-            common.Measurement(number_per_run=num_loops, raw_times=times, task_spec=task_spec)
-        )
+        results.append(common.Measurement(number_per_run=num_loops, raw_times=times, task_spec=task_spec))
     return results
 
 
@@ -1445,7 +1443,9 @@ def get_stable_transform(t_name, t_args=(), t_kwargs=None):
     return t_stable, option
 
 
-def main_profile_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", seed=22, n=2000, output_type="log", use_cprofile=False):
+def main_profile_single_transform(
+    t_name, t_args=(), t_kwargs=None, single_dtype="PIL", seed=22, n=2000, output_type="log", use_cprofile=False
+):
 
     print("Profile:", t_name, t_args, t_kwargs)
 
@@ -1498,31 +1498,35 @@ def main_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", 
 
     print(f"\nBench stable API on {single_dtype}")
 
-    all_results.extend(run_bench_with_time(
-        option,
-        t_stable,
-        "stable",
-        single_dtype=single_dtype,
-        seed=seed,
-        target_types=None,
-        size=None,
-        num_runs=num_runs,
-        num_loops=num_loops,
-    ))
+    all_results.extend(
+        run_bench_with_time(
+            option,
+            t_stable,
+            "stable",
+            single_dtype=single_dtype,
+            seed=seed,
+            target_types=None,
+            size=None,
+            num_runs=num_runs,
+            num_loops=num_loops,
+        )
+    )
 
-    print(f"\nBench API v2 on {single_dtype}")
+    # print(f"\nBench API v2 on {single_dtype}")
 
-    all_results.extend(run_bench_with_time(
-        option,
-        t_v2,
-        "v2",
-        single_dtype=single_dtype,
-        seed=seed,
-        target_types=None,
-        size=None,
-        num_runs=num_runs,
-        num_loops=num_loops,
-    ))
+    # all_results.extend(
+    #     run_bench_with_time(
+    #         option,
+    #         t_v2,
+    #         "v2",
+    #         single_dtype=single_dtype,
+    #         seed=seed,
+    #         target_types=None,
+    #         size=None,
+    #         num_runs=num_runs,
+    #         num_loops=num_loops,
+    #     )
+    # )
 
     compare = benchmark.Compare(all_results)
     compare_print(compare)
@@ -1600,8 +1604,12 @@ def main_all_transforms(
     num_runs=15,
     num_loops=500,
 ):
-    dict_transforms_v1 = {k: v for k, v in transforms_stable.__dict__.items() if isinstance(v, type) and issubclass(v, torch.nn.Module)}
-    dict_transforms_v2 = {k: v for k, v in transforms_v2.__dict__.items() if isinstance(v, type) and issubclass(v, torch.nn.Module)}
+    dict_transforms_v1 = {
+        k: v for k, v in transforms_stable.__dict__.items() if isinstance(v, type) and issubclass(v, torch.nn.Module)
+    }
+    dict_transforms_v2 = {
+        k: v for k, v in transforms_v2.__dict__.items() if isinstance(v, type) and issubclass(v, torch.nn.Module)
+    }
 
     list_transforms_v2_names = [c.__name__ for c in dict_transforms_v2.values()]
     list_transforms_v1_names = [c.__name__ for c in dict_transforms_v1.values()]
@@ -1609,21 +1617,21 @@ def main_all_transforms(
     assert len(set(list_transforms_v1_names) - set(list_transforms_v2_names)) == 0
 
     t_args_dict = {
-        "ConvertImageDtype": (torch.float32, ),
+        "ConvertImageDtype": (torch.float32,),
         "Normalize": (torch.tensor([0.0, 0.0, 0.0]), torch.tensor([1.0, 1.0, 1.0])),
-        "Resize": ((224, 224), ),
-        "CenterCrop": ((224, 224), ),
-        "Pad": ((1, 2, 3, 4), ),
-        "RandomCrop": ((224, 224), ),
-        "RandomResizedCrop": ((224, 224), ),
-        "FiveCrop": ((224, 224), ),
-        "TenCrop": ((224, 224), ),
-        "RandomRotation": (90, ),
+        "Resize": ((224, 224),),
+        "CenterCrop": ((224, 224),),
+        "Pad": ((1, 2, 3, 4),),
+        "RandomCrop": ((224, 224),),
+        "RandomResizedCrop": ((224, 224),),
+        "FiveCrop": ((224, 224),),
+        "TenCrop": ((224, 224),),
+        "RandomRotation": (90,),
         "RandomAffine": (90, [0.2, 0.2], [0.7, 1.2]),
-        "GaussianBlur": (9, ),
-        "RandomPosterize": (8, ),
-        "RandomSolarize": (0.5, ),
-        "RandomAdjustSharpness": (0.5, ),
+        "GaussianBlur": (9,),
+        "RandomPosterize": (8,),
+        "RandomSolarize": (0.5,),
+        "RandomAdjustSharpness": (0.5,),
     }
     dtype_dict = {
         "ConvertImageDtype": ["Tensor", "Feature"],
@@ -1658,7 +1666,7 @@ def test():
         # input img shape should be [N, H, W]
         shape = img.shape
         # Compute image histogram:
-        flat_img = img.flatten(start_dim=1).to(torch.long) # -> [N, H * W]
+        flat_img = img.flatten(start_dim=1).to(torch.long)  # -> [N, H * W]
         hist = flat_img.new_zeros(shape[0], 256)
         hist.scatter_add_(dim=1, index=flat_img, src=flat_img.new_ones(1).expand_as(flat_img))
 
@@ -1673,13 +1681,12 @@ def test():
         step = chist.gather(dim=1, index=idx.unsqueeze(1))
         step[neg_idx_mask] = 0
         step.div_(255, rounding_mode="floor")
+        idx = None
 
         # Compute batched Look-up-table:
         # Necessary to avoid an integer division by zero, which raises
         clamped_step = step.clamp(min=1)
-        chist.add_(torch.div(step, 2, rounding_mode="floor")) \
-            .div_(clamped_step, rounding_mode="floor") \
-            .clamp_(0, 255)
+        chist.add_(torch.div(step, 2, rounding_mode="floor")).div_(clamped_step, rounding_mode="floor").clamp_(0, 255)
         lut = chist.to(torch.uint8)  # [N, 256]
 
         # Pad lut with zeros
@@ -1704,7 +1711,7 @@ def test():
     from torchvision.prototype.transforms.functional import equalize_image_tensor
 
     torch.manual_seed(12)
-    data = torch.randint(0, 256, size=(3, 256, 256), dtype=torch.uint8, device="cuda")
+    data = torch.randint(0, 256, size=(3, 256, 256), dtype=torch.uint8, device="cpu")
     torch.testing.assert_close(equalize_image_tensor(data), equalize_image_tensor_new(data))
 
     all_results = []
