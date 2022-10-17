@@ -51,5 +51,7 @@ echo ${vision_commit}
 
 # python -u main.py all_transforms &> output/${prefix}_all_transforms_${vision_commit}.log
 
+# python -u main.py classification --with_time --single_dtype="(Tensor, Feature)" --single_api="v2" --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_ten_vs_feat_v2_${vision_commit}.log
 
-python -u main.py classification --with_time --single_dtype="(Tensor, Feature)" --single_api="v2" --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_ten_vs_feat_v2_${vision_commit}.log
+# SOMETHING WRONG HERE: >>> python -u main.py single_transform --t_name=GaussianBlur --t_args="(3, 0.7)" --single_dtype=Tensor
+# OMP_NUM_THREADS=1 python -u main.py single_op --f_name=gaussian_blur --f_kwargs='{"kernel_size": 3, "sigma": 0.7}' --single_dtype=Tensor

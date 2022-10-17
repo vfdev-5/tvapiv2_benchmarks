@@ -627,9 +627,7 @@ def get_single_type_random_data(option, single_dtype="PIL", **kwargs):
     return data
 
 
-def run_bench(option, transform, tag, single_dtype=None, seed=22, target_types=None):
-
-    min_run_time = 10
+def run_bench(option, transform, tag, single_dtype=None, seed=22, target_types=None, min_run_time=15):
 
     if isinstance(single_dtype, dict):
         single_dtype_value = single_dtype[tag]
@@ -1422,6 +1420,13 @@ def get_transform_v2(t_name, t_args=(), t_kwargs=None):
     return getattr(transforms_v2, t_name)(*t_args, **t_kwargs_v2)
 
 
+def get_func_op_v2(f_name):
+    if not hasattr(F_v2, f_name):
+        raise ValueError("Unsupported functional op name:", f_name)
+
+    return getattr(F_v2, f_name)
+
+
 def get_stable_transform(t_name, t_args=(), t_kwargs=None):
     t_kwargs = eval(t_kwargs) if t_kwargs is not None else {}
 
@@ -1441,6 +1446,13 @@ def get_stable_transform(t_name, t_args=(), t_kwargs=None):
         raise ValueError("Stable API does not have transform with name:", t_name)
 
     return t_stable, option
+
+
+def get_stable_func_op(f_name):
+    if not hasattr(F_stable, f_name):
+        raise ValueError("Stable API does not have functiional op with name:", f_name)
+
+    return getattr(F_stable, f_name)
 
 
 def main_profile_single_transform(
@@ -1485,7 +1497,7 @@ def main_profile_single_transform(
     run_profiling_fn(t_v2, data, n=n, seed=seed, filename=filename)
 
 
-def main_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", seed=22, num_runs=20, num_loops=500):
+def main_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", seed=12, num_runs=20, num_loops=300):
     print("Time benchmark:", t_name, t_args, t_kwargs)
 
     t_v2 = get_transform_v2(t_name, t_args, t_kwargs)
@@ -1495,6 +1507,22 @@ def main_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", 
     print("Stable:", t_stable, t_stable.__module__)
 
     all_results = []
+
+    print(f"\nBench API v2 on {single_dtype}")
+
+    all_results.extend(
+        run_bench_with_time(
+            option,
+            t_v2,
+            "v2",
+            single_dtype=single_dtype,
+            seed=seed,
+            target_types=None,
+            size=None,
+            num_runs=num_runs,
+            num_loops=num_loops,
+        )
+    )
 
     print(f"\nBench stable API on {single_dtype}")
 
@@ -1512,25 +1540,60 @@ def main_single_transform(t_name, t_args=(), t_kwargs=None, single_dtype="PIL", 
         )
     )
 
-    # print(f"\nBench API v2 on {single_dtype}")
-
-    # all_results.extend(
-    #     run_bench_with_time(
-    #         option,
-    #         t_v2,
-    #         "v2",
-    #         single_dtype=single_dtype,
-    #         seed=seed,
-    #         target_types=None,
-    #         size=None,
-    #         num_runs=num_runs,
-    #         num_loops=num_loops,
-    #     )
-    # )
-
     compare = benchmark.Compare(all_results)
     compare_print(compare)
 
+
+def main_single_op(f_name, f_args=(), f_kwargs=None, single_dtype="PIL", seed=12):
+    print("Time benchmark:", f_name, f_args, f_kwargs)
+
+    if f_kwargs is not None:
+        if not isinstance(f_kwargs, dict):
+            f_kwargs = eval(f_kwargs)
+    else:
+        f_kwargs = {}
+
+    f_v2 = get_func_op_v2(f_name)
+    f_stable = get_stable_func_op(f_name)
+
+    print("V2:", f_v2, f_v2.__module__)
+    print("Stable:", f_stable, f_stable.__module__)
+
+    f_v2 = partial(f_v2, *f_args, **f_kwargs)
+    f_stable = partial(f_stable, *f_args, **f_kwargs)
+
+    option = "Classification"
+
+    all_results = []
+
+    print(f"\nBench API v2 on {single_dtype}")
+
+    all_results.extend(
+        run_bench(
+            option,
+            f_v2,
+            "v2",
+            single_dtype=single_dtype,
+            seed=seed,
+            target_types=None,
+        )
+    )
+
+    print(f"\nBench stable API on {single_dtype}")
+
+    all_results.extend(
+        run_bench(
+            option,
+            f_stable,
+            "stable",
+            single_dtype=single_dtype,
+            seed=seed,
+            target_types=None,
+        )
+    )
+
+    compare = benchmark.Compare(all_results)
+    compare_print(compare)
 
 def main_profile_single_transform_tensor_vs_feature(t_name, t_args=(), t_kwargs={}, seed=22, n=100):
     print("Profile:", t_name, t_args, t_kwargs)
@@ -1930,6 +1993,7 @@ if __name__ == "__main__":
             "detection": main_detection,
             "segmentation": main_segmentation,
             "single_transform": main_single_transform,
+            "single_op": main_single_op,
             "debug_det": main_debug_det,
             "debug_seg": main_debug_seg,
             "profile": main_profile,
