@@ -55,3 +55,5 @@ echo ${vision_commit}
 
 # SOMETHING WRONG HERE: >>> python -u main.py single_transform --t_name=GaussianBlur --t_args="(3, 0.7)" --single_dtype=Tensor
 # OMP_NUM_THREADS=1 python -u main.py single_op --f_name=gaussian_blur --f_kwargs='{"kernel_size": 3, "sigma": 0.7}' --single_dtype=Tensor
+
+python -u check_adjust_color_ops.py &> output/$(date "+%Y%m%d-%H%M%S")-output-adjust-color-ops.log

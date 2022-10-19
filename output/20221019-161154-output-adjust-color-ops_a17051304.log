@@ -1,0 +1,36 @@
+[----------------- Adjust_contrast cpu torch.uint8 -----------------]
+                     |  adjust_contrast stable  |  adjust_contrast v2
+1 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           1200           |         926        
+6 threads: ----------------------------------------------------------
+      (3, 400, 400)  |            371           |         284        
+
+Times are in microseconds (us).
+
+[------------------ Adjust_saturation cpu torch.uint8 ------------------]
+                     |  adjust_saturation stable  |  adjust_saturation v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            1200            |          937         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |             365            |          271         
+
+Times are in microseconds (us).
+
+[---------------- Adjust_contrast cpu torch.float32 ----------------]
+                     |  adjust_contrast stable  |  adjust_contrast v2
+1 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           682            |         455        
+6 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           245            |         162        
+
+Times are in microseconds (us).
+
+[----------------- Adjust_saturation cpu torch.float32 -----------------]
+                     |  adjust_saturation stable  |  adjust_saturation v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            730             |          467         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            239             |          150         
+
+Times are in microseconds (us).
+

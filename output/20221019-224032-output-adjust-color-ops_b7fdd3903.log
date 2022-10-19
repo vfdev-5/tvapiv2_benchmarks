@@ -1,0 +1,144 @@
+[------------------ Adjust_brightness cpu torch.uint8 ------------------]
+                     |  adjust_brightness stable  |  adjust_brightness v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            1080            |          482         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |             257            |          116         
+
+Times are in microseconds (us).
+
+[----------------- Adjust_contrast cpu torch.uint8 -----------------]
+                     |  adjust_contrast stable  |  adjust_contrast v2
+1 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           1150           |         1050       
+6 threads: ----------------------------------------------------------
+      (3, 400, 400)  |            370           |          334       
+
+Times are in microseconds (us).
+
+[------------------ Adjust_saturation cpu torch.uint8 ------------------]
+                     |  adjust_saturation stable  |  adjust_saturation v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            1200            |          938         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |             360            |          271         
+
+Times are in microseconds (us).
+
+[------------------ Adjust_sharpness cpu torch.uint8 -----------------]
+                     |  adjust_sharpness stable  |  adjust_sharpness v2
+1 threads: ------------------------------------------------------------
+      (3, 400, 400)  |            3.9            |          3.70       
+6 threads: ------------------------------------------------------------
+      (3, 400, 400)  |            1.3            |          1.18       
+
+Times are in milliseconds (ms).
+
+[------------------ Adjust_brightness cuda torch.uint8 -----------------]
+                     |  adjust_brightness stable  |  adjust_brightness v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            66.5            |           32         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            67.1            |           33         
+
+Times are in microseconds (us).
+
+[----------------- Adjust_contrast cuda torch.uint8 ----------------]
+                     |  adjust_contrast stable  |  adjust_contrast v2
+1 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           165            |         146        
+6 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           165            |         147        
+
+Times are in microseconds (us).
+
+[------------------ Adjust_saturation cuda torch.uint8 -----------------]
+                     |  adjust_saturation stable  |  adjust_saturation v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            132             |          89.7        
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            131             |          89.6        
+
+Times are in microseconds (us).
+
+[----------------- Adjust_sharpness cuda torch.uint8 -----------------]
+                     |  adjust_sharpness stable  |  adjust_sharpness v2
+1 threads: ------------------------------------------------------------
+      (3, 400, 400)  |            248            |          237        
+6 threads: ------------------------------------------------------------
+      (3, 400, 400)  |            248            |          238        
+
+Times are in microseconds (us).
+
+[----------------- Adjust_brightness cpu torch.float32 -----------------]
+                     |  adjust_brightness stable  |  adjust_brightness v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            646             |          206         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            175             |           56         
+
+Times are in microseconds (us).
+
+[---------------- Adjust_contrast cpu torch.float32 ----------------]
+                     |  adjust_contrast stable  |  adjust_contrast v2
+1 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           684            |         582        
+6 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           246            |         214        
+
+Times are in microseconds (us).
+
+[----------------- Adjust_saturation cpu torch.float32 -----------------]
+                     |  adjust_saturation stable  |  adjust_saturation v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            730             |          466         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            239             |          149         
+
+Times are in microseconds (us).
+
+[----------------- Adjust_sharpness cpu torch.float32 ----------------]
+                     |  adjust_sharpness stable  |  adjust_sharpness v2
+1 threads: ------------------------------------------------------------
+      (3, 400, 400)  |            2970           |          2460       
+6 threads: ------------------------------------------------------------
+      (3, 400, 400)  |             976           |           886       
+
+Times are in microseconds (us).
+
+[----------------- Adjust_brightness cuda torch.float32 ----------------]
+                     |  adjust_brightness stable  |  adjust_brightness v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |             56             |           21         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |             56             |           21         
+
+Times are in microseconds (us).
+
+[---------------- Adjust_contrast cuda torch.float32 ---------------]
+                     |  adjust_contrast stable  |  adjust_contrast v2
+1 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           131            |         113        
+6 threads: ----------------------------------------------------------
+      (3, 400, 400)  |           131            |         113        
+
+Times are in microseconds (us).
+
+[----------------- Adjust_saturation cuda torch.float32 ----------------]
+                     |  adjust_saturation stable  |  adjust_saturation v2
+1 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            106             |           65         
+6 threads: --------------------------------------------------------------
+      (3, 400, 400)  |            110             |           65         
+
+Times are in microseconds (us).
+
+[---------------- Adjust_sharpness cuda torch.float32 ----------------]
+                     |  adjust_sharpness stable  |  adjust_sharpness v2
+1 threads: ------------------------------------------------------------
+      (3, 400, 400)  |            227            |          210        
+6 threads: ------------------------------------------------------------
+      (3, 400, 400)  |            226            |          210        
+
+Times are in microseconds (us).
+

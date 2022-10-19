@@ -6,26 +6,27 @@ from itertools import product
 from functools import partial
 
 
-# min_run_time = 5
-min_run_time = 10
+min_run_time = 1
+# min_run_time = 10
 
 def gen_inputs():
     make_arg_int = partial(torch.randint, 0, 256, dtype=torch.uint8)
-    makers = (make_arg_int, torch.randn)
+    makers = (make_arg_int, )
     shapes = ((3, 400, 400),)
-    devices = ("cpu", "cuda")
-    # devices = ("cpu", )
-    fns = ["adjust_brightness", "adjust_contrast", "adjust_saturation", "adjust_sharpness"]
-    # fns = ["adjust_contrast", "adjust_saturation"]
-    threads = (1, torch.get_num_threads())
-    for make, shape, device, fn_name, threads in product(makers, shapes, devices, fns, threads):
+    # devices = ("cpu", "cuda")
+    devices = ("cpu", )
+    fns = ["convert_image_dtype", ]
+    dtypes = [torch.float32, torch.long]
+    # threads = (1, torch.get_num_threads())
+    threads = (1, )
+    for make, shape, device, fn_name, threads, dtype in product(makers, shapes, devices, fns, threads, dtypes):
         t1 = make(shape, device=device)
 
         fn = getattr(F_stable, fn_name)
-        yield f"{fn_name.capitalize()} {device} {t1.dtype}", str(tuple(shape)), threads, "stable", fn, t1, 1.5
+        yield f"{fn_name.capitalize()} {device} {t1.dtype}", f"{str(tuple(shape))}, {dtype}", threads, "stable", fn, t1, dtype
 
         fn = getattr(F_v2, fn_name)
-        yield f"{fn_name.capitalize()} {device} {t1.dtype}", str(tuple(shape)), threads, "v2", fn, t1, 1.5
+        yield f"{fn_name.capitalize()} {device} {t1.dtype}", f"{str(tuple(shape))}, {dtype}", threads, "v2", fn, t1, dtype
 
 
 def benchmark(label, sub_label, threads, tag, f, *args, **kwargs):
