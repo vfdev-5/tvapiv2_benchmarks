@@ -1,0 +1,36 @@
+[--------------- Adjust_hue cpu torch.uint8 --------------]
+                     |  adjust_hue v2  |  adjust_hue stable
+1 threads: ------------------------------------------------
+      (3, 400, 400)  |       16.3      |         18.9      
+6 threads: ------------------------------------------------
+      (3, 400, 400)  |        5.0      |          5.6      
+
+Times are in milliseconds (ms).
+
+[-------------- Adjust_hue cuda torch.uint8 --------------]
+                     |  adjust_hue v2  |  adjust_hue stable
+1 threads: ------------------------------------------------
+      (3, 400, 400)  |      1.805      |        1.477      
+6 threads: ------------------------------------------------
+      (3, 400, 400)  |      1.436      |        1.482      
+
+Times are in milliseconds (ms).
+
+[-------------- Adjust_hue cpu torch.float32 -------------]
+                     |  adjust_hue v2  |  adjust_hue stable
+1 threads: ------------------------------------------------
+      (3, 400, 400)  |       15.9      |         18.1      
+6 threads: ------------------------------------------------
+      (3, 400, 400)  |        4.8      |          5.3      
+
+Times are in milliseconds (ms).
+
+[------------- Adjust_hue cuda torch.float32 -------------]
+                     |  adjust_hue v2  |  adjust_hue stable
+1 threads: ------------------------------------------------
+      (3, 400, 400)  |       1.41      |        1.450      
+6 threads: ------------------------------------------------
+      (3, 400, 400)  |       1.42      |        1.456      
+
+Times are in milliseconds (ms).
+

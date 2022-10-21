@@ -6,7 +6,7 @@ from itertools import product
 from functools import partial
 
 
-debug = True
+debug = False
 
 if debug:
     min_run_time = 5
@@ -20,23 +20,22 @@ def gen_inputs():
     if not debug:
         makers = (make_arg_int, torch.randn)
         devices = ("cpu", "cuda")
-        fns = ["adjust_brightness", "adjust_contrast", "adjust_saturation", "adjust_sharpness"]
+        fns = ["adjust_hue", ]
         threads = (1, torch.get_num_threads())
     else:
         makers = (make_arg_int, torch.randn)
         devices = ("cpu", )
         fns = ["adjust_hue", ]
-        # fns = ["adjust_contrast", ]
         threads = (1, )
 
     for make, shape, device, fn_name, threads in product(makers, shapes, devices, fns, threads):
         t1 = make(shape, device=device)
 
-        fn = getattr(F_v2, fn_name)
-        yield f"{fn_name.capitalize()} {device} {t1.dtype}", str(tuple(shape)), threads, "v2", fn, t1, 0.5
-
         fn = getattr(F_stable, fn_name)
         yield f"{fn_name.capitalize()} {device} {t1.dtype}", str(tuple(shape)), threads, "stable", fn, t1, 0.5
+
+        fn = getattr(F_v2, fn_name)
+        yield f"{fn_name.capitalize()} {device} {t1.dtype}", str(tuple(shape)), threads, "v2", fn, t1, 0.5
 
 
 def benchmark(label, sub_label, threads, tag, f, *args, **kwargs):
