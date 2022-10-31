@@ -1,0 +1,36 @@
+[---------------- Autocontrast cpu torch.uint8 ---------------]
+                     |  autocontrast stable  |  autocontrast v2
+1 threads: ----------------------------------------------------
+      (3, 400, 400)  |          969          |        844      
+6 threads: ----------------------------------------------------
+      (3, 400, 400)  |          320          |        274      
+
+Times are in microseconds (us).
+
+[--------------- Autocontrast cuda torch.uint8 ---------------]
+                     |  autocontrast stable  |  autocontrast v2
+1 threads: ----------------------------------------------------
+      (3, 400, 400)  |          200          |        150      
+6 threads: ----------------------------------------------------
+      (3, 400, 400)  |          201          |        149      
+
+Times are in microseconds (us).
+
+[--------------- Autocontrast cpu torch.float32 --------------]
+                     |  autocontrast stable  |  autocontrast v2
+1 threads: ----------------------------------------------------
+      (3, 400, 400)  |          529          |        418      
+6 threads: ----------------------------------------------------
+      (3, 400, 400)  |          201          |        157      
+
+Times are in microseconds (us).
+
+[-------------- Autocontrast cuda torch.float32 --------------]
+                     |  autocontrast stable  |  autocontrast v2
+1 threads: ----------------------------------------------------
+      (3, 400, 400)  |          166          |        115      
+6 threads: ----------------------------------------------------
+      (3, 400, 400)  |          165          |        114      
+
+Times are in microseconds (us).
+

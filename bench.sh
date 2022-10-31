@@ -38,7 +38,7 @@ echo ${vision_commit}
 # python -u main.py detection --data_augmentation=lsj --single_dtype=PIL &> $prefix-out4.log.tmp
 
 # python -u main.py detection --with_time --data_augmentation=all &> output/${prefix}_output_detection_all_${vision_commit}.log
-# python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_${vision_commit}.log
+python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_${vision_commit}.log
 # python -u main.py segmentation --with_time &> output/${prefix}_output_segmentation_all_${vision_commit}.log
 
 # python -u main.py classification --with_time --single_dtype=Feature --auto_augment_policy=imagenet --random_erase_prob=1.0 &> output/${prefix}_output_classification_imagenet_re_${vision_commit}.log
@@ -56,4 +56,4 @@ echo ${vision_commit}
 # SOMETHING WRONG HERE: >>> python -u main.py single_transform --t_name=GaussianBlur --t_args="(3, 0.7)" --single_dtype=Tensor
 # OMP_NUM_THREADS=1 python -u main.py single_op --f_name=gaussian_blur --f_kwargs='{"kernel_size": 3, "sigma": 0.7}' --single_dtype=Tensor
 
-python -u check_adjust_color_ops.py &> output/$(date "+%Y%m%d-%H%M%S")-output-adjust-color-ops.log
+# python -u check_adjust_color_ops.py &> output/$(date "+%Y%m%d-%H%M%S")-output-adjust-color-ops.log
