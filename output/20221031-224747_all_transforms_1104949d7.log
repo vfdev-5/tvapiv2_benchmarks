@@ -1,0 +1,39 @@
+Timestamp: 20221031-224748
+Torch version: 1.14.0.dev20221013+cu116
+Torchvision version: 0.15.0a0
+Num threads: 1
+
+--- ConvertImageDtype
+Time benchmark: ConvertImageDtype (torch.float32,) None
+V2: ConvertDtype() torchvision.prototype.transforms._meta
+Stable: ConvertImageDtype() torchvision.transforms.transforms
+
+Bench API v2 on ['Tensor', 'Feature']
+Traceback (most recent call last):
+  File "main.py", line 1994, in <module>
+    fire.Fire(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 141, in Fire
+    component_trace = _Fire(component, args, parsed_flag_args, context, name)
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 466, in _Fire
+    component, remaining_args = _CallAndUpdateTrace(
+  File "/usr/local/lib/python3.8/dist-packages/fire/core.py", line 681, in _CallAndUpdateTrace
+    component = fn(*varargs, **kwargs)
+  File "main.py", line 1719, in main_all_transforms
+    main_single_transform(
+  File "main.py", line 1514, in main_single_transform
+    run_bench_with_time(
+  File "main.py", line 749, in run_bench_with_time
+    transform(data)
+  File "/usr/local/lib/python3.8/dist-packages/torch/nn/modules/module.py", line 1274, in _call_impl
+    return forward_call(*input, **kwargs)
+  File "/vision/torchvision/prototype/transforms/_transform.py", line 38, in forward
+    flat_outputs = [
+  File "/vision/torchvision/prototype/transforms/_transform.py", line 39, in <listcomp>
+    self._transform(inpt, params) if _isinstance(inpt, self._transformed_types) else inpt
+  File "/vision/torchvision/prototype/transforms/_meta.py", line 38, in _transform
+    return F.convert_dtype(inpt, self.dtype)
+  File "/vision/torchvision/prototype/transforms/functional/_meta.py", line 405, in convert_dtype
+    return convert_dtype_image_tensor(inpt, dtype)
+  File "/vision/torchvision/prototype/transforms/functional/_meta.py", line 370, in convert_dtype_image_tensor
+    return image.to(dtype).div_(_FT._max_value(image.dtype))
+KeyboardInterrupt

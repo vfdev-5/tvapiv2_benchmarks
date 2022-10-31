@@ -7,6 +7,10 @@
 ```bash
 curl https://raw.githubusercontent.com/pytorch/vision/main/references/detection/transforms.py -o det_transforms.py
 curl https://raw.githubusercontent.com/pytorch/vision/main/references/segmentation/transforms.py -o seg_transforms.py
+
+curl https://raw.githubusercontent.com/pytorch/vision/main/test/prototype_common_utils.py -o prototype_common_utils.py
+curl https://raw.githubusercontent.com/pytorch/vision/main/test/datasets_utils.py -o datasets_utils.py
+curl https://raw.githubusercontent.com/pytorch/vision/main/test/common_utils.py -o common_utils.py
 ```
 - Install `numpy`, `python-fire`:
 ```bash

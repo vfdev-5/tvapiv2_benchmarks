@@ -1,0 +1,42 @@
+[------------- horizontal_flip_bounding_box cpu BoundingBoxFormat.XYXY --------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                   70                  |                 68              
+
+Times are in microseconds (us).
+
+[------------- horizontal_flip_bounding_box cpu BoundingBoxFormat.XYWH --------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  120                  |                 50              
+
+Times are in microseconds (us).
+
+[------------ horizontal_flip_bounding_box cpu BoundingBoxFormat.CXCYWH -------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  150                  |                 40              
+
+Times are in microseconds (us).
+
+[------------- horizontal_flip_bounding_box cuda BoundingBoxFormat.XYXY -------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  167                  |                164              
+
+Times are in microseconds (us).
+
+[------------- horizontal_flip_bounding_box cuda BoundingBoxFormat.XYWH -------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  239                  |                108              
+
+Times are in microseconds (us).
+
+[------------ horizontal_flip_bounding_box cuda BoundingBoxFormat.CXCYWH ------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  322                  |                90.5             
+
+Times are in microseconds (us).
+

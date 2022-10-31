@@ -1620,6 +1620,8 @@ def main_cprofile_single_transform_pil_vs_feature(t_name, t_args=(), t_kwargs=No
 
     if t_kwargs is not None:
         t_kwargs = eval(t_kwargs)
+    else:
+        t_kwargs = {}
 
     if not hasattr(transforms_v2, t_name):
         raise ValueError("Unsupported transform name:", t_name)
