@@ -1674,10 +1674,13 @@ def main_all_transforms(
         k: v for k, v in transforms_v2.__dict__.items() if isinstance(v, type) and issubclass(v, torch.nn.Module)
     }
 
-    list_transforms_v2_names = [c.__name__ for c in dict_transforms_v2.values()]
+    list_transforms_v2_names = [c.__name__ for c in dict_transforms_v2.values()] + ["ConvertImageDtype", ]
     list_transforms_v1_names = [c.__name__ for c in dict_transforms_v1.values()]
     # print(set(list_transforms_v2_names) - set(list_transforms_v1_names))
-    assert len(set(list_transforms_v1_names) - set(list_transforms_v2_names)) == 0
+    assert len(set(list_transforms_v1_names) - set(list_transforms_v2_names)) == 0, \
+        f"{set(list_transforms_v1_names) - set(list_transforms_v2_names)} \n" \
+        f"list_transforms_v1_names: {list_transforms_v1_names} \n" \
+        f"list_transforms_v2_names: {list_transforms_v2_names} \n"
 
     t_args_dict = {
         "ConvertImageDtype": (torch.float32,),
@@ -1716,8 +1719,8 @@ def main_all_transforms(
             t_args=t_args_dict.get(k, ()),
             single_dtype=dtype_dict.get(k, None),
             seed=seed,
-            num_runs=num_runs / s,
-            num_loops=num_loops / s,
+            num_runs=num_runs // s,
+            num_loops=num_loops // s,
         )
 
 

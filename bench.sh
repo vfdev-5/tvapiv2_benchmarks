@@ -38,7 +38,7 @@ echo ${vision_commit}
 # python -u main.py detection --data_augmentation=lsj --single_dtype=PIL &> $prefix-out4.log.tmp
 
 # python -u main.py detection --with_time --data_augmentation=all &> output/${prefix}_output_detection_all_${vision_commit}.log
-python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_${vision_commit}.log
+# python -u main.py classification --with_time --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_${vision_commit}.log
 # python -u main.py segmentation --with_time &> output/${prefix}_output_segmentation_all_${vision_commit}.log
 
 # python -u main.py classification --with_time --single_dtype=Feature --auto_augment_policy=imagenet --random_erase_prob=1.0 &> output/${prefix}_output_classification_imagenet_re_${vision_commit}.log
@@ -49,7 +49,7 @@ python -u main.py classification --with_time --auto_augment_policy=all --random_
 
 # python -u main.py single_transform --t_name=RandomEqualize --t_args="(1.0,)" --single_dtype=Tensor &> output/${prefix}_output_classification_all_pil_${vision_commit}.log
 
-# python -u main.py all_transforms &> output/${prefix}_all_transforms_${vision_commit}.log
+python -u main.py all_transforms &> output/${prefix}_all_transforms_${vision_commit}.log
 
 # python -u main.py classification --with_time --single_dtype="(Tensor, Feature)" --single_api="v2" --auto_augment_policy=all --random_erase_prob=all &> output/${prefix}_output_classification_all_ten_vs_feat_v2_${vision_commit}.log
 
