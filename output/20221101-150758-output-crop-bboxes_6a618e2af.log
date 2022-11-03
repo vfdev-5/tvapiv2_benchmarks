@@ -1,0 +1,33 @@
+('crop_bounding_box cpu BoundingBoxFormat.XYXY', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.XYXY', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.XYXY', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.XYXY', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.XYWH', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.XYWH', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.XYWH', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.XYWH', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.CXCYWH', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.CXCYWH', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.CXCYWH', '(4,)', 1, 'v2')
+('crop_bounding_box cpu BoundingBoxFormat.CXCYWH', '(4,)', 1, 'v2')
+[-------- crop_bounding_box cpu BoundingBoxFormat.XYXY --------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |             50             |           20         
+
+Times are in microseconds (us).
+
+[-------- crop_bounding_box cpu BoundingBoxFormat.XYWH --------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |            100             |           20         
+
+Times are in microseconds (us).
+
+[------- crop_bounding_box cpu BoundingBoxFormat.CXCYWH -------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |            100             |           20         
+
+Times are in microseconds (us).
+

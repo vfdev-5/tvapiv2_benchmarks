@@ -1,0 +1,54 @@
+[----------- perspective_bounding_box cpu BoundingBoxFormat.XYXY ------------]
+            |  perspective_bounding_box_old v2  |  perspective_bounding_box v2
+1 threads: -------------------------------------------------------------------
+      (4,)  |                100                |              100            
+6 threads: -------------------------------------------------------------------
+      (4,)  |                100                |              100            
+
+Times are in microseconds (us).
+
+[----------- perspective_bounding_box cpu BoundingBoxFormat.XYWH ------------]
+            |  perspective_bounding_box_old v2  |  perspective_bounding_box v2
+1 threads: -------------------------------------------------------------------
+      (4,)  |                190                |              180            
+6 threads: -------------------------------------------------------------------
+      (4,)  |                210                |              190            
+
+Times are in microseconds (us).
+
+[---------- perspective_bounding_box cpu BoundingBoxFormat.CXCYWH -----------]
+            |  perspective_bounding_box_old v2  |  perspective_bounding_box v2
+1 threads: -------------------------------------------------------------------
+      (4,)  |                240                |              231            
+6 threads: -------------------------------------------------------------------
+      (4,)  |                261                |              247            
+
+Times are in microseconds (us).
+
+[----------- perspective_bounding_box cuda BoundingBoxFormat.XYXY -----------]
+            |  perspective_bounding_box_old v2  |  perspective_bounding_box v2
+1 threads: -------------------------------------------------------------------
+      (4,)  |                284                |              200            
+6 threads: -------------------------------------------------------------------
+      (4,)  |                300                |              200            
+
+Times are in microseconds (us).
+
+[----------- perspective_bounding_box cuda BoundingBoxFormat.XYWH -----------]
+            |  perspective_bounding_box_old v2  |  perspective_bounding_box v2
+1 threads: -------------------------------------------------------------------
+      (4,)  |                400                |              300            
+6 threads: -------------------------------------------------------------------
+      (4,)  |                400                |              300            
+
+Times are in microseconds (us).
+
+[---------- perspective_bounding_box cuda BoundingBoxFormat.CXCYWH ----------]
+            |  perspective_bounding_box_old v2  |  perspective_bounding_box v2
+1 threads: -------------------------------------------------------------------
+      (4,)  |                500                |              400            
+6 threads: -------------------------------------------------------------------
+      (4,)  |                500                |              400            
+
+Times are in microseconds (us).
+

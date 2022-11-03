@@ -58,4 +58,12 @@ echo ${vision_commit}
 
 # python -u check_adjust_color_ops.py &> output/$(date "+%Y%m%d-%H%M%S")-output-adjust-color-ops.log
 
-OMP_NUM_THREADS=6 python -u check_flips_bboxes.py &> output/${prefix}-output-flips-bboxes_${vision_commit}.log
+# OMP_NUM_THREADS=6 python -u check_flips_bboxes.py &> output/${prefix}-output-flips-bboxes_${vision_commit}.log
+
+# OMP_NUM_THREADS=6 python -u check_crop_bboxes.py &> output/${prefix}-output-crop-bboxes_${vision_commit}.log
+
+# OMP_NUM_THREADS=6 python -u check_pad_bboxes.py &> output/${prefix}-output-pad-bboxes_${vision_commit}.log
+
+# OMP_NUM_THREADS=6 python -u check_perspective_bboxes.py &> output/${prefix}-output-perspective-bboxes_${vision_commit}.log
+
+OMP_NUM_THREADS=6 python -u check_elastic_bboxes.py &> output/${prefix}-output-elastic-bboxes_${vision_commit}.log

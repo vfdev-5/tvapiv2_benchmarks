@@ -1,0 +1,54 @@
+[--------- elastic_bounding_box cpu BoundingBoxFormat.XYXY ----------]
+            |  elastic_bounding_box_old v2  |  elastic_bounding_box v2
+1 threads: -----------------------------------------------------------
+      (4,)  |              230              |            190          
+6 threads: -----------------------------------------------------------
+      (4,)  |              300              |            200          
+
+Times are in microseconds (us).
+
+[--------- elastic_bounding_box cpu BoundingBoxFormat.XYWH ----------]
+            |  elastic_bounding_box_old v2  |  elastic_bounding_box v2
+1 threads: -----------------------------------------------------------
+      (4,)  |              310              |            260          
+6 threads: -----------------------------------------------------------
+      (4,)  |              330              |            280          
+
+Times are in microseconds (us).
+
+[-------- elastic_bounding_box cpu BoundingBoxFormat.CXCYWH ---------]
+            |  elastic_bounding_box_old v2  |  elastic_bounding_box v2
+1 threads: -----------------------------------------------------------
+      (4,)  |              351              |            300          
+6 threads: -----------------------------------------------------------
+      (4,)  |              379              |            330          
+
+Times are in microseconds (us).
+
+[--------- elastic_bounding_box cuda BoundingBoxFormat.XYXY ---------]
+            |  elastic_bounding_box_old v2  |  elastic_bounding_box v2
+1 threads: -----------------------------------------------------------
+      (4,)  |              440              |            380          
+6 threads: -----------------------------------------------------------
+      (4,)  |              440              |            380          
+
+Times are in microseconds (us).
+
+[--------- elastic_bounding_box cuda BoundingBoxFormat.XYWH ---------]
+            |  elastic_bounding_box_old v2  |  elastic_bounding_box v2
+1 threads: -----------------------------------------------------------
+      (4,)  |              560              |            490          
+6 threads: -----------------------------------------------------------
+      (4,)  |              560              |            490          
+
+Times are in microseconds (us).
+
+[-------- elastic_bounding_box cuda BoundingBoxFormat.CXCYWH --------]
+            |  elastic_bounding_box_old v2  |  elastic_bounding_box v2
+1 threads: -----------------------------------------------------------
+      (4,)  |              640              |            570          
+6 threads: -----------------------------------------------------------
+      (4,)  |              640              |            570          
+
+Times are in microseconds (us).
+

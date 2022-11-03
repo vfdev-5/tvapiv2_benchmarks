@@ -1,0 +1,54 @@
+[-------- crop_bounding_box cpu BoundingBoxFormat.XYXY --------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |             50             |           20         
+6 threads: -----------------------------------------------------
+      (4,)  |             50             |           20         
+
+Times are in microseconds (us).
+
+[-------- crop_bounding_box cpu BoundingBoxFormat.XYWH --------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |             95             |           20         
+6 threads: -----------------------------------------------------
+      (4,)  |            106             |           20         
+
+Times are in microseconds (us).
+
+[------- crop_bounding_box cpu BoundingBoxFormat.CXCYWH -------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |            100             |           20         
+6 threads: -----------------------------------------------------
+      (4,)  |            100             |           20         
+
+Times are in microseconds (us).
+
+[------- crop_bounding_box cuda BoundingBoxFormat.XYXY --------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |            100             |           72         
+6 threads: -----------------------------------------------------
+      (4,)  |            100             |           71         
+
+Times are in microseconds (us).
+
+[------- crop_bounding_box cuda BoundingBoxFormat.XYWH --------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |            174             |          71.5        
+6 threads: -----------------------------------------------------
+      (4,)  |            170             |          70.9        
+
+Times are in microseconds (us).
+
+[------ crop_bounding_box cuda BoundingBoxFormat.CXCYWH -------]
+            |  crop_bounding_box_old v2  |  crop_bounding_box v2
+1 threads: -----------------------------------------------------
+      (4,)  |            260             |           71         
+6 threads: -----------------------------------------------------
+      (4,)  |            264             |           71         
+
+Times are in microseconds (us).
+

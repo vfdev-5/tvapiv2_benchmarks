@@ -1,0 +1,54 @@
+[------- pad_bounding_box cpu BoundingBoxFormat.XYXY --------]
+            |  pad_bounding_box_old v2  |  pad_bounding_box v2
+1 threads: ---------------------------------------------------
+      (4,)  |             70            |           20        
+6 threads: ---------------------------------------------------
+      (4,)  |             70            |           20        
+
+Times are in microseconds (us).
+
+[------- pad_bounding_box cpu BoundingBoxFormat.XYWH --------]
+            |  pad_bounding_box_old v2  |  pad_bounding_box v2
+1 threads: ---------------------------------------------------
+      (4,)  |             40            |           20        
+6 threads: ---------------------------------------------------
+      (4,)  |             40            |           20        
+
+Times are in microseconds (us).
+
+[------ pad_bounding_box cpu BoundingBoxFormat.CXCYWH -------]
+            |  pad_bounding_box_old v2  |  pad_bounding_box v2
+1 threads: ---------------------------------------------------
+      (4,)  |             40            |           20        
+6 threads: ---------------------------------------------------
+      (4,)  |             40            |           20        
+
+Times are in microseconds (us).
+
+[------- pad_bounding_box cuda BoundingBoxFormat.XYXY -------]
+            |  pad_bounding_box_old v2  |  pad_bounding_box v2
+1 threads: ---------------------------------------------------
+      (4,)  |            140            |          71.4       
+6 threads: ---------------------------------------------------
+      (4,)  |            140            |          72.1       
+
+Times are in microseconds (us).
+
+[------- pad_bounding_box cuda BoundingBoxFormat.XYWH -------]
+            |  pad_bounding_box_old v2  |  pad_bounding_box v2
+1 threads: ---------------------------------------------------
+      (4,)  |            86.6           |           72        
+6 threads: ---------------------------------------------------
+      (4,)  |            86.7           |           70        
+
+Times are in microseconds (us).
+
+[------ pad_bounding_box cuda BoundingBoxFormat.CXCYWH ------]
+            |  pad_bounding_box_old v2  |  pad_bounding_box v2
+1 threads: ---------------------------------------------------
+      (4,)  |            86.6           |           70        
+6 threads: ---------------------------------------------------
+      (4,)  |            86.1           |           70        
+
+Times are in microseconds (us).
+

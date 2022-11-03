@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "check_crop_bboxes.py", line 103, in <module>
+    results.append(benchmark(*args))
+  File "check_crop_bboxes.py", line 91, in benchmark
+    return Timer("f(*args, **kwargs)",
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/benchmark/utils/timer.py", line 394, in blocked_autorange
+    number = self._estimate_block_size(min_run_time)
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/benchmark/utils/timer.py", line 311, in _estimate_block_size
+    time_taken = self._timeit(number)
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/benchmark/utils/timer.py", line 256, in _timeit
+    return max(self._timer.timeit(number), 1e-9)
+  File "/usr/lib/python3.8/timeit.py", line 177, in timeit
+    timing = self.inner(it, self.timer)
+  File "<timeit-src>", line 6, in inner
+  File "/vision/torchvision/prototype/transforms/functional/_geometry.py", line 846, in crop_bounding_box
+    bounding_box.sub_(sub)
+  File "/vision/torchvision/prototype/features/_feature.py", line 95, in __torch_function__
+    output = func(*args, **kwargs or dict())
+RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu!

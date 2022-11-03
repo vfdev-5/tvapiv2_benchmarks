@@ -1,0 +1,21 @@
+Traceback (most recent call last):
+  File "check_flips_bboxes.py", line 68, in <module>
+    results.append(benchmark(*args))
+  File "check_flips_bboxes.py", line 56, in benchmark
+    return Timer("f(*args, **kwargs)",
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/benchmark/utils/timer.py", line 402, in blocked_autorange
+    times = self._threaded_measurement_loop(
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/benchmark/utils/timer.py", line 294, in _threaded_measurement_loop
+    time_spent = time_hook()
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/benchmark/utils/timer.py", line 397, in time_hook
+    return self._timeit(number)
+  File "/usr/local/lib/python3.8/dist-packages/torch/utils/benchmark/utils/timer.py", line 256, in _timeit
+    return max(self._timer.timeit(number), 1e-9)
+  File "/usr/lib/python3.8/timeit.py", line 177, in timeit
+    timing = self.inner(it, self.timer)
+  File "<timeit-src>", line 6, in inner
+  File "/vision/torchvision/prototype/transforms/functional/_geometry.py", line 57, in horizontal_flip_bounding_box
+    bounding_box = bounding_box.clone().reshape(-1, 4)
+  File "/vision/torchvision/prototype/features/_feature.py", line 95, in __torch_function__
+    output = func(*args, **kwargs or dict())
+KeyboardInterrupt

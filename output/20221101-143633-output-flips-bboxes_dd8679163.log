@@ -1,0 +1,108 @@
+[------------- horizontal_flip_bounding_box cpu BoundingBoxFormat.XYXY --------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  75.4                 |                 71              
+6 threads: ---------------------------------------------------------------------------
+      (4,)  |                  75.8                 |                 70              
+
+Times are in microseconds (us).
+
+[------------- horizontal_flip_bounding_box cpu BoundingBoxFormat.XYWH --------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  120                  |                 40              
+6 threads: ---------------------------------------------------------------------------
+      (4,)  |                  120                  |                 40              
+
+Times are in microseconds (us).
+
+[------------ horizontal_flip_bounding_box cpu BoundingBoxFormat.CXCYWH -------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  200                  |                 40              
+6 threads: ---------------------------------------------------------------------------
+      (4,)  |                  200                  |                 40              
+
+Times are in microseconds (us).
+
+[------------ vertical_flip_bounding_box cpu BoundingBoxFormat.XYXY -------------]
+            |  vertical_flip_bounding_box_old v2  |  vertical_flip_bounding_box v2
+1 threads: -----------------------------------------------------------------------
+      (4,)  |                  75                 |                71             
+6 threads: -----------------------------------------------------------------------
+      (4,)  |                  70                 |                70             
+
+Times are in microseconds (us).
+
+[------------ vertical_flip_bounding_box cpu BoundingBoxFormat.XYWH -------------]
+            |  vertical_flip_bounding_box_old v2  |  vertical_flip_bounding_box v2
+1 threads: -----------------------------------------------------------------------
+      (4,)  |                 120                 |                40             
+6 threads: -----------------------------------------------------------------------
+      (4,)  |                 122                 |                40             
+
+Times are in microseconds (us).
+
+[----------- vertical_flip_bounding_box cpu BoundingBoxFormat.CXCYWH ------------]
+            |  vertical_flip_bounding_box_old v2  |  vertical_flip_bounding_box v2
+1 threads: -----------------------------------------------------------------------
+      (4,)  |                 200                 |                40             
+6 threads: -----------------------------------------------------------------------
+      (4,)  |                 200                 |                40             
+
+Times are in microseconds (us).
+
+[------------- horizontal_flip_bounding_box cuda BoundingBoxFormat.XYXY -------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  163                  |                163              
+6 threads: ---------------------------------------------------------------------------
+      (4,)  |                  163                  |                163              
+
+Times are in microseconds (us).
+
+[------------- horizontal_flip_bounding_box cuda BoundingBoxFormat.XYWH -------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  233                  |                85.1             
+6 threads: ---------------------------------------------------------------------------
+      (4,)  |                  234                  |                84.9             
+
+Times are in microseconds (us).
+
+[------------ horizontal_flip_bounding_box cuda BoundingBoxFormat.CXCYWH ------------]
+            |  horizontal_flip_bounding_box_old v2  |  horizontal_flip_bounding_box v2
+1 threads: ---------------------------------------------------------------------------
+      (4,)  |                  313                  |                74.3             
+6 threads: ---------------------------------------------------------------------------
+      (4,)  |                  313                  |                74.5             
+
+Times are in microseconds (us).
+
+[------------ vertical_flip_bounding_box cuda BoundingBoxFormat.XYXY ------------]
+            |  vertical_flip_bounding_box_old v2  |  vertical_flip_bounding_box v2
+1 threads: -----------------------------------------------------------------------
+      (4,)  |                 163                 |               164             
+6 threads: -----------------------------------------------------------------------
+      (4,)  |                 163                 |               163             
+
+Times are in microseconds (us).
+
+[------------ vertical_flip_bounding_box cuda BoundingBoxFormat.XYWH ------------]
+            |  vertical_flip_bounding_box_old v2  |  vertical_flip_bounding_box v2
+1 threads: -----------------------------------------------------------------------
+      (4,)  |                 234                 |               85.1            
+6 threads: -----------------------------------------------------------------------
+      (4,)  |                 234                 |               85.3            
+
+Times are in microseconds (us).
+
+[----------- vertical_flip_bounding_box cuda BoundingBoxFormat.CXCYWH -----------]
+            |  vertical_flip_bounding_box_old v2  |  vertical_flip_bounding_box v2
+1 threads: -----------------------------------------------------------------------
+      (4,)  |                 313                 |               74.4            
+6 threads: -----------------------------------------------------------------------
+      (4,)  |                 312                 |               74.2            
+
+Times are in microseconds (us).
+
